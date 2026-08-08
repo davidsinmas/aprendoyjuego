@@ -1,0 +1,6 @@
+{
+  "version": "2.5.0",
+  "name": "base-limpia-sin-tienda",
+  "date": "2026-08-08",
+  "notes": "Eliminados tienda, avatar, inventario y equipamiento. Se conservan juegos, retos diarios, diamantes, XP, niveles, logros, estadísticas y zona de padres."
+}
