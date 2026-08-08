@@ -4,23 +4,15 @@ Aplicación web educativa para móvil, tablet y ordenador.
 
 ## Versión
 
-`2.5.0-base-limpia-sin-tienda`
+`2.6.0-progresion-matematicas`
 
-Esta versión elimina completamente la tienda antigua y su sistema de avatar/equipamiento para reconstruirlos después desde cero.
+Incluye:
+- 10 niveles progresivos de sumas.
+- 10 niveles progresivos de restas.
+- 10 ejercicios por nivel.
+- Desbloqueo secuencial de niveles.
+- Marcado permanente de niveles completados.
+- Recompensas de diamantes mayores en niveles altos y reducidas al repetir.
+- Letras, sopa de letras, retos diarios, XP, logros, estadísticas y zona de padres.
 
-Se mantienen:
-- Sumas
-- Restas
-- Letras
-- Sopa de letras
-- Retos diarios
-- Diamantes
-- XP y niveles
-- Logros
-- Estadísticas
-- Exportación/importación de progreso
-- Zona de padres
-
-## Publicación
-
-La rama `main` se publica mediante GitHub Pages usando `.github/workflows/pages.yml`.
+La tienda permanece fuera de esta versión y se reconstruirá posteriormente desde cero.

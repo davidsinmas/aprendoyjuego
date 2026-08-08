@@ -1,10 +1,15 @@
 # Changelog
 
-## 2.5.0 — 2026-08-08
-- Eliminada completamente la tienda antigua.
-- Eliminado el sistema anterior de avatar/equipamiento.
-- Eliminados inventario, slots y catálogo de objetos del código activo.
-- Los niveles ya no entregan objetos; entregan diamantes.
-- Eliminado el logro ligado a coleccionar objetos.
-- Conservados juegos, progreso, retos, XP, diamantes, logros y estadísticas.
-- Migración automática del almacenamiento local a `versionDatos: 8`.
+## 2.6.0 - 2026-08-08
+- Sumas ampliadas a 10 niveles progresivos.
+- Restas ampliadas a 10 niveles progresivos.
+- 10 ejercicios en cada nivel normal de matemáticas.
+- Un nivel se desbloquea al completar el anterior al menos una vez.
+- Los niveles completados quedan marcados como HECHO.
+- Los niveles pueden repetirse indefinidamente.
+- Primera recompensa: nivel + 4 diamantes (5 a 14).
+- Repetición: recompensa reducida igual al número de nivel (1 a 10).
+- Los retos diarios mantienen 5 operaciones.
+
+## 2.5.0
+- Base limpia sin tienda ni avatar/equipamiento antiguo.

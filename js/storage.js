@@ -1,7 +1,7 @@
 const STORE='aprendo_jugando_datos';
 function blank(){
   return{
-    versionDatos:8,
+    versionDatos:9,
     perfil:{nombre:'Jugador'},
     diamantes:0,
     estadisticas:{},
@@ -31,7 +31,7 @@ function load(){
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
-  d.versionDatos=8;
+  d.versionDatos=9;
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}

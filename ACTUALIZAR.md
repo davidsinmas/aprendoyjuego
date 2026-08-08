@@ -1,11 +1,9 @@
-# Sustitución completa del repositorio
+# Actualizar Aprendo Jugando a V2.6.0
 
-1. Haz una copia del repositorio local actual si quieres conservarla como respaldo.
-2. Borra el contenido actual del repositorio local, excepto la carpeta oculta `.git`.
-3. Copia dentro de la raíz del repositorio todo el contenido de este ZIP.
-4. Abre GitHub Desktop.
-5. Comprueba los cambios.
-6. Commit recomendado: `V2.5.0 base limpia sin tienda`.
-7. Push.
-
-El progreso del jugador se guarda en `localStorage` del navegador, por lo que mantener la misma URL de GitHub Pages conserva normalmente los datos.
+1. Descarga y descomprime el ZIP.
+2. Copia todo su contenido sobre la carpeta local del repositorio `aprendoyjuego`.
+3. Acepta reemplazar los archivos existentes.
+4. No borres la carpeta oculta `.git`.
+5. Abre GitHub Desktop y revisa los cambios.
+6. Commit recomendado: `V2.6.0 progresión matemáticas 10 niveles`.
+7. Push a `main`.

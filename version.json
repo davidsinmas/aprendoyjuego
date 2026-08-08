@@ -1,6 +1,6 @@
 {
-  "version": "2.5.0",
-  "name": "base-limpia-sin-tienda",
+  "version": "2.6.0",
+  "name": "progresion-matematicas-10-niveles",
   "date": "2026-08-08",
-  "notes": "Eliminados tienda, avatar, inventario y equipamiento. Se conservan juegos, retos diarios, diamantes, XP, niveles, logros, estadísticas y zona de padres."
+  "notes": "10 niveles progresivos de sumas y restas, desbloqueo secuencial, marcado de completados y recompensas de diamantes escaladas."
 }
