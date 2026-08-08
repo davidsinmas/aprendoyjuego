@@ -4,7 +4,7 @@ Aplicación web educativa para móvil, tablet y ordenador.
 
 ## Versión
 
-`2.6.0-progresion-matematicas`
+`2.7.0-progresion-palabras-sopas`
 
 Incluye:
 - 10 niveles progresivos de sumas.

@@ -1,6 +1,7 @@
 const GAME={
   total:5,
   mathTotal:10,
+  wordTotal:10,
   dailyMathTotal:5,
   levels:{
     suma:[
@@ -27,11 +28,35 @@ const GAME={
       {id:'resta9',level:9,name:'Nivel 9',desc:'Primer número hasta 27 · segundo hasta 9',aMax:27,bMax:9},
       {id:'resta10',level:10,name:'Nivel 10',desc:'Primer número hasta 30 · segundo siempre menor de 10',aMax:30,bMax:9}
     ],
+    palabras:[
+      {id:'palabras1',level:1,name:'Nivel 1',desc:'Completa palabras fáciles de 2 sílabas',mode:'completeSyllable',minSyllables:2,maxSyllables:2,maxLen:5},
+      {id:'palabras2',level:2,name:'Nivel 2',desc:'Elige la sílaba que falta',mode:'missingSyllable',minSyllables:2,maxSyllables:2,maxLen:5},
+      {id:'palabras3',level:3,name:'Nivel 3',desc:'Ordena 2 sílabas para formar la palabra',mode:'order2',minSyllables:2,maxSyllables:2,maxLen:5},
+      {id:'palabras4',level:4,name:'Nivel 4',desc:'Relaciona cada dibujo con su palabra',mode:'pictureWord',maxLen:5},
+      {id:'palabras5',level:5,name:'Nivel 5',desc:'Completa una letra dentro de la palabra',mode:'missingLetter',minLen:4,maxLen:5},
+      {id:'palabras6',level:6,name:'Nivel 6',desc:'Palabras de 2 y 3 sílabas',mode:'pictureWord',minSyllables:2,maxSyllables:3,maxLen:6},
+      {id:'palabras7',level:7,name:'Nivel 7',desc:'Ordena 3 sílabas',mode:'order3',minSyllables:3,maxSyllables:3,maxLen:7},
+      {id:'palabras8',level:8,name:'Nivel 8',desc:'Distingue palabras parecidas',mode:'similarWord',minLen:4,maxLen:6},
+      {id:'palabras9',level:9,name:'Nivel 9',desc:'Completa palabras algo más largas',mode:'missingLetter',minLen:6,maxLen:8},
+      {id:'palabras10',level:10,name:'Nivel 10',desc:'Elige la palabra correcta entre 4 opciones',mode:'pictureWord4',minLen:4,maxLen:7}
+    ],
     sopa:[
-      {id:'sopa1',name:'Nivel 1',desc:'5 × 5 · horizontal',size:5,dirs:['h']},
-      {id:'sopa2',name:'Nivel 2',desc:'6 × 6 · horizontal y vertical',size:6,dirs:['h','v']},
-      {id:'sopa3',name:'Nivel 3',desc:'7 × 7 · también al revés',size:7,dirs:['h','v','hr','vr']}
+      {id:'sopa1',level:1,name:'Nivel 1',desc:'4 × 4 · 2 palabras de 3 letras',size:4,count:2,minLen:3,maxLen:3,dirs:['h','v']},
+      {id:'sopa2',level:2,name:'Nivel 2',desc:'5 × 5 · 3 palabras de 3 letras',size:5,count:3,minLen:3,maxLen:3,dirs:['h','v']},
+      {id:'sopa3',level:3,name:'Nivel 3',desc:'5 × 5 · 3 palabras de 4 letras',size:5,count:3,minLen:4,maxLen:4,dirs:['h','v']},
+      {id:'sopa4',level:4,name:'Nivel 4',desc:'6 × 6 · 4 palabras de 4 letras',size:6,count:4,minLen:4,maxLen:4,dirs:['h','v']},
+      {id:'sopa5',level:5,name:'Nivel 5',desc:'6 × 6 · 4 palabras de 4–5 letras · alguna diagonal',size:6,count:4,minLen:4,maxLen:5,dirs:['h','v','d']},
+      {id:'sopa6',level:6,name:'Nivel 6',desc:'7 × 7 · 5 palabras de hasta 5 letras',size:7,count:5,minLen:3,maxLen:5,dirs:['h','v','d']},
+      {id:'sopa7',level:7,name:'Nivel 7',desc:'7 × 7 · 5 palabras · aparecen palabras de 6 letras',size:7,count:5,minLen:4,maxLen:6,dirs:['h','v','d']},
+      {id:'sopa8',level:8,name:'Nivel 8',desc:'8 × 8 · 6 palabras y más letras distractoras',size:8,count:6,minLen:4,maxLen:6,dirs:['h','v','d']},
+      {id:'sopa9',level:9,name:'Nivel 9',desc:'8 × 8 · 6 palabras de 5–7 letras',size:8,count:6,minLen:5,maxLen:7,dirs:['h','v','d']},
+      {id:'sopa10',level:10,name:'Nivel 10',desc:'9 × 9 · 7 palabras infantiles de hasta 7 letras',size:9,count:7,minLen:4,maxLen:7,dirs:['h','v','d']}
     ]
   },
-  words:[['GATO','🐱'],['PATO','🦆'],['CASA','🏠'],['MESA','🪑'],['MANO','✋'],['LUNA','🌙'],['SOPA','🥣'],['CAMA','🛏️'],['SOL','☀️'],['PERA','🍐'],['PERRO','🐶'],['RANA','🐸'],['VACA','🐮'],['LEON','🦁'],['OSO','🐻'],['PEZ','🐟'],['RATON','🐭'],['MONO','🐵'],['CERDO','🐷'],['OVEJA','🐑'],['TIGRE','🐯'],['PANDA','🐼'],['ZORRO','🦊'],['KOALA','🐨'],['POLLO','🐤'],['ABEJA','🐝'],['FLOR','🌸'],['ARBOL','🌳'],['HOJA','🍃'],['NUBE','☁️'],['NIEVE','❄️'],['FUEGO','🔥'],['MAR','🌊'],['ISLA','🏝️'],['PAN','🍞'],['QUESO','🧀'],['HUEVO','🥚'],['LECHE','🥛'],['UVA','🍇'],['FRESA','🍓'],['COCHE','🚗'],['BARCO','🚢'],['TREN','🚆'],['AVION','✈️'],['BICI','🚲'],['BUS','🚌'],['RELOJ','⌚'],['LLAVE','🔑'],['LIBRO','📘'],['LAPIZ','✏️']].map(([word,icon])=>({word,icon}))
+  words:[
+    ['SOL','☀️',['SOL']],['MAR','🌊',['MAR']],['PAN','🍞',['PAN']],['PEZ','🐟',['PEZ']],['BUS','🚌',['BUS']],
+    ['GATO','🐱',['GA','TO']],['PATO','🦆',['PA','TO']],['CASA','🏠',['CA','SA']],['MESA','🪑',['ME','SA']],['MANO','✋',['MA','NO']],['LUNA','🌙',['LU','NA']],['SOPA','🥣',['SO','PA']],['CAMA','🛏️',['CA','MA']],['PERA','🍐',['PE','RA']],['RANA','🐸',['RA','NA']],['VACA','🐮',['VA','CA']],['LEON','🦁',['LE','ON']],['OSO','🐻',['O','SO']],['MONO','🐵',['MO','NO']],['FLOR','🌸',['FLOR']],['HOJA','🍃',['HO','JA']],['NUBE','☁️',['NU','BE']],['ISLA','🏝️',['IS','LA']],['UVA','🍇',['U','VA']],['BICI','🚲',['BI','CI']],
+    ['PERRO','🐶',['PE','RRO']],['RATON','🐭',['RA','TON']],['CERDO','🐷',['CER','DO']],['OVEJA','🐑',['O','VE','JA']],['TIGRE','🐯',['TI','GRE']],['PANDA','🐼',['PAN','DA']],['ZORRO','🦊',['ZO','RRO']],['KOALA','🐨',['KO','A','LA']],['POLLO','🐤',['PO','LLO']],['ABEJA','🐝',['A','BE','JA']],['ARBOL','🌳',['AR','BOL']],['NIEVE','❄️',['NIE','VE']],['FUEGO','🔥',['FUE','GO']],['QUESO','🧀',['QUE','SO']],['HUEVO','🥚',['HUE','VO']],['LECHE','🥛',['LE','CHE']],['FRESA','🍓',['FRE','SA']],['COCHE','🚗',['CO','CHE']],['BARCO','🚢',['BAR','CO']],['TREN','🚆',['TREN']],['AVION','✈️',['A','VION']],['RELOJ','⌚',['RE','LOJ']],['LLAVE','🔑',['LLA','VE']],['LIBRO','📘',['LI','BRO']],['LAPIZ','✏️',['LA','PIZ']],
+    ['PELOTA','⚽',['PE','LO','TA']],['TOMATE','🍅',['TO','MA','TE']],['CAMISA','👕',['CA','MI','SA']],['MALETA','🧳',['MA','LE','TA']],['PALOMA','🕊️',['PA','LO','MA']],['CONEJO','🐰',['CO','NE','JO']],['ZAPATO','👟',['ZA','PA','TO']],['BANANA','🍌',['BA','NA','NA']],['NARANJA','🍊',['NA','RAN','JA']],['VENTANA','🪟',['VEN','TA','NA']],['CABALLO','🐴',['CA','BA','LLO']],['GALLINA','🐔',['GA','LLI','NA']],['ESTRELLA','⭐',['ES','TRE','LLA']]
+  ].map(([word,icon,syllables])=>({word,icon,syllables}))
 };
