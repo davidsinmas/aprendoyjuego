@@ -4,15 +4,6 @@ Aplicación web educativa para móvil, tablet y ordenador.
 
 ## Versión
 
-`2.7.0-progresion-palabras-sopas`
+`2.9.0-infraestructura-avatar`
 
-Incluye:
-- 10 niveles progresivos de sumas.
-- 10 niveles progresivos de restas.
-- 10 ejercicios por nivel.
-- Desbloqueo secuencial de niveles.
-- Marcado permanente de niveles completados.
-- Recompensas de diamantes mayores en niveles altos y reducidas al repetir.
-- Letras, sopa de letras, retos diarios, XP, logros, estadísticas y zona de padres.
-
-La tienda permanece fuera de esta versión y se reconstruirá posteriormente desde cero.
+Incluye la progresión educativa existente y añade la base técnica del nuevo sistema de avatar paper-doll. La tienda visual todavía no se incorpora; el sistema queda preparado para añadir catálogo, compra, inventario y equipamiento sin calibrar manualmente la posición de cada accesorio.
