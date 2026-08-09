@@ -31,7 +31,7 @@ function layout(content){A.innerHTML=`<div class="wrap"><div class="card">${cont
 let audioCtx=null;
 function playChime(kind='ok'){try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(kind==='ok'?660:220,now);osc.frequency.exponentialRampToValueAtTime(kind==='ok'?880:180,now+.11);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.055,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+.14);osc.connect(gain).connect(audioCtx.destination);osc.start(now);osc.stop(now+.15);}catch(e){}}
 function home(){ensureDaily();checkAchievements();if(showPendingLevel())return;if(showPendingAchievement())return;layout(`
-<div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V2.8.0 · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
+<div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V2.9.1 · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
 ${xpPanel()}
 <div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}<button class="btn secondary side-action" onclick="achievements()">🏆 Ver logros</button></div></div>
 <h3 class="section-title">Juegos</h3>
@@ -41,7 +41,37 @@ ${xpPanel()}
 <button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>10 niveles · 10 ejercicios</small></button>
 <button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>10 niveles progresivos</small></button>
 </div>
-<div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
+<div class="bottom-actions"><button class="btn secondary" onclick="avatarScreen()">👤 Mi avatar</button>${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
+function avatarScreen(){
+  layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div>
+  <div class="avatar-page">
+    <div class="avatar-page-head"><div><h2>Mi avatar</h2><p class="muted">Este es tu personaje. Aquí podrás equipar los objetos que consigas.</p></div></div>
+    <div class="avatar-preview-card">
+      <div id="avatarPreview" class="avatar-preview" aria-label="Avatar del jugador"></div>
+      <div id="avatarAssetStatus" class="avatar-status muted">Comprobando avatar…</div>
+    </div>
+    <div class="avatar-empty-shop">
+      <b>Equipamiento</b>
+      <p class="muted">La infraestructura está preparada. Los próximos objetos se colocarán automáticamente sobre este avatar, sin ajustar posiciones.</p>
+    </div>
+  </div>`);
+  requestAnimationFrame(async()=>{
+    const preview=document.getElementById('avatarPreview');
+    const status=document.getElementById('avatarAssetStatus');
+    if(!preview||!window.AvatarSystem){
+      if(status)status.textContent='No se pudo iniciar el sistema de avatar.';
+      return;
+    }
+    AvatarSystem.render(preview,D,{onAssetError:()=>{if(status)status.textContent='⚠️ No se pudo cargar el avatar base.';}});
+    const checks=await AvatarSystem.validateAssets({includeBase:true});
+    const base=checks[0];
+    if(status&&base){
+      status.textContent=base.ok?'✓ Avatar maestro 1024 × 1024 cargado correctamente':`⚠️ Recurso no válido${base.width?` (${base.width} × ${base.height})`:''}`;
+      status.classList.toggle('avatar-status-ok',!!base.ok);
+      status.classList.toggle('avatar-status-error',!base.ok);
+    }
+  });
+}
 function levelDone(n){return stats(n.id).partidas>0;}
 function levelUnlocked(t,index){return parentMode||index===0||levelDone(GAME.levels[t][index-1]);}
 function levelDiamonds(n,repeat=false){return repeat?n.level:n.level+4;}
