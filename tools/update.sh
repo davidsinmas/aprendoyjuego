@@ -1,3 +1,4 @@
+# APRENDO JUGANDO — ACTUALIZACIÓN V2.10.0
 #!/usr/bin/env bash
 set -euo pipefail
 
