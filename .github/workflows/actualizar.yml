@@ -1,1 +1,38 @@
+name: Actualizar Aprendo Jugando
 
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Ejecutar actualización
+        run: |
+          if [ -f tools/update.sh ]; then
+            bash tools/update.sh
+          else
+            echo "No existe tools/update.sh"
+            exit 1
+          fi
+
+      - name: Guardar cambios
+        run: |
+          git config user.name "Aprendo Jugando Bot"
+          git config user.email "actions@github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No hay cambios"
+          else
+            git commit -m "Actualización automática"
+            git push
+          fi
