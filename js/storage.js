@@ -10,8 +10,21 @@ function blank(){
     xp:0,
     retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false},
     retosCompletadosTotal:0,
-    logros:[]
+    logros:[],
+    avatar:{
+      owned:[],
+      equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}
+    }
   };
+}
+function normalizeAvatar(raw){
+  const slots=['back','legs','boots','chest','shoulders','gloves','head','helmet','shield','weapon','effects'];
+  const avatar=raw&&typeof raw==='object'?raw:{};
+  const owned=Array.isArray(avatar.owned)?[...new Set(avatar.owned.filter(x=>typeof x==='string'))]:[];
+  const source=avatar.equipped&&typeof avatar.equipped==='object'?avatar.equipped:{};
+  const equipped={};
+  for(const slot of slots)equipped[slot]=typeof source[slot]==='string'?source[slot]:null;
+  return{owned,equipped};
 }
 function load(){
   let d;
@@ -36,6 +49,7 @@ function load(){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
   }
+  d.avatar=normalizeAvatar(d.avatar);
   save(d);return d;
 }
 function save(d){localStorage.setItem(STORE,JSON.stringify(d));}
