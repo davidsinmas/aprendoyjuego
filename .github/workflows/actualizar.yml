@@ -1,38 +1,217 @@
-name: Actualizar Aprendo Jugando
+name: Aplicar actualizacion.zip
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - actualizacion.zip
 
 permissions:
   contents: write
 
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+concurrency:
+  group: actualizar-aprendo-jugando
+  cancel-in-progress: false
+
 jobs:
   actualizar:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Ejecutar actualización
+      - name: Comprobar e instalar el paquete
         run: |
-          if [ -f tools/update.sh ]; then
-            bash tools/update.sh
-          else
-            echo "No existe tools/update.sh"
-            exit 1
-          fi
+          python3 - <<'PY'
+          import json
+          import re
+          import shutil
+          import stat
+          import struct
+          import subprocess
+          import tempfile
+          import zipfile
+          from pathlib import Path, PurePosixPath
 
-      - name: Guardar cambios
+          root = Path.cwd()
+          package = root / "actualizacion.zip"
+          managed = (
+              "index.html", "version.json", "README.md", "CHANGELOG.md",
+              "ACTUALIZAR.md", "assets", "css", "js",
+          )
+          obsolete = (
+              "assets/borrar.txt", "assets/avatar/base/a.txt", "css/avatar-data.js",
+              "css/avatar.js", "css/storage.js", "tools/a.txt", "tools/update.sh",
+          )
+          required = (
+              "index.html", "version.json", "README.md", "CHANGELOG.md",
+              "ACTUALIZAR.md", "assets/avatar/base/avatar_base.png",
+              "css/app.css", "css/avatar.css", "js/app.js",
+              "js/avatar-data.js", "js/avatar.js", "js/data.js", "js/storage.js",
+          )
+          index_resources = (
+              "css/app.css", "css/avatar.css", "js/data.js", "js/avatar-data.js",
+              "js/storage.js", "js/avatar.js", "js/app.js",
+          )
+
+          def version(path):
+              data = json.loads((path / "version.json").read_text(encoding="utf-8"))
+              value = data.get("version")
+              if not isinstance(value, str) or not re.fullmatch(r"\d+\.\d+\.\d+", value):
+                  raise RuntimeError("version.json no contiene una versión X.Y.Z válida")
+              return value, tuple(map(int, value.split(".")))
+
+          def validate(path):
+              errors = []
+              for relative in required:
+                  if not (path / relative).is_file():
+                      errors.append(f"Falta {relative}")
+              try:
+                  version(path)
+              except Exception as error:
+                  errors.append(str(error))
+              index_path = path / "index.html"
+              if index_path.is_file():
+                  index = index_path.read_text(encoding="utf-8")
+                  if "fetch('version.json',{cache:'no-store'})" not in index:
+                      errors.append("index.html no carga version.json sin caché")
+                  for resource in index_resources:
+                      if f"'{resource}'" not in index:
+                          errors.append(f"index.html no referencia {resource}")
+              css = path / "css"
+              if css.is_dir() and any(css.rglob("*.js")):
+                  errors.append("Hay JavaScript obsoleto dentro de css/")
+              avatar_data = path / "js/avatar-data.js"
+              if avatar_data.is_file():
+                  content = avatar_data.read_text(encoding="utf-8")
+                  references = set(re.findall(r"(?:src|avatarLayer):\s*['\"]([^'\"]+)['\"]", content))
+                  if not references:
+                      errors.append("El catálogo del avatar no contiene recursos")
+                  for reference in references:
+                      asset = path / reference
+                      if not asset.is_file():
+                          errors.append(f"Falta {reference}")
+                      elif asset.suffix.lower() == ".png":
+                          header = asset.read_bytes()[:24]
+                          if len(header) != 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+                              errors.append(f"PNG no válido: {reference}")
+                          elif struct.unpack(">II", header[16:24]) != (1024, 1024):
+                              errors.append(f"Dimensiones incorrectas: {reference}")
+              app_path = path / "js/app.js"
+              if app_path.is_file():
+                  app = app_path.read_text(encoding="utf-8")
+                  for marker in ("function shopScreen()", "function inventoryScreen()", "AvatarSystem.buy"):
+                      if marker not in app:
+                          errors.append(f"Falta funcionalidad V2.10.0: {marker}")
+                  if re.search(r"V\d+\.\d+\.\d+", app):
+                      errors.append("js/app.js contiene una versión fija")
+              storage = path / "js/storage.js"
+              if storage.is_file() and "versionDatos:11" not in storage.read_text(encoding="utf-8"):
+                  errors.append("storage.js no utiliza versionDatos:11")
+              for relative in ("js/data.js", "js/avatar-data.js", "js/storage.js", "js/avatar.js", "js/app.js"):
+                  target = path / relative
+                  if target.is_file():
+                      result = subprocess.run(["node", "--check", str(target)], capture_output=True, text=True)
+                      if result.returncode:
+                          errors.append(f"Error de sintaxis en {relative}")
+              return errors
+
+          if not package.is_file():
+              raise RuntimeError("No existe actualizacion.zip")
+          current_name, current_version = version(root)
+
+          with tempfile.TemporaryDirectory(prefix="aj-payload-") as temp_name:
+              temp = Path(temp_name)
+              with zipfile.ZipFile(package) as archive:
+                  entries = []
+                  total = 0
+                  for info in archive.infolist():
+                      archived = PurePosixPath(info.filename)
+                      if info.is_dir() or archived.name == ".DS_Store" or (archived.parts and archived.parts[0] == "__MACOSX"):
+                          continue
+                      mode = info.external_attr >> 16
+                      if (info.filename.startswith(("/", "\\")) or "\\" in info.filename
+                              or any(part in ("", ".", "..") for part in archived.parts)
+                              or (mode and stat.S_ISLNK(mode))):
+                          raise RuntimeError(f"Ruta no permitida: {info.filename}")
+                      total += info.file_size
+                      entries.append((info, archived))
+                  if not entries or len(entries) > 3000 or total > 250 * 1024 * 1024:
+                      raise RuntimeError("Contenido o tamaño de actualizacion.zip no permitido")
+                  paths = [path for _, path in entries]
+                  if any(path.as_posix() == "version.json" for path in paths):
+                      prefix = ()
+                  else:
+                      first = paths[0].parts[0]
+                      if not all(len(path.parts) > 1 and path.parts[0] == first for path in paths):
+                          raise RuntimeError("version.json debe estar en la raíz del ZIP")
+                      prefix = (first,)
+                  found = set()
+                  for info, archived in entries:
+                      parts = archived.parts[len(prefix):]
+                      if not parts:
+                          continue
+                      relative = PurePosixPath(*parts)
+                      if relative.parts[0] not in set(managed):
+                          raise RuntimeError(f"Ruta no gestionada: {relative}")
+                      destination = temp.joinpath(*relative.parts)
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      with archive.open(info) as source, destination.open("wb") as output:
+                          shutil.copyfileobj(source, output)
+                      found.add(relative.as_posix())
+                  missing = [item for item in required if item not in found]
+                  if missing:
+                      raise RuntimeError("Faltan archivos: " + ", ".join(missing))
+
+              new_name, new_version = version(temp)
+              if new_version <= current_version:
+                  raise RuntimeError(f"La versión {new_name} no es superior a {current_name}")
+              errors = validate(temp)
+              if errors:
+                  raise RuntimeError("Paquete no válido: " + " | ".join(errors))
+              for relative in managed:
+                  destination = root / relative
+                  if destination.is_dir():
+                      shutil.rmtree(destination)
+                  elif destination.exists() or destination.is_symlink():
+                      destination.unlink()
+                  source = temp / relative
+                  if source.is_dir():
+                      shutil.copytree(source, destination)
+                  else:
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      shutil.copy2(source, destination)
+              for relative in obsolete:
+                  target = root / relative
+                  if target.is_dir():
+                      shutil.rmtree(target)
+                  elif target.exists() or target.is_symlink():
+                      target.unlink()
+
+          errors = validate(root)
+          if errors:
+              raise RuntimeError("Instalación no válida: " + " | ".join(errors))
+          print(f"OK: V{current_name} actualizada a V{new_name}")
+          PY
+
+      - name: Guardar y publicar la nueva versión
         run: |
           git config user.name "Aprendo Jugando Bot"
           git config user.email "actions@github.com"
-
-          git add .
-
+          git rm -f actualizacion.zip
+          git add -A -- index.html version.json README.md CHANGELOG.md ACTUALIZAR.md assets css js tools
           if git diff --cached --quiet; then
-            echo "No hay cambios"
-          else
-            git commit -m "Actualización automática"
-            git push
+            echo "ERROR: el paquete no ha producido cambios"
+            exit 1
           fi
+          version="$(python3 -c 'import json; print(json.load(open("version.json", encoding="utf-8"))["version"])')"
+          git commit -m "Aprendo Jugando V${version}"
+          git push
