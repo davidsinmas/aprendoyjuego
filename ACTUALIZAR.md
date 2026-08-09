@@ -1,7 +1,11 @@
-# Actualización V2.9.0
+# Cómo actualizar Aprendo Jugando
 
-Descomprime el ZIP sobre la raíz del repositorio `aprendoyjuego` y reemplaza los archivos existentes.
+El sistema automático ya instalado solo necesita un archivo:
 
-Este paquete añade la infraestructura del avatar sin incluir todavía recursos gráficos.
+1. Sube `actualizacion.zip` a la raíz del repositorio.
+2. Confirma el commit.
+3. GitHub comprueba, instala y publica la versión automáticamente.
 
-Commit recomendado: `V2.9.0 infraestructura avatar paper-doll`
+El ZIP debe contener la aplicación completa: `index.html`, `version.json`, `README.md`, `CHANGELOG.md`, `assets/`, `css/` y `js/`.
+
+Si el paquete está incompleto, tiene rutas peligrosas, no cambia nada o su versión no es superior a la instalada, la actualización se detiene con un error claro.

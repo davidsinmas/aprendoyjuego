@@ -48,6 +48,19 @@
     return true;
   }
 
+  function buy(data,itemId){
+    const item=getItem(itemId);
+    if(!item)throw new Error(`Objeto de avatar desconocido: ${itemId}`);
+    const avatar=ensureState(data);
+    if(avatar.owned.includes(itemId))return{ok:false,reason:'owned',item};
+    const price=Math.max(0,Number(item.price)||0);
+    const diamonds=Math.max(0,Number(data.diamantes)||0);
+    if(diamonds<price)return{ok:false,reason:'diamonds',item};
+    data.diamantes=diamonds-price;
+    avatar.owned.push(itemId);
+    return{ok:true,item,spent:price};
+  }
+
   function revoke(data,itemId){
     const avatar=ensureState(data);
     avatar.owned=avatar.owned.filter(id=>id!==itemId);
@@ -136,6 +149,7 @@
     ensureState,
     owns,
     grant,
+    buy,
     revoke,
     equip,
     unequip,

@@ -4,13 +4,13 @@
  * No se permiten coordenadas, escala o rotación por objeto.
  */
 const AVATAR={
-  schemaVersion:1,
+  schemaVersion:2,
   canvas:{width:1024,height:1024},
   base:{
     id:'avatar_base',
     src:'assets/avatar/base/avatar_base.png',
     layer:10,
-    optional:true
+    optional:false
   },
   slots:{
     back:{layer:0,label:'Espalda'},
@@ -25,5 +25,36 @@ const AVATAR={
     weapon:{layer:100,label:'Arma'},
     effects:{layer:110,label:'Efectos'}
   },
-  items:[]
+  rarities:{
+    common:{label:'Común'},
+    rare:{label:'Raro'},
+    epic:{label:'Épico'},
+    legendary:{label:'Legendario'}
+  },
+  items:[
+    {
+      id:'test_helmet_01',
+      name:'Casco de prueba',
+      description:'Objeto técnico para comprobar la tienda, el inventario y el equipamiento.',
+      slot:'helmet',
+      rarity:'common',
+      price:5,
+      shopIcon:'🪖',
+      shopImage:null,
+      avatarLayer:'assets/avatar/equipment/_technical/blank_1024.png',
+      technical:true
+    },
+    {
+      id:'test_weapon_01',
+      name:'Arma de prueba',
+      description:'Objeto técnico para comprobar la compra y el equipamiento.',
+      slot:'weapon',
+      rarity:'rare',
+      price:8,
+      shopIcon:'⚔️',
+      shopImage:null,
+      avatarLayer:'assets/avatar/equipment/_technical/blank_1024.png',
+      technical:true
+    }
+  ]
 };

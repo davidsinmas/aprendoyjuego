@@ -31,9 +31,10 @@ function layout(content){A.innerHTML=`<div class="wrap"><div class="card">${cont
 let audioCtx=null;
 function playChime(kind='ok'){try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(kind==='ok'?660:220,now);osc.frequency.exponentialRampToValueAtTime(kind==='ok'?880:180,now+.11);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.055,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+.14);osc.connect(gain).connect(audioCtx.destination);osc.start(now);osc.stop(now+.15);}catch(e){}}
 function home(){ensureDaily();checkAchievements();if(showPendingLevel())return;if(showPendingAchievement())return;layout(`
-<div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V2.9.1 · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
+<div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V${escapeHTML(window.APP_META?.version||'')} · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
 ${xpPanel()}
-<div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}<button class="btn secondary side-action" onclick="achievements()">🏆 Ver logros</button></div></div>
+<div class="progress-actions"><button class="btn secondary progress-action" onclick="avatarScreen()">👤 Mi avatar</button><button class="btn secondary progress-action" onclick="achievements()">🏆 Logros</button></div>
+<div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}</div></div>
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
 <button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>10 niveles · 10 ejercicios</small></button>
@@ -41,37 +42,65 @@ ${xpPanel()}
 <button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>10 niveles · 10 ejercicios</small></button>
 <button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>10 niveles progresivos</small></button>
 </div>
-<div class="bottom-actions"><button class="btn secondary" onclick="avatarScreen()">👤 Mi avatar</button>${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
+<div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
 function avatarScreen(){
+  const owned=AvatarSystem.ensureState(D).owned.length;
+  const equipped=AvatarSystem.equippedItems(D).length;
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div>
   <div class="avatar-page">
-    <div class="avatar-page-head"><div><h2>Mi avatar</h2><p class="muted">Este es tu personaje. Aquí podrás equipar los objetos que consigas.</p></div></div>
+    <div class="avatar-page-head"><div><h2>Mi avatar</h2><p class="muted">Personaliza tu personaje con los objetos que consigas.</p></div></div>
     <div class="avatar-preview-card">
       <div id="avatarPreview" class="avatar-preview" aria-label="Avatar del jugador"></div>
-      <div id="avatarAssetStatus" class="avatar-status muted">Comprobando avatar…</div>
+      <div id="avatarAssetStatus" class="avatar-status muted">Cargando avatar…</div>
     </div>
-    <div class="avatar-empty-shop">
-      <b>Equipamiento</b>
-      <p class="muted">La infraestructura está preparada. Los próximos objetos se colocarán automáticamente sobre este avatar, sin ajustar posiciones.</p>
+    <div class="avatar-menu-grid">
+      <button class="btn primary avatar-menu-btn" onclick="shopScreen()">🛒 Tienda</button>
+      <button class="btn secondary avatar-menu-btn" onclick="inventoryScreen()">🎒 Inventario <span>${owned}</span></button>
     </div>
+    <div class="avatar-summary muted">${equipped} objeto${equipped===1?'':'s'} equipado${equipped===1?'':'s'}</div>
   </div>`);
   requestAnimationFrame(async()=>{
     const preview=document.getElementById('avatarPreview');
     const status=document.getElementById('avatarAssetStatus');
     if(!preview||!window.AvatarSystem){
-      if(status)status.textContent='No se pudo iniciar el sistema de avatar.';
-      return;
+      if(status)status.textContent='No se pudo iniciar el sistema de avatar.';return;
     }
-    AvatarSystem.render(preview,D,{onAssetError:()=>{if(status)status.textContent='⚠️ No se pudo cargar el avatar base.';}});
+    AvatarSystem.render(preview,D,{onAssetError:()=>{if(status)status.textContent='⚠️ No se pudo cargar un recurso del avatar.';}});
     const checks=await AvatarSystem.validateAssets({includeBase:true});
     const base=checks[0];
     if(status&&base){
-      status.textContent=base.ok?'✓ Avatar maestro 1024 × 1024 cargado correctamente':`⚠️ Recurso no válido${base.width?` (${base.width} × ${base.height})`:''}`;
+      status.textContent=base.ok?'✓ Avatar listo':'⚠️ El avatar maestro no tiene el formato esperado';
       status.classList.toggle('avatar-status-ok',!!base.ok);
       status.classList.toggle('avatar-status-error',!base.ok);
     }
   });
 }
+function rarityLabel(item){return AVATAR.rarities?.[item.rarity]?.label||item.rarity||'Objeto';}
+function shopVisual(item){return item.shopImage?`<img src="${escapeHTML(item.shopImage)}" alt="">`:(item.shopIcon||'🎁');}
+function shopItemCard(item){
+  const owned=AvatarSystem.owns(D,item.id),canBuy=D.diamantes>=item.price;
+  return `<div class="shop-card ${owned?'owned':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted shop-desc">${escapeHTML(item.description||'')}</div><div class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div class="shop-buy">${owned?'<span class="owned-badge">✓ Tuyo</span>':`<button class="btn ${canBuy?'primary':'secondary'} shop-buy-btn" onclick="buyAvatarItem('${item.id}')" ${canBuy?'':'disabled'}>${item.price} 💎</button>`}</div></div>`;
+}
+function shopScreen(){
+  const items=AVATAR.items||[];
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><h2>🛒 Tienda</h2><p class="muted">Consigue objetos con los diamantes que ganas jugando.</p></div></div>${items.length?`<div class="shop-list">${items.map(shopItemCard).join('')}</div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}<p class="technical-note muted">Los objetos de prueba sirven únicamente para comprobar el funcionamiento y se sustituirán por equipamiento real.</p>`);
+}
+function buyAvatarItem(id){
+  const result=AvatarSystem.buy(D,id);
+  if(result.ok){save(D);playChime('ok');shopScreen();return;}
+  if(result.reason==='owned'){shopScreen();return;}
+  if(result.reason==='diamonds')alert('Necesitas más diamantes para comprar este objeto.');
+}
+function inventoryItemCard(item){
+  const equipped=AvatarSystem.ensureState(D).equipped[item.slot]===item.id;
+  return `<div class="inventory-card ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div>${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></div>`;
+}
+function inventoryScreen(){
+  const avatar=AvatarSystem.ensureState(D),items=avatar.owned.map(id=>AvatarSystem.getItem(id)).filter(Boolean);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><h2>🎒 Inventario</h2><p class="muted">Toca Equipar para poner un objeto en el avatar. Solo puede haber uno de cada categoría.</p>${items.length?`<div class="inventory-list">${items.map(inventoryItemCard).join('')}</div>`:'<div class="empty-state">Aún no tienes objetos. Visita la tienda para conseguir el primero.</div>'}`);
+}
+function equipAvatarItem(id){try{AvatarSystem.equip(D,id);save(D);playChime('ok');inventoryScreen();}catch(error){alert(error.message);}}
+function unequipAvatarSlot(slot){try{AvatarSystem.unequip(D,slot);save(D);inventoryScreen();}catch(error){alert(error.message);}}
 function levelDone(n){return stats(n.id).partidas>0;}
 function levelUnlocked(t,index){return parentMode||index===0||levelDone(GAME.levels[t][index-1]);}
 function levelDiamonds(n,repeat=false){return repeat?n.level:n.level+4;}
