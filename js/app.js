@@ -43,61 +43,81 @@ ${xpPanel()}
 <button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>10 niveles progresivos</small></button>
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
-function avatarScreen(){
-  const owned=AvatarSystem.ensureState(D).owned.length;
-  const equipped=AvatarSystem.equippedItems(D).length;
-  layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div>
-  <div class="avatar-page">
-    <div class="avatar-page-head"><div><h2>Mi avatar</h2><p class="muted">Personaliza tu personaje con los objetos que consigas.</p></div></div>
-    <div class="avatar-preview-card">
-      <div id="avatarPreview" class="avatar-preview" aria-label="Avatar del jugador"></div>
-      <div id="avatarAssetStatus" class="avatar-status muted">Cargando avatar…</div>
-    </div>
-    <div class="avatar-menu-grid">
-      <button class="btn primary avatar-menu-btn" onclick="shopScreen()">🛒 Tienda</button>
-      <button class="btn secondary avatar-menu-btn" onclick="inventoryScreen()">🎒 Inventario <span>${owned}</span></button>
-    </div>
-    <div class="avatar-summary muted">${equipped} objeto${equipped===1?'':'s'} equipado${equipped===1?'':'s'}</div>
-  </div>`);
+let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null;
+function avatarCatalog(){return (AVATAR.items||[]).filter(item=>!item.technical);}
+function avatarCollectionStats(){
+  const items=avatarCatalog(),avatar=AvatarSystem.ensureState(D),owned=items.filter(item=>avatar.owned.includes(item.id)).length;
+  return{owned,total:items.length,equipped:AvatarSystem.equippedItems(D).length};
+}
+function collectionProgress(){
+  const stats=avatarCollectionStats(),pct=stats.total?Math.round(stats.owned/stats.total*100):0;
+  return `<div class="collection-progress"><div class="collection-progress-head"><div><span class="eyebrow">Colección</span><b>Guardián Nova</b></div><strong>${stats.owned}/${stats.total}</strong></div><div class="collection-track" aria-label="${stats.owned} de ${stats.total} objetos conseguidos"><span style="width:${pct}%"></span></div><small>${stats.owned===stats.total?'¡Conjunto completo!':stats.total-stats.owned+' piezas por conseguir'}</small></div>`;
+}
+function renderAvatarStage(containerId,{statusId=null,previewItemId=null}={}){
   requestAnimationFrame(async()=>{
-    const preview=document.getElementById('avatarPreview');
-    const status=document.getElementById('avatarAssetStatus');
-    if(!preview||!window.AvatarSystem){
-      if(status)status.textContent='No se pudo iniciar el sistema de avatar.';return;
-    }
-    AvatarSystem.render(preview,D,{onAssetError:()=>{if(status)status.textContent='⚠️ No se pudo cargar un recurso del avatar.';}});
-    const checks=await AvatarSystem.validateAssets({includeBase:true});
-    const base=checks[0];
-    if(status&&base){
-      status.textContent=base.ok?'✓ Avatar listo':'⚠️ El avatar maestro no tiene el formato esperado';
-      status.classList.toggle('avatar-status-ok',!!base.ok);
-      status.classList.toggle('avatar-status-error',!base.ok);
-    }
+    const container=document.getElementById(containerId),status=statusId?document.getElementById(statusId):null;
+    if(!container||!window.AvatarSystem){if(status)status.textContent='No se pudo iniciar el avatar.';return;}
+    let assetError=false;
+    AvatarSystem.render(container,D,{previewItemId,onAssetError:()=>{assetError=true;if(status)status.textContent='⚠️ Falta un recurso del equipamiento.';}});
+    if(!status)return;
+    const checks=await(avatarChecksPromise||(avatarChecksPromise=AvatarSystem.validateAssets({includeBase:true})));
+    const invalid=checks.filter(check=>!check.ok);
+    const ok=!assetError&&!invalid.length;
+    status.textContent=ok?(previewItemId?'Vista previa · toca el botón para equipar':'✓ Avatar listo'):'⚠️ No se pudo cargar todo el equipamiento';
+    status.classList.toggle('avatar-status-ok',ok);
+    status.classList.toggle('avatar-status-error',!ok);
   });
 }
+function avatarScreen(){
+  const stats=avatarCollectionStats();
+  layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div>
+  <div class="avatar-hub">
+    <div class="avatar-preview-card avatar-preview-card-hero"><div class="space-orbit" aria-hidden="true"></div><div id="avatarPreview" class="avatar-preview" aria-label="Avatar del jugador"></div><div id="avatarAssetStatus" class="avatar-status muted">Cargando avatar…</div></div>
+    <div class="avatar-hub-content"><span class="eyebrow">Centro de equipamiento</span><h2>Mi héroe</h2><p class="muted">Consigue piezas, prueba cómo quedan y crea tu propio guardián espacial.</p>${collectionProgress()}<div class="avatar-stats"><div><strong>${stats.owned}</strong><span>En el inventario</span></div><div><strong>${stats.equipped}</strong><span>Equipadas</span></div></div><div class="avatar-menu-grid"><button class="btn primary avatar-menu-btn" onclick="openShopScreen()">Explorar tienda</button><button class="btn secondary avatar-menu-btn" onclick="inventoryScreen()">Abrir inventario</button></div></div>
+  </div>`);
+  renderAvatarStage('avatarPreview',{statusId:'avatarAssetStatus'});
+}
 function rarityLabel(item){return AVATAR.rarities?.[item.rarity]?.label||item.rarity||'Objeto';}
-function shopVisual(item){return item.shopImage?`<img src="${escapeHTML(item.shopImage)}" alt="">`:(item.shopIcon||'🎁');}
-function shopItemCard(item){
-  const owned=AvatarSystem.owns(D,item.id),canBuy=D.diamantes>=item.price;
-  return `<div class="shop-card ${owned?'owned':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted shop-desc">${escapeHTML(item.description||'')}</div><div class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div class="shop-buy">${owned?'<span class="owned-badge">✓ Tuyo</span>':`<button class="btn ${canBuy?'primary':'secondary'} shop-buy-btn" onclick="buyAvatarItem('${item.id}')" ${canBuy?'':'disabled'}>${item.price} 💎</button>`}</div></div>`;
+function shopVisual(item){return item.shopImage?`<img src="${escapeHTML(item.shopImage)}" alt="${escapeHTML(item.name)}">`:(item.shopIcon||'🎁');}
+function shopItemCard(item,selected){
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id;
+  const state=equipped?'Equipado':owned?'En tu inventario':`${item.price} 💎`;
+  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><span class="shop-card-state">${state}</span></span></button>`;
 }
+function shopDetail(item){
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,missing=Math.max(0,item.price-D.diamantes);
+  let action='';
+  if(equipped)action=`<button class="btn secondary shop-main-action" onclick="unequipAvatarFromShop('${item.slot}')">✓ Equipado · Quitar</button>`;
+  else if(owned)action=`<button class="btn primary shop-main-action" onclick="equipAvatarFromShop('${item.id}')">Equipar ahora</button>`;
+  else if(!missing)action=`<button class="btn primary shop-main-action" onclick="buyAndEquipAvatarItem('${item.id}')">Comprar y equipar · ${item.price} 💎</button>`;
+  else action=`<button class="btn secondary shop-main-action" disabled>Te faltan ${missing} 💎</button>`;
+  return `<div class="shop-detail"><div class="shop-detail-title"><div><span class="eyebrow">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><h2>${escapeHTML(item.name)}</h2></div><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><p>${escapeHTML(item.description||'')}</p>${action}${!owned?'<small>Al comprarla se equipará automáticamente.</small>':'<small>La pieza seguirá guardada en tu inventario.</small>'}</div>`;
+}
+function openShopScreen(){shopFeedback='';shopScreen();}
 function shopScreen(){
-  const items=AVATAR.items||[];
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><h2>🛒 Tienda</h2><p class="muted">Consigue objetos con los diamantes que ganas jugando.</p></div></div>${items.length?`<div class="shop-list">${items.map(shopItemCard).join('')}</div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}<p class="technical-note muted">Los objetos de prueba sirven únicamente para comprobar el funcionamiento y se sustituirán por equipamiento real.</p>`);
+  const items=avatarCatalog();
+  if(!items.some(item=>item.id===selectedShopItemId))selectedShopItemId=items[0]?.id||null;
+  const selected=AvatarSystem.getItem(selectedShopItemId);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Selecciona una pieza para probarla antes de comprar.</p></div>${collectionProgress()}</div>${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">Piezas del conjunto</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}`);
+  if(selected)renderAvatarStage('shopAvatarPreview',{statusId:'shopAssetStatus',previewItemId:selected.id});
 }
-function buyAvatarItem(id){
+function selectShopItem(id){selectedShopItemId=id;shopFeedback='';shopScreen();}
+function buyAndEquipAvatarItem(id){
   const result=AvatarSystem.buy(D,id);
-  if(result.ok){save(D);playChime('ok');shopScreen();return;}
-  if(result.reason==='owned'){shopScreen();return;}
+  if(result.ok){AvatarSystem.equip(D,id);save(D);shopFeedback=`¡${result.item.name} ya está en tu inventario y equipado!`;playChime('ok');shopScreen();return;}
+  if(result.reason==='owned'){equipAvatarFromShop(id);return;}
   if(result.reason==='diamonds')alert('Necesitas más diamantes para comprar este objeto.');
 }
+function equipAvatarFromShop(id){try{const item=AvatarSystem.equip(D,id);save(D);shopFeedback=`${item.name} equipado.`;playChime('ok');shopScreen();}catch(error){alert(error.message);}}
+function unequipAvatarFromShop(slot){try{AvatarSystem.unequip(D,slot);save(D);shopFeedback='Pieza guardada en el inventario.';shopScreen();}catch(error){alert(error.message);}}
 function inventoryItemCard(item){
   const equipped=AvatarSystem.ensureState(D).equipped[item.slot]===item.id;
-  return `<div class="inventory-card ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div>${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></div>`;
+  return `<article class="inventory-card rarity-border-${item.rarity} ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div class="inventory-action">${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></article>`;
 }
 function inventoryScreen(){
   const avatar=AvatarSystem.ensureState(D),items=avatar.owned.map(id=>AvatarSystem.getItem(id)).filter(Boolean);
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><h2>🎒 Inventario</h2><p class="muted">Toca Equipar para poner un objeto en el avatar. Solo puede haber uno de cada categoría.</p>${items.length?`<div class="inventory-list">${items.map(inventoryItemCard).join('')}</div>`:'<div class="empty-state">Aún no tienes objetos. Visita la tienda para conseguir el primero.</div>'}`);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="inventory-head"><div><span class="eyebrow">Tu equipamiento</span><h2>Inventario</h2><p class="muted">Combina las piezas que has conseguido. Solo puede haber una de cada categoría.</p></div><button class="btn primary" onclick="openShopScreen()">Ir a la tienda</button></div><div class="inventory-layout"><div class="avatar-preview-card inventory-preview-card"><div class="space-orbit" aria-hidden="true"></div><div id="inventoryAvatarPreview" class="avatar-preview" aria-label="Equipamiento actual del avatar"></div><div id="inventoryAssetStatus" class="avatar-status muted">Cargando equipamiento…</div>${collectionProgress()}</div><div>${items.length?`<div class="inventory-list">${items.map(inventoryItemCard).join('')}</div>`:'<div class="empty-state"><div class="empty-state-icon">🛰️</div><b>Tu inventario está esperando su primera pieza</b><p class="muted">Juega para ganar diamantes y visita la tienda estelar.</p><button class="btn primary" onclick="openShopScreen()">Ver colección</button></div>'}</div></div>`);
+  renderAvatarStage('inventoryAvatarPreview',{statusId:'inventoryAssetStatus'});
 }
 function equipAvatarItem(id){try{AvatarSystem.equip(D,id);save(D);playChime('ok');inventoryScreen();}catch(error){alert(error.message);}}
 function unequipAvatarSlot(slot){try{AvatarSystem.unequip(D,slot);save(D);inventoryScreen();}catch(error){alert(error.message);}}

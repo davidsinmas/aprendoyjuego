@@ -31,30 +31,101 @@ const AVATAR={
     epic:{label:'Épico'},
     legendary:{label:'Legendario'}
   },
+  collections:{
+    nova_guardian:{
+      name:'Guardián Nova',
+      description:'Armadura espacial creada para proteger las estrellas.',
+      itemCount:8
+    }
+  },
   items:[
     {
-      id:'test_helmet_01',
-      name:'Casco de prueba',
-      description:'Objeto técnico para comprobar la tienda, el inventario y el equipamiento.',
+      id:'nova_helmet',
+      name:'Casco Nova',
+      description:'Visor estelar y protección completa para las misiones más difíciles.',
       slot:'helmet',
-      rarity:'common',
-      price:5,
-      shopIcon:'🪖',
-      shopImage:null,
-      avatarLayer:'assets/avatar/equipment/_technical/blank_1024.png',
-      technical:true
+      rarity:'legendary',
+      price:55,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_helmet.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_helmet.png'
     },
     {
-      id:'test_weapon_01',
-      name:'Arma de prueba',
-      description:'Objeto técnico para comprobar la compra y el equipamiento.',
-      slot:'weapon',
+      id:'nova_chest',
+      name:'Peto Nova',
+      description:'Núcleo de energía reforzado con acero y detalles dorados.',
+      slot:'chest',
+      rarity:'epic',
+      price:42,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_chest.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_chest.png'
+    },
+    {
+      id:'nova_shoulders',
+      name:'Hombreras orbitales',
+      description:'Placas ligeras preparadas para aventuras por toda la galaxia.',
+      slot:'shoulders',
       rarity:'rare',
-      price:8,
-      shopIcon:'⚔️',
-      shopImage:null,
-      avatarLayer:'assets/avatar/equipment/_technical/blank_1024.png',
-      technical:true
+      price:28,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_shoulders.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_shoulders.png'
+    },
+    {
+      id:'nova_gloves',
+      name:'Guanteletes de impulso',
+      description:'Canalizan energía para sujetar el equipo con máxima precisión.',
+      slot:'gloves',
+      rarity:'rare',
+      price:26,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_gloves.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_gloves.png'
+    },
+    {
+      id:'nova_legs',
+      name:'Grebas del cometa',
+      description:'Protección articulada para moverse rápido y con seguridad.',
+      slot:'legs',
+      rarity:'epic',
+      price:34,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_legs.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_legs.png'
+    },
+    {
+      id:'nova_boots',
+      name:'Botas gravitatorias',
+      description:'Botas magnéticas con suela reforzada para cualquier planeta.',
+      slot:'boots',
+      rarity:'rare',
+      price:24,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_boots.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_boots.png'
+    },
+    {
+      id:'nova_shield',
+      name:'Escudo estelar',
+      description:'Un campo protector de luz capaz de detener cualquier impacto.',
+      slot:'shield',
+      rarity:'epic',
+      price:45,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_shield.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_shield.png'
+    },
+    {
+      id:'nova_weapon',
+      name:'Espada fotónica',
+      description:'Hoja de energía Nova: brillante, poderosa y segura para el héroe.',
+      slot:'weapon',
+      rarity:'legendary',
+      price:60,
+      collection:'nova_guardian',
+      shopImage:'assets/shop/nova_guardian/nova_weapon.png',
+      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_weapon.png'
     }
   ]
 };

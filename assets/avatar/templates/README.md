@@ -1,6 +1,6 @@
 # Plantillas de avatar
 
-Aquí se guardará la plantilla maestra cuando exista el avatar definitivo.
+El avatar definitivo se encuentra en `assets/avatar/base/avatar_base.png`.
 
 Reglas:
 - lienzo: 1024x1024 px

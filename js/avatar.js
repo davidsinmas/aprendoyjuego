@@ -91,6 +91,14 @@
       .sort((a,b)=>AVATAR.slots[a.slot].layer-AVATAR.slots[b.slot].layer);
   }
 
+  function previewItems(data,previewItemId){
+    const bySlot=new Map(equippedItems(data).map(item=>[item.slot,item]));
+    const preview=getItem(previewItemId);
+    if(preview)bySlot.set(preview.slot,preview);
+    return [...bySlot.values()]
+      .sort((a,b)=>AVATAR.slots[a.slot].layer-AVATAR.slots[b.slot].layer);
+  }
+
   function makeLayer(src,layer,kind,id){
     const img=document.createElement('img');
     img.src=src;
@@ -103,7 +111,7 @@
     return img;
   }
 
-  function render(container,data,{showBase=true,onAssetError=null}={}){
+  function render(container,data,{showBase=true,onAssetError=null,previewItemId=null}={}){
     if(typeof container==='string')container=document.querySelector(container);
     if(!container)throw new Error('No se encontró el contenedor del avatar');
     container.classList.add('avatar-stage');
@@ -119,7 +127,8 @@
     };
 
     if(showBase&&AVATAR.base.src)add(makeLayer(AVATAR.base.src,AVATAR.base.layer,'base',AVATAR.base.id));
-    for(const item of equippedItems(data))add(makeLayer(item.avatarLayer,AVATAR.slots[item.slot].layer,'equipment',item.id));
+    const items=previewItemId?previewItems(data,previewItemId):equippedItems(data);
+    for(const item of items)add(makeLayer(item.avatarLayer,AVATAR.slots[item.slot].layer,previewItemId===item.id?'preview':'equipment',item.id));
     return container;
   }
 
