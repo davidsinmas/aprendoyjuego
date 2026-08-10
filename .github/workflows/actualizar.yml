@@ -207,7 +207,7 @@ jobs:
           git config user.name "Aprendo Jugando Bot"
           git config user.email "actions@github.com"
           git rm -f actualizacion.zip
-          git add -A -- index.html version.json README.md CHANGELOG.md ACTUALIZAR.md assets css js tools
+          git add -A -- .
           if git diff --cached --quiet; then
             echo "ERROR: el paquete no ha producido cambios"
             exit 1
