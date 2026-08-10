@@ -1,38 +1,39 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#dfe7e3">
-<title>Aprendo Jugando</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#dfe7e3">
+  <title>Aprendo Jugando</title>
 </head>
 <body>
-<main id="app"><p style="padding:2rem;text-align:center;font-family:system-ui,sans-serif">Cargando Aprendo Jugando…</p></main>
-<script>
-(async()=>{
-  const response=await fetch('version.json',{cache:'no-store'});
-  if(!response.ok)throw new Error('No se pudo leer version.json');
-  const meta=await response.json();
-  if(!/^\d+\.\d+\.\d+$/.test(meta.version||''))throw new Error('La versión de la aplicación no es válida');
-  window.APP_META=Object.freeze(meta);
-  const revision=encodeURIComponent(meta.version);
-  const loadStyle=href=>new Promise((resolve,reject)=>{
-    const link=document.createElement('link');
-    link.rel='stylesheet';link.href=`${href}?v=${revision}`;link.onload=resolve;link.onerror=reject;
-    document.head.appendChild(link);
-  });
-  const loadScript=src=>new Promise((resolve,reject)=>{
-    const script=document.createElement('script');
-    script.src=`${src}?v=${revision}`;script.onload=resolve;script.onerror=reject;
-    document.body.appendChild(script);
-  });
-  await Promise.all([loadStyle('css/app.css'),loadStyle('css/avatar.css')]);
-  for(const src of ['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/app.js'])await loadScript(src);
-})().catch(error=>{
-  console.error(error);
-  document.getElementById('app').innerHTML='<p style="padding:2rem;text-align:center;font-family:system-ui,sans-serif">No se pudo cargar la aplicación. Recarga la página.</p>';
-});
-</script>
+  <main id="app"></main>
+  <script>
+  (async()=>{
+    let version='actual';
+    try{
+      const response=await fetch('version.json',{cache:'no-store'});
+      if(response.ok){const info=await response.json(); if(info&&info.version)version=info.version;}
+    }catch(e){}
+    window.APP_VERSION=version;
+    const styles=['css/app.css','css/avatar.css'];
+    for(const href of styles){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href=href+'?v='+encodeURIComponent(version);
+      document.head.appendChild(link);
+    }
+    const scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/app.js'];
+    for(const src of scripts){
+      await new Promise((resolve,reject)=>{
+        const script=document.createElement('script');
+        script.src=src+'?v='+encodeURIComponent(version);
+        script.onload=resolve; script.onerror=reject;
+        document.body.appendChild(script);
+      });
+    }
+  })().catch(()=>{document.getElementById('app').innerHTML='<p style="padding:24px;font-family:sans-serif">No se ha podido cargar el juego. Recarga la página.</p>';});
+  </script>
 </body>
 </html>

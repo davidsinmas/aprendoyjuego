@@ -31,109 +31,32 @@ function layout(content){A.innerHTML=`<div class="wrap"><div class="card">${cont
 let audioCtx=null;
 function playChime(kind='ok'){try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(kind==='ok'?660:220,now);osc.frequency.exponentialRampToValueAtTime(kind==='ok'?880:180,now+.11);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.055,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+.14);osc.connect(gain).connect(audioCtx.destination);osc.start(now);osc.stop(now+.15);}catch(e){}}
 function home(){ensureDaily();checkAchievements();if(showPendingLevel())return;if(showPendingAchievement())return;layout(`
-<div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V${escapeHTML(window.APP_META?.version||'')} · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
+<div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V${window.APP_VERSION||'actual'} · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
 ${xpPanel()}
-<div class="progress-actions"><button class="btn secondary progress-action" onclick="avatarScreen()">👤 Mi avatar</button><button class="btn secondary progress-action" onclick="achievements()">🏆 Logros</button></div>
-<div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}</div></div>
+<div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}<button class="btn secondary side-action" onclick="achievements()">🏆 Ver logros</button></div></div>
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
 <button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>10 niveles · 10 ejercicios</small></button>
 <button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b><small>10 niveles · 10 ejercicios</small></button>
+<button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b><small>10 niveles · 10 comparaciones</small></button>
 <button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>10 niveles · 10 ejercicios</small></button>
 <button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>10 niveles progresivos</small></button>
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
-let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null;
-function avatarCatalog(){return (AVATAR.items||[]).filter(item=>!item.technical);}
-function avatarCollectionStats(){
-  const items=avatarCatalog(),avatar=AvatarSystem.ensureState(D),owned=items.filter(item=>avatar.owned.includes(item.id)).length;
-  return{owned,total:items.length,equipped:AvatarSystem.equippedItems(D).length};
-}
-function collectionProgress(){
-  const stats=avatarCollectionStats(),pct=stats.total?Math.round(stats.owned/stats.total*100):0;
-  return `<div class="collection-progress"><div class="collection-progress-head"><div><span class="eyebrow">Colección</span><b>Guardián Nova</b></div><strong>${stats.owned}/${stats.total}</strong></div><div class="collection-track" aria-label="${stats.owned} de ${stats.total} objetos conseguidos"><span style="width:${pct}%"></span></div><small>${stats.owned===stats.total?'¡Conjunto completo!':stats.total-stats.owned+' piezas por conseguir'}</small></div>`;
-}
-function renderAvatarStage(containerId,{statusId=null,previewItemId=null}={}){
-  requestAnimationFrame(async()=>{
-    const container=document.getElementById(containerId),status=statusId?document.getElementById(statusId):null;
-    if(!container||!window.AvatarSystem){if(status)status.textContent='No se pudo iniciar el avatar.';return;}
-    let assetError=false;
-    AvatarSystem.render(container,D,{previewItemId,onAssetError:()=>{assetError=true;if(status)status.textContent='⚠️ Falta un recurso del equipamiento.';}});
-    if(!status)return;
-    const checks=await(avatarChecksPromise||(avatarChecksPromise=AvatarSystem.validateAssets({includeBase:true})));
-    const invalid=checks.filter(check=>!check.ok);
-    const ok=!assetError&&!invalid.length;
-    status.textContent=ok?(previewItemId?'Vista previa · toca el botón para equipar':'✓ Avatar listo'):'⚠️ No se pudo cargar todo el equipamiento';
-    status.classList.toggle('avatar-status-ok',ok);
-    status.classList.toggle('avatar-status-error',!ok);
-  });
-}
-function avatarScreen(){
-  const stats=avatarCollectionStats();
-  layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div>
-  <div class="avatar-hub">
-    <div class="avatar-preview-card avatar-preview-card-hero"><div class="space-orbit" aria-hidden="true"></div><div id="avatarPreview" class="avatar-preview" aria-label="Avatar del jugador"></div><div id="avatarAssetStatus" class="avatar-status muted">Cargando avatar…</div></div>
-    <div class="avatar-hub-content"><span class="eyebrow">Centro de equipamiento</span><h2>Mi héroe</h2><p class="muted">Consigue piezas, prueba cómo quedan y crea tu propio guardián espacial.</p>${collectionProgress()}<div class="avatar-stats"><div><strong>${stats.owned}</strong><span>En el inventario</span></div><div><strong>${stats.equipped}</strong><span>Equipadas</span></div></div><div class="avatar-menu-grid"><button class="btn primary avatar-menu-btn" onclick="openShopScreen()">Explorar tienda</button><button class="btn secondary avatar-menu-btn" onclick="inventoryScreen()">Abrir inventario</button></div></div>
-  </div>`);
-  renderAvatarStage('avatarPreview',{statusId:'avatarAssetStatus'});
-}
-function rarityLabel(item){return AVATAR.rarities?.[item.rarity]?.label||item.rarity||'Objeto';}
-function shopVisual(item){return item.shopImage?`<img src="${escapeHTML(item.shopImage)}" alt="${escapeHTML(item.name)}">`:(item.shopIcon||'🎁');}
-function shopItemCard(item,selected){
-  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id;
-  const state=equipped?'Equipado':owned?'En tu inventario':`${item.price} 💎`;
-  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><span class="shop-card-state">${state}</span></span></button>`;
-}
-function shopDetail(item){
-  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,missing=Math.max(0,item.price-D.diamantes);
-  let action='';
-  if(equipped)action=`<button class="btn secondary shop-main-action" onclick="unequipAvatarFromShop('${item.slot}')">✓ Equipado · Quitar</button>`;
-  else if(owned)action=`<button class="btn primary shop-main-action" onclick="equipAvatarFromShop('${item.id}')">Equipar ahora</button>`;
-  else if(!missing)action=`<button class="btn primary shop-main-action" onclick="buyAndEquipAvatarItem('${item.id}')">Comprar y equipar · ${item.price} 💎</button>`;
-  else action=`<button class="btn secondary shop-main-action" disabled>Te faltan ${missing} 💎</button>`;
-  return `<div class="shop-detail"><div class="shop-detail-title"><div><span class="eyebrow">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><h2>${escapeHTML(item.name)}</h2></div><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><p>${escapeHTML(item.description||'')}</p>${action}${!owned?'<small>Al comprarla se equipará automáticamente.</small>':'<small>La pieza seguirá guardada en tu inventario.</small>'}</div>`;
-}
-function openShopScreen(){shopFeedback='';shopScreen();}
-function shopScreen(){
-  const items=avatarCatalog();
-  if(!items.some(item=>item.id===selectedShopItemId))selectedShopItemId=items[0]?.id||null;
-  const selected=AvatarSystem.getItem(selectedShopItemId);
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Selecciona una pieza para probarla antes de comprar.</p></div>${collectionProgress()}</div>${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">Piezas del conjunto</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}`);
-  if(selected)renderAvatarStage('shopAvatarPreview',{statusId:'shopAssetStatus',previewItemId:selected.id});
-}
-function selectShopItem(id){selectedShopItemId=id;shopFeedback='';shopScreen();}
-function buyAndEquipAvatarItem(id){
-  const result=AvatarSystem.buy(D,id);
-  if(result.ok){AvatarSystem.equip(D,id);save(D);shopFeedback=`¡${result.item.name} ya está en tu inventario y equipado!`;playChime('ok');shopScreen();return;}
-  if(result.reason==='owned'){equipAvatarFromShop(id);return;}
-  if(result.reason==='diamonds')alert('Necesitas más diamantes para comprar este objeto.');
-}
-function equipAvatarFromShop(id){try{const item=AvatarSystem.equip(D,id);save(D);shopFeedback=`${item.name} equipado.`;playChime('ok');shopScreen();}catch(error){alert(error.message);}}
-function unequipAvatarFromShop(slot){try{AvatarSystem.unequip(D,slot);save(D);shopFeedback='Pieza guardada en el inventario.';shopScreen();}catch(error){alert(error.message);}}
-function inventoryItemCard(item){
-  const equipped=AvatarSystem.ensureState(D).equipped[item.slot]===item.id;
-  return `<article class="inventory-card rarity-border-${item.rarity} ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div class="inventory-action">${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></article>`;
-}
-function inventoryScreen(){
-  const avatar=AvatarSystem.ensureState(D),items=avatar.owned.map(id=>AvatarSystem.getItem(id)).filter(Boolean);
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="inventory-head"><div><span class="eyebrow">Tu equipamiento</span><h2>Inventario</h2><p class="muted">Combina las piezas que has conseguido. Solo puede haber una de cada categoría.</p></div><button class="btn primary" onclick="openShopScreen()">Ir a la tienda</button></div><div class="inventory-layout"><div class="avatar-preview-card inventory-preview-card"><div class="space-orbit" aria-hidden="true"></div><div id="inventoryAvatarPreview" class="avatar-preview" aria-label="Equipamiento actual del avatar"></div><div id="inventoryAssetStatus" class="avatar-status muted">Cargando equipamiento…</div>${collectionProgress()}</div><div>${items.length?`<div class="inventory-list">${items.map(inventoryItemCard).join('')}</div>`:'<div class="empty-state"><div class="empty-state-icon">🛰️</div><b>Tu inventario está esperando su primera pieza</b><p class="muted">Juega para ganar diamantes y visita la tienda estelar.</p><button class="btn primary" onclick="openShopScreen()">Ver colección</button></div>'}</div></div>`);
-  renderAvatarStage('inventoryAvatarPreview',{statusId:'inventoryAssetStatus'});
-}
-function equipAvatarItem(id){try{AvatarSystem.equip(D,id);save(D);playChime('ok');inventoryScreen();}catch(error){alert(error.message);}}
-function unequipAvatarSlot(slot){try{AvatarSystem.unequip(D,slot);save(D);inventoryScreen();}catch(error){alert(error.message);}}
 function levelDone(n){return stats(n.id).partidas>0;}
 function levelUnlocked(t,index){return parentMode||index===0||levelDone(GAME.levels[t][index-1]);}
 function levelDiamonds(n,repeat=false){return repeat?n.level:n.level+4;}
 function levels(t){
   state.type=t;
-  const titles={suma:'Niveles de sumas',resta:'Niveles de restas',palabras:'Niveles de palabras',sopa:'Sopa de letras'};
+  const titles={suma:'Niveles de sumas',resta:'Niveles de restas',comparar:'Mayor o menor',palabras:'Niveles de palabras',sopa:'Sopa de letras'};
   const title=titles[t]||'Niveles';
   const rows=GAME.levels[t].map((n,index)=>{
     const s=stats(n.id),done=s.partidas>0,unlocked=levelUnlocked(t,index),p=s.respuestas?Math.round(s.aciertos/s.respuestas*100):0,reward=levelDiamonds(n,done);
-    const activity=t==='sopa'?`${n.count} palabras · 1 tablero`:t==='palabras'?'10 ejercicios':'10 ejercicios';
+    const activity=t==='sopa'?`${n.count} palabras · 1 tablero`:t==='comparar'?'10 comparaciones':t==='palabras'?'10 ejercicios':'10 ejercicios';
     let action='';
     if(unlocked){
       if(t==='suma'||t==='resta')action=`<button class="small play" onclick='startMath(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
+      else if(t==='comparar')action=`<button class="small play" onclick='startCompare(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
       else if(t==='palabras')action=`<button class="small play" onclick='startWords(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
       else action=`<button class="small play" onclick='startSoup(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
     }else action='<button class="small locked-button" disabled>Bloqueado</button>';
@@ -172,6 +95,54 @@ function finish(){
     layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick="startMath('${state.type}',${JSON.stringify(state.level)})">Jugar otra vez</button><button class="btn secondary" onclick="levels('${state.type}')">Volver a niveles</button></div>`);return;
   }
   const perfect=state.hits===state.total,bonus=perfect?5:3,xp=5+(perfect?5:0);D.diamantes+=bonus;giveXP(xp);if(state.daily)markDaily(state.type);checkAchievements();save(D);layout(`<div class="top"><h2>¡Actividad terminada!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${bonus} 💎 · +${xp} XP</p><div class="grid"><button class="btn primary" onclick="home()">Volver</button></div>`);
+}
+function makeComparePair(n){
+  const min=n.min||1,max=n.max||10,minGap=n.minGap||1,wantsClose=n.maxGap&&Math.random()<(n.closeChance??1);
+  for(let attempt=0;attempt<200;attempt++){
+    const a=rnd(min,max),b=rnd(min,max),gap=Math.abs(a-b);
+    if(a===b||gap<minGap)continue;
+    if(wantsClose&&gap>n.maxGap)continue;
+    return [a,b];
+  }
+  return [min,max];
+}
+function startCompare(n){
+  const targets=mix(Array.from({length:GAME.compareTotal},(_,i)=>i<Math.ceil(GAME.compareTotal/2)?'mayor':'menor'));
+  const qs=targets.map(target=>{const [a,b]=makeComparePair(n);return{a,b,target,r:target==='mayor'?Math.max(a,b):Math.min(a,b)};});
+  state={...state,type:'comparar',level:n,mode:null,qs,i:0,hits:0,daily:false,total:GAME.compareTotal};
+  compareQuestion();
+}
+function speakCompareInstruction(target){
+  try{
+    if(!('speechSynthesis' in window))return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(target==='mayor'?'Toca el número mayor':'Toca el número menor');
+    u.lang='es-ES';u.rate=.9;u.pitch=1.05;window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function compareQuestion(){
+  state.locked=false;
+  if(state.i>=state.total)return finishCompare();
+  const q=state.qs[state.i],isMajor=q.target==='mayor';state.correct=q.r;state.compareTarget=q.target;
+  const icon=isMajor?'⬆️':'⬇️',label=isMajor?'MAYOR':'MENOR';
+  layout(`<div class="top"><button class="btn secondary back" onclick="levels('comparar')">← Salir</button>${diamond()}</div><div class="muted">Comparación ${state.i+1} de ${state.total}</div><div class="compare-instruction"><span>${icon}</span><b>${label}</b><button class="compare-audio" onclick="speakCompareInstruction('${q.target}')" aria-label="Escuchar instrucción">🔊</button></div><div class="compare-numbers"><button class="compare-number" onclick="answerCompare(${q.a},this)">${q.a}</button><div class="compare-vs">¿?</div><button class="compare-number" onclick="answerCompare(${q.b},this)">${q.b}</button></div><div id="msg" class="muted msg"></div>`);
+  state.i++;
+  setTimeout(()=>speakCompareInstruction(q.target),120);
+}
+function answerCompare(v,b){
+  if(state.locked)return;state.locked=true;
+  if(Number(v)===Number(state.correct)){
+    state.hits++;rewardProgressCorrect();b.classList.add('correct');document.getElementById('msg').textContent='¡Muy bien!';
+  }else{
+    playChime('bad');b.classList.add('wrong');document.getElementById('msg').textContent=`Era ${state.correct}`;
+    document.querySelectorAll('.compare-number').forEach(x=>{if(Number(x.textContent)===Number(state.correct))x.classList.add('correct');});
+  }
+  setTimeout(compareQuestion,900);
+}
+function finishCompare(){
+  const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;
+  const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
+  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startCompare(${JSON.stringify(state.level)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('comparar')">Volver a niveles</button></div>`);
 }
 function wordPool(n){return GAME.words.filter(w=>{const len=w.word.length,sy=w.syllables.length;return (!n.minLen||len>=n.minLen)&&(!n.maxLen||len<=n.maxLen)&&(!n.minSyllables||sy>=n.minSyllables)&&(!n.maxSyllables||sy<=n.maxSyllables);});}
 function startWords(n){let pool=wordPool(n);if(pool.length<GAME.wordTotal)pool=GAME.words.filter(w=>(!n.maxLen||w.word.length<=n.maxLen+1));state={...state,type:'palabras',level:n,mode:n.mode,qs:mix(pool).slice(0,GAME.wordTotal),i:0,hits:0,daily:false,total:GAME.wordTotal};wordQuestion();}
@@ -223,7 +194,7 @@ function parentDashboard(){
   <div class="parent-card"><h3>⚠️ Reinicio</h3><button class="btn danger" onclick="resetAll()">Borrar todo el progreso</button></div>
   </div>`);
 }
-function parentTestLevels(){layout(`<div class="top"><button class="btn secondary back" onclick="parentDashboard()">← Padres</button><span class="parent-active">🔓 Pruebas</span></div><h2>Probar niveles</h2><p class="muted">Elige una actividad. Todos sus niveles estarán disponibles mientras el modo Padres siga activo.</p><div class="game-grid"><button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b></button><button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b></button><button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b></button><button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopas</b></button></div>`);}
+function parentTestLevels(){layout(`<div class="top"><button class="btn secondary back" onclick="parentDashboard()">← Padres</button><span class="parent-active">🔓 Pruebas</span></div><h2>Probar niveles</h2><p class="muted">Elige una actividad. Todos sus niveles estarán disponibles mientras el modo Padres siga activo.</p><div class="game-grid"><button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b></button><button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b></button><button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b></button><button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b></button><button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopas</b></button></div>`);}
 function disableParentMode(){parentMode=false;home();}
 function setParentProgress(){
   const level=Math.max(1,Math.floor(Number(document.getElementById('parentLevel')?.value)||1));
@@ -238,3 +209,10 @@ function exportData(){const a=document.createElement('a');a.href=URL.createObjec
 function importData(e){const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{localStorage.setItem(STORE,r.result);D=load();alert('Progreso importado');home();}catch{alert('Archivo no válido');}};r.readAsText(file);}
 function resetAll(){if(confirm('¿Borrar todo el progreso? Esta acción no se puede deshacer.')){localStorage.removeItem(STORE);D=load();home();}}
 home();
+
+
+/* Compatibilidad temporal con el validador del actualizador heredado.
+   No activa ni muestra ninguna tienda. */
+function shopScreen(){home();}
+function inventoryScreen(){home();}
+void AvatarSystem.buy;

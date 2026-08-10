@@ -2,6 +2,7 @@ const GAME={
   total:5,
   mathTotal:10,
   wordTotal:10,
+  compareTotal:10,
   dailyMathTotal:5,
   levels:{
     suma:[
@@ -27,6 +28,18 @@ const GAME={
       {id:'resta8',level:8,name:'Nivel 8',desc:'Primer número hasta 24 · segundo hasta 8',aMax:24,bMax:8},
       {id:'resta9',level:9,name:'Nivel 9',desc:'Primer número hasta 27 · segundo hasta 9',aMax:27,bMax:9},
       {id:'resta10',level:10,name:'Nivel 10',desc:'Primer número hasta 30 · segundo siempre menor de 10',aMax:30,bMax:9}
+    ],
+    comparar:[
+      {id:'comparar1',level:1,name:'Nivel 1',desc:'Números del 1 al 5 · diferencias claras',min:1,max:5,minGap:2},
+      {id:'comparar2',level:2,name:'Nivel 2',desc:'Números del 1 al 10 · diferencias claras',min:1,max:10,minGap:3},
+      {id:'comparar3',level:3,name:'Nivel 3',desc:'Números del 1 al 10 · también consecutivos',min:1,max:10,minGap:1},
+      {id:'comparar4',level:4,name:'Nivel 4',desc:'Números del 1 al 15',min:1,max:15,minGap:1},
+      {id:'comparar5',level:5,name:'Nivel 5',desc:'Números del 1 al 20',min:1,max:20,minGap:1},
+      {id:'comparar6',level:6,name:'Nivel 6',desc:'Números del 1 al 30',min:1,max:30,minGap:1},
+      {id:'comparar7',level:7,name:'Nivel 7',desc:'Números del 10 al 40',min:10,max:40,minGap:1},
+      {id:'comparar8',level:8,name:'Nivel 8',desc:'Números del 10 al 50 · parejas más cercanas',min:10,max:50,minGap:1,maxGap:10,closeChance:.55},
+      {id:'comparar9',level:9,name:'Nivel 9',desc:'Números del 20 al 75 · diferencias pequeñas',min:20,max:75,minGap:1,maxGap:8,closeChance:.75},
+      {id:'comparar10',level:10,name:'Nivel 10',desc:'Números del 1 al 100 · números muy próximos',min:1,max:100,minGap:1,maxGap:5,closeChance:1}
     ],
     palabras:[
       {id:'palabras1',level:1,name:'Nivel 1',desc:'Completa palabras fáciles de 2 sílabas',mode:'completeSyllable',minSyllables:2,maxSyllables:2,maxLen:5},

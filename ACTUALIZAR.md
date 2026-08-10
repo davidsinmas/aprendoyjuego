@@ -1,11 +1,7 @@
-# Cómo actualizar Aprendo Jugando
+# Actualización automática
 
-El sistema automático ya instalado solo necesita un archivo:
+Este paquete se publica subiendo únicamente `actualizacion.zip` a la raíz del repositorio `aprendoyjuego`.
 
-1. Sube `actualizacion.zip` a la raíz del repositorio.
-2. Confirma el commit.
-3. GitHub comprueba, instala y publica la versión automáticamente.
+GitHub Actions valida el paquete, instala la nueva versión, elimina el ZIP y hace el commit automáticamente.
 
-El ZIP debe contener la aplicación completa: `index.html`, `version.json`, `README.md`, `CHANGELOG.md`, `assets/`, `css/` y `js/`.
-
-Si el paquete está incompleto, tiene rutas peligrosas, no cambia nada o su versión no es superior a la instalada, la actualización se detiene con un error claro.
+No hay que descomprimir ni sustituir archivos manualmente.
