@@ -1,2 +1,118 @@
-/* Archivo de compatibilidad del actualizador.
-   La tienda/avatar antiguos no forman parte de esta versión. */
+/* Avatar paper-doll: todas las capas ocupan el mismo lienzo maestro. */
+.avatar-stage{position:relative;width:100%;aspect-ratio:var(--avatar-aspect,1/1);overflow:hidden;isolation:isolate}
+.avatar-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.avatar-layer.avatar-asset-error{visibility:hidden}
+
+.eyebrow{display:block;margin-bottom:5px;color:#48718c;font-size:.72rem;font-weight:950;letter-spacing:.13em;text-transform:uppercase}
+.progress-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 14px}
+.progress-action{min-height:60px;font-size:1.05rem}
+
+.avatar-preview-card{position:relative;isolation:isolate;overflow:hidden;width:100%;padding:14px;border:1px solid rgba(95,211,255,.22);border-radius:28px;background:radial-gradient(circle at 50% 40%,rgba(38,133,177,.34),transparent 34%),radial-gradient(circle at 28% 23%,rgba(255,255,255,.75) 0 1px,transparent 2px),radial-gradient(circle at 72% 17%,rgba(255,255,255,.58) 0 1px,transparent 2px),linear-gradient(155deg,#071a31,#102d4d 58%,#17374d);box-shadow:0 18px 42px rgba(9,31,55,.24)}
+.avatar-preview-card::after{position:absolute;inset:0;z-index:-2;background-image:radial-gradient(circle at 18% 66%,rgba(255,255,255,.42) 0 1px,transparent 2px),radial-gradient(circle at 84% 54%,rgba(88,216,255,.52) 0 1px,transparent 2px),radial-gradient(circle at 62% 79%,rgba(255,255,255,.28) 0 1px,transparent 2px);background-size:143px 131px,177px 159px,119px 151px;content:""}
+.space-orbit{position:absolute;left:50%;top:54%;z-index:-1;width:74%;aspect-ratio:1;border:1px solid rgba(96,219,255,.22);border-radius:50%;box-shadow:0 0 45px rgba(36,197,255,.13),inset 0 0 45px rgba(36,197,255,.08);transform:translate(-50%,-50%) rotate(-12deg)}
+.space-orbit::after{position:absolute;left:8%;top:13%;width:12px;height:12px;border-radius:50%;background:#74dfff;box-shadow:0 0 18px #74dfff;content:""}
+.avatar-preview{position:relative;z-index:1;width:100%;max-width:430px;margin:0 auto;aspect-ratio:1/1}
+.avatar-status{position:relative;z-index:2;margin-top:4px;color:rgba(255,255,255,.72);font-size:.78rem;text-align:center}
+.avatar-status-ok{color:#a9f1d0;font-weight:750}
+.avatar-status-error{color:#ffc1b9;font-weight:800}
+
+.avatar-hub{display:grid;grid-template-columns:minmax(320px,1.05fr) minmax(300px,.95fr);gap:30px;align-items:center;margin-top:20px}
+.avatar-preview-card-hero{max-width:520px;margin:auto}
+.avatar-hub-content h2,.shop-head h2,.inventory-head h2,.shop-detail h2{margin:0}
+.avatar-hub-content>p{margin:8px 0 20px;line-height:1.55}
+.avatar-menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.avatar-menu-btn{min-height:60px;font-size:1rem}
+.avatar-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.avatar-stats>div{display:grid;gap:2px;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:#f7f3ec}
+.avatar-stats strong{font-size:1.45rem;color:#31546b}
+.avatar-stats span{color:var(--muted);font-size:.78rem;font-weight:750}
+
+.collection-progress{padding:14px;border:1px solid #cbdbe5;border-radius:18px;background:linear-gradient(135deg,#f5fbff,#edf6f7)}
+.collection-progress-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.collection-progress-head b{display:block}
+.collection-progress-head strong{color:#285874;font-size:1.3rem}
+.collection-progress .eyebrow{margin:0;font-size:.62rem}
+.collection-track{height:9px;margin:10px 0 7px;overflow:hidden;border-radius:99px;background:#dbe7eb}
+.collection-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2e8eb5,#68d7ee);box-shadow:0 0 12px rgba(59,188,226,.45)}
+.collection-progress small{color:#56707d;font-weight:700}
+
+.shop-head{display:grid;grid-template-columns:1fr minmax(260px,360px);gap:20px;align-items:end;margin:22px 0}
+.shop-head p,.inventory-head p{margin:7px 0 0}
+.shop-feedback{margin:-4px 0 18px;padding:12px 15px;border:1px solid #9acdb2;border-radius:15px;background:#eaf8ef;color:#286246;font-weight:850}
+.shop-layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(390px,1.25fr);gap:24px;align-items:start}
+.shop-showcase{position:sticky;top:12px;display:grid;gap:14px}
+.shop-preview-card{padding:8px}
+.shop-preview-card .avatar-preview{max-width:390px}
+.preview-label{position:absolute;top:14px;left:14px;z-index:3;padding:6px 9px;border:1px solid rgba(255,255,255,.2);border-radius:99px;background:rgba(4,19,37,.68);color:#bceeff;font-size:.65rem;font-weight:950;letter-spacing:.12em}
+.shop-detail{padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,#fffdf8,#f7f3ec)}
+.shop-detail-title{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.shop-detail h2{font-size:clamp(1.5rem,4vw,2rem)}
+.shop-detail p{margin:12px 0 16px;color:#536064;line-height:1.48}
+.shop-detail small{display:block;margin-top:10px;color:var(--muted);text-align:center}
+.shop-main-action{width:100%;min-height:56px}
+.catalog-title{margin:0 0 12px}
+.shop-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.shop-card{position:relative;display:grid;grid-template-columns:86px minmax(0,1fr);gap:12px;align-items:center;min-height:116px;padding:12px;overflow:hidden;border:1px solid var(--line);border-left-width:4px;border-radius:20px;background:#fbf9f4;color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.shop-card:hover,.shop-card:focus-visible{border-color:#7ab9d1;box-shadow:0 10px 24px rgba(27,75,98,.11);outline:0;transform:translateY(-2px)}
+.shop-card.selected{border-color:#3c9bc0;background:linear-gradient(145deg,#f4fbff,#edf7f8);box-shadow:0 0 0 2px rgba(59,155,192,.13),0 12px 26px rgba(27,75,98,.14)}
+.shop-card.owned:not(.selected){background:#f3f8f3}
+.shop-icon{display:grid;place-items:center;width:86px;height:86px;overflow:hidden;border:1px solid rgba(45,85,105,.12);border-radius:17px;background:radial-gradient(circle at 50% 42%,#f7fdff,#dbeaf1);font-size:2.3rem}
+.shop-icon img{width:100%;height:100%;object-fit:contain}
+.shop-info{display:block;min-width:0}
+.shop-title{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.shop-title b{line-height:1.22}
+.shop-slot{display:block;margin-top:7px;color:var(--muted);font-size:.76rem;font-weight:800}
+.shop-card-state{display:block;margin-top:5px;color:#356d85;font-size:.83rem;font-weight:950}
+.rarity,.owned-badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#e7e1d7;font-size:.64rem;font-weight:950;letter-spacing:.03em;text-transform:uppercase}
+.rarity-rare{background:#d8eef8;color:#27627d}
+.rarity-epic{background:#eadcf6;color:#694588}
+.rarity-legendary{background:#f5e1a8;color:#6d5213}
+.rarity-border-rare{border-left-color:#56a8c9}
+.rarity-border-epic{border-left-color:#9a68bd}
+.rarity-border-legendary{border-left-color:#d6a72f}
+
+.inventory-head{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:22px 0}
+.inventory-layout{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(390px,1.22fr);gap:24px;align-items:start}
+.inventory-preview-card{position:sticky;top:12px;padding:8px 8px 14px}
+.inventory-preview-card .collection-progress{position:relative;z-index:2;margin:4px 6px 0;background:rgba(245,251,255,.96)}
+.inventory-list{display:grid;gap:12px}
+.inventory-card{display:grid;grid-template-columns:86px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px;border:1px solid var(--line);border-left-width:4px;border-radius:20px;background:#fbf9f4}
+.inventory-card.equipped{border-color:#65a885;background:#edf7f0;box-shadow:0 8px 20px rgba(42,105,71,.09)}
+.inventory-action .btn{min-width:92px;padding:13px 14px}
+.empty-state{padding:30px;border:1px dashed #b9cbd4;border-radius:22px;background:linear-gradient(145deg,#f9fcfd,#f3f5f3);text-align:center}
+.empty-state p{margin:8px auto 18px;max-width:360px}
+.empty-state-icon{margin-bottom:8px;font-size:3rem}
+
+@media(max-width:840px){
+  .avatar-hub,.shop-layout,.inventory-layout{grid-template-columns:1fr}
+  .avatar-hub{gap:20px}
+  .avatar-preview-card-hero{max-width:500px}
+  .shop-showcase,.inventory-preview-card{position:relative;top:auto;max-width:540px;width:100%;margin:auto}
+  .shop-layout>section:last-child{width:100%}
+}
+
+@media(max-width:600px){
+  .progress-actions,.avatar-menu-grid,.shop-list{grid-template-columns:1fr 1fr}
+  .avatar-preview-card{border-radius:21px}
+  .avatar-hub{margin-top:14px}
+  .avatar-preview{max-width:360px}
+  .shop-head{grid-template-columns:1fr;align-items:start}
+  .shop-head .collection-progress{width:100%}
+  .shop-card{grid-template-columns:1fr;min-height:0;padding:9px}
+  .shop-icon{width:100%;height:auto;aspect-ratio:1}
+  .shop-title{align-items:flex-start}
+  .shop-title b{width:100%;font-size:.9rem}
+  .shop-card-state{font-size:.78rem}
+  .inventory-head{align-items:stretch;flex-direction:column}
+  .inventory-head .btn{width:100%}
+  .inventory-card{grid-template-columns:72px minmax(0,1fr)}
+  .inventory-card .shop-icon{width:72px;height:72px}
+  .inventory-action{grid-column:1/-1}
+  .inventory-action .btn{width:100%}
+}
+
+@media(max-width:390px){
+  .avatar-menu-grid,.progress-actions{grid-template-columns:1fr}
+  .shop-card{padding:8px}
+  .rarity{font-size:.58rem}
+}

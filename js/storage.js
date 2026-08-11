@@ -10,8 +10,21 @@ function blank(){
     xp:0,
     retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false},
     retosCompletadosTotal:0,
-    logros:[]
+    logros:[],
+    avatar:{
+      owned:[],
+      equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}
+    }
   };
+}
+function normalizeAvatar(raw){
+  const slots=['back','legs','boots','chest','shoulders','gloves','head','helmet','shield','weapon','effects'];
+  const avatar=raw&&typeof raw==='object'?raw:{};
+  const owned=Array.isArray(avatar.owned)?[...new Set(avatar.owned.filter(x=>typeof x==='string'))]:[];
+  const source=avatar.equipped&&typeof avatar.equipped==='object'?avatar.equipped:{};
+  const equipped={};
+  for(const slot of slots)equipped[slot]=typeof source[slot]==='string'?source[slot]:null;
+  return{owned,equipped};
 }
 function load(){
   let d;
@@ -27,7 +40,6 @@ function load(){
   d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false};
   d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);
   d.logros=Array.isArray(d.logros)?d.logros:[];
-  // Limpieza estructural de la tienda antigua.
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
@@ -35,6 +47,15 @@ function load(){
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
+  }
+  d.avatar=normalizeAvatar(d.avatar);
+  if(typeof AVATAR!=='undefined'&&Array.isArray(AVATAR.items)){
+    const catalog=new Map(AVATAR.items.map(item=>[item.id,item]));
+    d.avatar.owned=d.avatar.owned.filter(id=>catalog.has(id));
+    for(const slot of Object.keys(d.avatar.equipped)){
+      const item=catalog.get(d.avatar.equipped[slot]);
+      if(!item||item.slot!==slot)d.avatar.equipped[slot]=null;
+    }
   }
   save(d);return d;
 }

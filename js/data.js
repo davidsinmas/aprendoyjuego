@@ -64,12 +64,90 @@ const GAME={
       {id:'sopa8',level:8,name:'Nivel 8',desc:'8 × 8 · 6 palabras y más letras distractoras',size:8,count:6,minLen:4,maxLen:6,dirs:['h','v','d']},
       {id:'sopa9',level:9,name:'Nivel 9',desc:'8 × 8 · 6 palabras de 5–7 letras',size:8,count:6,minLen:5,maxLen:7,dirs:['h','v','d']},
       {id:'sopa10',level:10,name:'Nivel 10',desc:'9 × 9 · 7 palabras infantiles de hasta 7 letras',size:9,count:7,minLen:4,maxLen:7,dirs:['h','v','d']}
+    ],
+    sonidoInicial:[
+      {id:'sonidoinicial1',level:1,name:'Nivel 1',desc:'Sonidos iniciales muy claros · M, P y L',letters:'MPL',options:3,maxLen:5},
+      {id:'sonidoinicial2',level:2,name:'Nivel 2',desc:'Añade S, T y N',letters:'MPLSTN',options:3,maxLen:5},
+      {id:'sonidoinicial3',level:3,name:'Nivel 3',desc:'Más consonantes frecuentes',letters:'MPLSTNCBD',options:3,maxLen:5},
+      {id:'sonidoinicial4',level:4,name:'Nivel 4',desc:'Añade R, F, G y V',letters:'MPLSTNCBDFGRV',options:3,maxLen:6},
+      {id:'sonidoinicial5',level:5,name:'Nivel 5',desc:'Palabras de 2 sílabas muy conocidas',letters:'MPLSTNCBDFGRVZ',options:3,minSyllables:2,maxSyllables:2,maxLen:6},
+      {id:'sonidoinicial6',level:6,name:'Nivel 6',desc:'Palabras de 2 y 3 sílabas',letters:'MPLSTNCBDFGRVZ',options:3,minSyllables:2,maxSyllables:3,maxLen:7},
+      {id:'sonidoinicial7',level:7,name:'Nivel 7',desc:'Opciones más parecidas entre sí',letters:'MPLSTNCBDFGRVZ',options:4,minSyllables:2,maxLen:7},
+      {id:'sonidoinicial8',level:8,name:'Nivel 8',desc:'Más variedad de sonidos iniciales',letters:'MPLSTNCBDFGRVZJQ',options:4,maxLen:7},
+      {id:'sonidoinicial9',level:9,name:'Nivel 9',desc:'Palabras algo más largas',letters:'MPLSTNCBDFGRVZJQ',options:4,minLen:5,maxLen:8},
+      {id:'sonidoinicial10',level:10,name:'Nivel 10',desc:'Discriminación fina entre 4 opciones',letters:'MPLSTNCBDFGRVZJQ',options:4,minLen:4,maxLen:8}
+    ],
+    sonidoFinal:[
+      {id:'sonidofinal1',level:1,name:'Nivel 1',desc:'Finales muy claros en A y O',endings:'AO',options:3,maxLen:5},
+      {id:'sonidofinal2',level:2,name:'Nivel 2',desc:'Añade L y N',endings:'AOLN',options:3,maxLen:5},
+      {id:'sonidofinal3',level:3,name:'Nivel 3',desc:'Añade S, R y Z',endings:'AOLNSRZ',options:3,maxLen:5},
+      {id:'sonidofinal4',level:4,name:'Nivel 4',desc:'Finales variados en palabras cortas',endings:'AOLNSRZE',options:3,maxLen:6},
+      {id:'sonidofinal5',level:5,name:'Nivel 5',desc:'Palabras de 2 sílabas',endings:'AOLNSRZE',options:3,minSyllables:2,maxSyllables:2,maxLen:6},
+      {id:'sonidofinal6',level:6,name:'Nivel 6',desc:'Palabras de 2 y 3 sílabas',endings:'AOLNSRZE',options:3,minSyllables:2,maxSyllables:3,maxLen:7},
+      {id:'sonidofinal7',level:7,name:'Nivel 7',desc:'4 opciones de sonido final',endings:'AOLNSRZE',options:4,maxLen:7},
+      {id:'sonidofinal8',level:8,name:'Nivel 8',desc:'Finales menos evidentes',endings:'AOLNSRZE',options:4,minLen:4,maxLen:7},
+      {id:'sonidofinal9',level:9,name:'Nivel 9',desc:'Palabras algo más largas',endings:'AOLNSRZE',options:4,minLen:5,maxLen:8},
+      {id:'sonidofinal10',level:10,name:'Nivel 10',desc:'Discriminación fina del último sonido',endings:'AOLNSRZE',options:4,minLen:4,maxLen:8}
+    ],
+    construir:[
+      {id:'construir1',level:1,name:'Nivel 1',desc:'Forma palabras fáciles de 2 sílabas',minSyllables:2,maxSyllables:2,maxLen:5,distractors:0},
+      {id:'construir2',level:2,name:'Nivel 2',desc:'2 sílabas con más vocabulario',minSyllables:2,maxSyllables:2,maxLen:6,distractors:0},
+      {id:'construir3',level:3,name:'Nivel 3',desc:'Añade 1 sílaba que no pertenece',minSyllables:2,maxSyllables:2,maxLen:6,distractors:1},
+      {id:'construir4',level:4,name:'Nivel 4',desc:'Palabras de 3 sílabas fáciles',minSyllables:3,maxSyllables:3,maxLen:7,distractors:0},
+      {id:'construir5',level:5,name:'Nivel 5',desc:'3 sílabas con 1 distractor',minSyllables:3,maxSyllables:3,maxLen:7,distractors:1},
+      {id:'construir6',level:6,name:'Nivel 6',desc:'Mezcla palabras de 2 y 3 sílabas',minSyllables:2,maxSyllables:3,maxLen:7,distractors:1},
+      {id:'construir7',level:7,name:'Nivel 7',desc:'Sílabas parecidas y 2 distractores',minSyllables:2,maxSyllables:3,maxLen:7,distractors:2},
+      {id:'construir8',level:8,name:'Nivel 8',desc:'Palabras algo más largas',minSyllables:3,maxSyllables:3,minLen:6,maxLen:8,distractors:1},
+      {id:'construir9',level:9,name:'Nivel 9',desc:'3 sílabas y 2 distractores',minSyllables:3,maxSyllables:3,minLen:6,maxLen:8,distractors:2},
+      {id:'construir10',level:10,name:'Nivel 10',desc:'Construcción con distractores muy parecidos',minSyllables:2,maxSyllables:3,minLen:5,maxLen:8,distractors:2}
+    ],
+    ordenarSilabas:[
+      {id:'ordenarsilabas1',level:1,name:'Nivel 1',desc:'Ordena 2 sílabas muy fáciles',minSyllables:2,maxSyllables:2,maxLen:5},
+      {id:'ordenarsilabas2',level:2,name:'Nivel 2',desc:'2 sílabas con más vocabulario',minSyllables:2,maxSyllables:2,maxLen:6},
+      {id:'ordenarsilabas3',level:3,name:'Nivel 3',desc:'Palabras de 2 sílabas menos evidentes',minSyllables:2,maxSyllables:2,minLen:5,maxLen:6},
+      {id:'ordenarsilabas4',level:4,name:'Nivel 4',desc:'Empiezan las palabras de 3 sílabas',minSyllables:3,maxSyllables:3,maxLen:7},
+      {id:'ordenarsilabas5',level:5,name:'Nivel 5',desc:'3 sílabas frecuentes',minSyllables:3,maxSyllables:3,maxLen:7},
+      {id:'ordenarsilabas6',level:6,name:'Nivel 6',desc:'Mezcla de 2 y 3 sílabas',minSyllables:2,maxSyllables:3,maxLen:7},
+      {id:'ordenarsilabas7',level:7,name:'Nivel 7',desc:'Sílabas visualmente más parecidas',minSyllables:3,maxSyllables:3,minLen:6,maxLen:8},
+      {id:'ordenarsilabas8',level:8,name:'Nivel 8',desc:'Palabras más largas de 3 sílabas',minSyllables:3,maxSyllables:3,minLen:7,maxLen:8},
+      {id:'ordenarsilabas9',level:9,name:'Nivel 9',desc:'Más variedad de palabras',minSyllables:2,maxSyllables:3,minLen:5,maxLen:8},
+      {id:'ordenarsilabas10',level:10,name:'Nivel 10',desc:'Ordenación de 3 sílabas con dificultad alta',minSyllables:3,maxSyllables:3,minLen:6,maxLen:8}
+    ],
+    rimas:[
+      {id:'rimas1',level:1,name:'Nivel 1',desc:'Rimas muy claras con 2 opciones',options:2,groups:5},
+      {id:'rimas2',level:2,name:'Nivel 2',desc:'Rimas fáciles y conocidas',options:2,groups:7},
+      {id:'rimas3',level:3,name:'Nivel 3',desc:'3 opciones, una rima',options:3,groups:7},
+      {id:'rimas4',level:4,name:'Nivel 4',desc:'Más familias de palabras',options:3,groups:9},
+      {id:'rimas5',level:5,name:'Nivel 5',desc:'Una opción empieza parecido pero no rima',options:3,groups:10,hard:true},
+      {id:'rimas6',level:6,name:'Nivel 6',desc:'Palabras más variadas',options:3,groups:12},
+      {id:'rimas7',level:7,name:'Nivel 7',desc:'Rimas con palabras más largas',options:3,groups:14},
+      {id:'rimas8',level:8,name:'Nivel 8',desc:'4 opciones visuales',options:4,groups:14},
+      {id:'rimas9',level:9,name:'Nivel 9',desc:'Menos pistas y más distractores',options:4,groups:16},
+      {id:'rimas10',level:10,name:'Nivel 10',desc:'Discriminación fina de rimas',options:4,groups:16,hard:true}
     ]
   },
   words:[
     ['SOL','☀️',['SOL']],['MAR','🌊',['MAR']],['PAN','🍞',['PAN']],['PEZ','🐟',['PEZ']],['BUS','🚌',['BUS']],
     ['GATO','🐱',['GA','TO']],['PATO','🦆',['PA','TO']],['CASA','🏠',['CA','SA']],['MESA','🪑',['ME','SA']],['MANO','✋',['MA','NO']],['LUNA','🌙',['LU','NA']],['SOPA','🥣',['SO','PA']],['CAMA','🛏️',['CA','MA']],['PERA','🍐',['PE','RA']],['RANA','🐸',['RA','NA']],['VACA','🐮',['VA','CA']],['LEON','🦁',['LE','ON']],['OSO','🐻',['O','SO']],['MONO','🐵',['MO','NO']],['FLOR','🌸',['FLOR']],['HOJA','🍃',['HO','JA']],['NUBE','☁️',['NU','BE']],['ISLA','🏝️',['IS','LA']],['UVA','🍇',['U','VA']],['BICI','🚲',['BI','CI']],
     ['PERRO','🐶',['PE','RRO']],['RATON','🐭',['RA','TON']],['CERDO','🐷',['CER','DO']],['OVEJA','🐑',['O','VE','JA']],['TIGRE','🐯',['TI','GRE']],['PANDA','🐼',['PAN','DA']],['ZORRO','🦊',['ZO','RRO']],['KOALA','🐨',['KO','A','LA']],['POLLO','🐤',['PO','LLO']],['ABEJA','🐝',['A','BE','JA']],['ARBOL','🌳',['AR','BOL']],['NIEVE','❄️',['NIE','VE']],['FUEGO','🔥',['FUE','GO']],['QUESO','🧀',['QUE','SO']],['HUEVO','🥚',['HUE','VO']],['LECHE','🥛',['LE','CHE']],['FRESA','🍓',['FRE','SA']],['COCHE','🚗',['CO','CHE']],['BARCO','🚢',['BAR','CO']],['TREN','🚆',['TREN']],['AVION','✈️',['A','VION']],['RELOJ','⌚',['RE','LOJ']],['LLAVE','🔑',['LLA','VE']],['LIBRO','📘',['LI','BRO']],['LAPIZ','✏️',['LA','PIZ']],
-    ['PELOTA','⚽',['PE','LO','TA']],['TOMATE','🍅',['TO','MA','TE']],['CAMISA','👕',['CA','MI','SA']],['MALETA','🧳',['MA','LE','TA']],['PALOMA','🕊️',['PA','LO','MA']],['CONEJO','🐰',['CO','NE','JO']],['ZAPATO','👟',['ZA','PA','TO']],['BANANA','🍌',['BA','NA','NA']],['NARANJA','🍊',['NA','RAN','JA']],['VENTANA','🪟',['VEN','TA','NA']],['CABALLO','🐴',['CA','BA','LLO']],['GALLINA','🐔',['GA','LLI','NA']],['ESTRELLA','⭐',['ES','TRE','LLA']]
-  ].map(([word,icon,syllables])=>({word,icon,syllables}))
+    ['PELOTA','⚽',['PE','LO','TA']],['TOMATE','🍅',['TO','MA','TE']],['CAMISA','👕',['CA','MI','SA']],['MALETA','🧳',['MA','LE','TA']],['PALOMA','🕊️',['PA','LO','MA']],['CONEJO','🐰',['CO','NE','JO']],['ZAPATO','👟',['ZA','PA','TO']],['BANANA','🍌',['BA','NA','NA']],['NARANJA','🍊',['NA','RAN','JA']],['VENTANA','🪟',['VEN','TA','NA']],['CABALLO','🐴',['CA','BA','LLO']],['GALLINA','🐔',['GA','LLI','NA']],['ESTRELLA','⭐',['ES','TRE','LLA']],['CAMELLO','🐫',['CA','ME','LLO']],['CANGURO','🦘',['CAN','GU','RO']],['TORTUGA','🐢',['TOR','TU','GA']],['SEMILLA','🌱',['SE','MI','LLA']],['GIRASOL','🌻',['GI','RA','SOL']]
+  ].map(([word,icon,syllables])=>({word,icon,syllables})),
+  rhymes:[
+    {key:'ATO',words:[['GATO','🐱'],['PATO','🦆'],['ZAPATO','👟']]},
+    {key:'ASA',words:[['CASA','🏠'],['TAZA','☕']]},
+    {key:'ANA',words:[['RANA','🐸'],['LANA','🧶'],['CAMPANA','🔔']]},
+    {key:'OL',words:[['SOL','☀️'],['COL','🥬'],['CARACOL','🐌']]},
+    {key:'AN',words:[['PAN','🍞'],['FLAN','🍮']]},
+    {key:'ON',words:[['RATON','🐭'],['LEON','🦁'],['AVION','✈️'],['CAMION','🚚']]},
+    {key:'OTA',words:[['PELOTA','⚽'],['BOTA','🥾']]},
+    {key:'EJO',words:[['CONEJO','🐰'],['ESPEJO','🪞']]},
+    {key:'ESO',words:[['QUESO','🧀'],['BESO','😘']]},
+    {key:'UNA',words:[['LUNA','🌙'],['CUNA','🛏️']]},
+    {key:'ISA',words:[['CAMISA','👕'],['SONRISA','😊']]},
+    {key:'ANA2',words:[['VENTANA','🪟'],['MANZANA','🍎']]},
+    {key:'ESA',words:[['FRESA','🍓'],['MESA','🪑']]},
+    {key:'ERO',words:[['PERRO','🐶'],['SOMBRERO','🎩']]},
+    {key:'OJA',words:[['HOJA','🍃'],['ROJA','🔴']]},
+    {key:'AVE',words:[['LLAVE','🔑'],['AVE','🐦']]}
+  ].map(g=>({...g,words:g.words.map(([word,icon])=>({word,icon}))}))
 };

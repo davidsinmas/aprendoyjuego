@@ -2,6 +2,7 @@ let D=load(),parentMode=false,state={type:null,level:null,mode:null,qs:[],i:0,hi
 const A=document.getElementById('app');
 const mix=a=>[...a].sort(()=>Math.random()-.5);
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const READING_TYPES=new Set(['sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas']);
 const stats=id=>D.estadisticas[id]||{partidas:0,aciertos:0,respuestas:0};
 const today=()=>new Date().toLocaleDateString('sv-SE');
 function ensureDaily(){if(D.retosDiarios.fecha!==today())D.retosDiarios={fecha:today(),sumas:false,restas:false,sopa:false,premio:false};save(D);}
@@ -33,7 +34,8 @@ function playChime(kind='ok'){try{audioCtx=audioCtx||new(window.AudioContext||wi
 function home(){ensureDaily();checkAchievements();if(showPendingLevel())return;if(showPendingAchievement())return;layout(`
 <div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V${window.APP_VERSION||'actual'} · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
 ${xpPanel()}
-<div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}<button class="btn secondary side-action" onclick="achievements()">🏆 Ver logros</button></div></div>
+<div class="progress-actions"><button class="btn secondary progress-action" onclick="avatarScreen()">👤 Mi avatar</button><button class="btn secondary progress-action" onclick="achievements()">🏆 Logros</button></div>
+<div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}</div></div>
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
 <button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>10 niveles · 10 ejercicios</small></button>
@@ -42,22 +44,109 @@ ${xpPanel()}
 <button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>10 niveles · 10 ejercicios</small></button>
 <button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>10 niveles progresivos</small></button>
 </div>
+<h3 class="section-title">Aprender a leer</h3>
+<div class="game-grid reading-grid">
+<button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b><small>Escucha · elige la primera letra</small></button>
+<button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b><small>Escucha · elige la última letra</small></button>
+<button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye la palabra</b><small>Une sílabas con ayuda de audio</small></button>
+<button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b><small>Coloca las sílabas en orden</small></button>
+<button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>Escucha y encuentra cuál rima</small></button>
+</div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
+let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null;
+function avatarCatalog(){return (AVATAR.items||[]).filter(item=>!item.technical);}
+function avatarCollectionStats(){
+  const items=avatarCatalog(),avatar=AvatarSystem.ensureState(D),owned=items.filter(item=>avatar.owned.includes(item.id)).length;
+  return{owned,total:items.length,equipped:AvatarSystem.equippedItems(D).length};
+}
+function collectionProgress(){
+  const stats=avatarCollectionStats(),pct=stats.total?Math.round(stats.owned/stats.total*100):0;
+  return `<div class="collection-progress"><div class="collection-progress-head"><div><span class="eyebrow">Colección</span><b>Guardián Nova</b></div><strong>${stats.owned}/${stats.total}</strong></div><div class="collection-track" aria-label="${stats.owned} de ${stats.total} objetos conseguidos"><span style="width:${pct}%"></span></div><small>${stats.owned===stats.total?'¡Conjunto completo!':stats.total-stats.owned+' piezas por conseguir'}</small></div>`;
+}
+function renderAvatarStage(containerId,{statusId=null,previewItemId=null}={}){
+  requestAnimationFrame(async()=>{
+    const container=document.getElementById(containerId),status=statusId?document.getElementById(statusId):null;
+    if(!container||!window.AvatarSystem){if(status)status.textContent='No se pudo iniciar el avatar.';return;}
+    let assetError=false;
+    AvatarSystem.render(container,D,{previewItemId,onAssetError:()=>{assetError=true;if(status)status.textContent='⚠️ Falta un recurso del equipamiento.';}});
+    if(!status)return;
+    const checks=await(avatarChecksPromise||(avatarChecksPromise=AvatarSystem.validateAssets({includeBase:true})));
+    const invalid=checks.filter(check=>!check.ok);
+    const ok=!assetError&&!invalid.length;
+    status.textContent=ok?(previewItemId?'Vista previa · toca el botón para equipar':'✓ Avatar listo'):'⚠️ No se pudo cargar todo el equipamiento';
+    status.classList.toggle('avatar-status-ok',ok);
+    status.classList.toggle('avatar-status-error',!ok);
+  });
+}
+function avatarScreen(){
+  const stats=avatarCollectionStats();
+  layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div>
+  <div class="avatar-hub">
+    <div class="avatar-preview-card avatar-preview-card-hero"><div class="space-orbit" aria-hidden="true"></div><div id="avatarPreview" class="avatar-preview" aria-label="Avatar del jugador"></div><div id="avatarAssetStatus" class="avatar-status muted">Cargando avatar…</div></div>
+    <div class="avatar-hub-content"><span class="eyebrow">Centro de equipamiento</span><h2>Mi héroe</h2><p class="muted">Consigue piezas, prueba cómo quedan y crea tu propio guardián espacial.</p>${collectionProgress()}<div class="avatar-stats"><div><strong>${stats.owned}</strong><span>En el inventario</span></div><div><strong>${stats.equipped}</strong><span>Equipadas</span></div></div><div class="avatar-menu-grid"><button class="btn primary avatar-menu-btn" onclick="openShopScreen()">Explorar tienda</button><button class="btn secondary avatar-menu-btn" onclick="inventoryScreen()">Abrir inventario</button></div></div>
+  </div>`);
+  renderAvatarStage('avatarPreview',{statusId:'avatarAssetStatus'});
+}
+function rarityLabel(item){return AVATAR.rarities?.[item.rarity]?.label||item.rarity||'Objeto';}
+function shopVisual(item){return item.shopImage?`<img src="${escapeHTML(item.shopImage)}" alt="${escapeHTML(item.name)}">`:(item.shopIcon||'🎁');}
+function shopItemCard(item,selected){
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id;
+  const state=equipped?'Equipado':owned?'En tu inventario':`${item.price} 💎`;
+  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><span class="shop-card-state">${state}</span></span></button>`;
+}
+function shopDetail(item){
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,missing=Math.max(0,item.price-D.diamantes);
+  let action='';
+  if(equipped)action=`<button class="btn secondary shop-main-action" onclick="unequipAvatarFromShop('${item.slot}')">✓ Equipado · Quitar</button>`;
+  else if(owned)action=`<button class="btn primary shop-main-action" onclick="equipAvatarFromShop('${item.id}')">Equipar ahora</button>`;
+  else if(!missing)action=`<button class="btn primary shop-main-action" onclick="buyAndEquipAvatarItem('${item.id}')">Comprar y equipar · ${item.price} 💎</button>`;
+  else action=`<button class="btn secondary shop-main-action" disabled>Te faltan ${missing} 💎</button>`;
+  return `<div class="shop-detail"><div class="shop-detail-title"><div><span class="eyebrow">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><h2>${escapeHTML(item.name)}</h2></div><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><p>${escapeHTML(item.description||'')}</p>${action}${!owned?'<small>Al comprarla se equipará automáticamente.</small>':'<small>La pieza seguirá guardada en tu inventario.</small>'}</div>`;
+}
+function openShopScreen(){shopFeedback='';shopScreen();}
+function shopScreen(){
+  const items=avatarCatalog();
+  if(!items.some(item=>item.id===selectedShopItemId))selectedShopItemId=items[0]?.id||null;
+  const selected=AvatarSystem.getItem(selectedShopItemId);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Selecciona una pieza para probarla antes de comprar.</p></div>${collectionProgress()}</div>${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">Piezas del conjunto</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}`);
+  if(selected)renderAvatarStage('shopAvatarPreview',{statusId:'shopAssetStatus',previewItemId:selected.id});
+}
+function selectShopItem(id){selectedShopItemId=id;shopFeedback='';shopScreen();}
+function buyAndEquipAvatarItem(id){
+  const result=AvatarSystem.buy(D,id);
+  if(result.ok){AvatarSystem.equip(D,id);save(D);shopFeedback=`¡${result.item.name} ya está en tu inventario y equipado!`;playChime('ok');shopScreen();return;}
+  if(result.reason==='owned'){equipAvatarFromShop(id);return;}
+  if(result.reason==='diamonds')alert('Necesitas más diamantes para comprar este objeto.');
+}
+function equipAvatarFromShop(id){try{const item=AvatarSystem.equip(D,id);save(D);shopFeedback=`${item.name} equipado.`;playChime('ok');shopScreen();}catch(error){alert(error.message);}}
+function unequipAvatarFromShop(slot){try{AvatarSystem.unequip(D,slot);save(D);shopFeedback='Pieza guardada en el inventario.';shopScreen();}catch(error){alert(error.message);}}
+function inventoryItemCard(item){
+  const equipped=AvatarSystem.ensureState(D).equipped[item.slot]===item.id;
+  return `<article class="inventory-card rarity-border-${item.rarity} ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div class="inventory-action">${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></article>`;
+}
+function inventoryScreen(){
+  const avatar=AvatarSystem.ensureState(D),items=avatar.owned.map(id=>AvatarSystem.getItem(id)).filter(Boolean);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="inventory-head"><div><span class="eyebrow">Tu equipamiento</span><h2>Inventario</h2><p class="muted">Combina las piezas que has conseguido. Solo puede haber una de cada categoría.</p></div><button class="btn primary" onclick="openShopScreen()">Ir a la tienda</button></div><div class="inventory-layout"><div class="avatar-preview-card inventory-preview-card"><div class="space-orbit" aria-hidden="true"></div><div id="inventoryAvatarPreview" class="avatar-preview" aria-label="Equipamiento actual del avatar"></div><div id="inventoryAssetStatus" class="avatar-status muted">Cargando equipamiento…</div>${collectionProgress()}</div><div>${items.length?`<div class="inventory-list">${items.map(inventoryItemCard).join('')}</div>`:'<div class="empty-state"><div class="empty-state-icon">🛰️</div><b>Tu inventario está esperando su primera pieza</b><p class="muted">Juega para ganar diamantes y visita la tienda estelar.</p><button class="btn primary" onclick="openShopScreen()">Ver colección</button></div>'}</div></div>`);
+  renderAvatarStage('inventoryAvatarPreview',{statusId:'inventoryAssetStatus'});
+}
+function equipAvatarItem(id){try{AvatarSystem.equip(D,id);save(D);playChime('ok');inventoryScreen();}catch(error){alert(error.message);}}
+function unequipAvatarSlot(slot){try{AvatarSystem.unequip(D,slot);save(D);inventoryScreen();}catch(error){alert(error.message);}}
 function levelDone(n){return stats(n.id).partidas>0;}
 function levelUnlocked(t,index){return parentMode||index===0||levelDone(GAME.levels[t][index-1]);}
 function levelDiamonds(n,repeat=false){return repeat?n.level:n.level+4;}
 function levels(t){
   state.type=t;
-  const titles={suma:'Niveles de sumas',resta:'Niveles de restas',comparar:'Mayor o menor',palabras:'Niveles de palabras',sopa:'Sopa de letras'};
+  const titles={suma:'Niveles de sumas',resta:'Niveles de restas',comparar:'Mayor o menor',palabras:'Niveles de palabras',sopa:'Sopa de letras',sonidoInicial:'¿Con qué sonido empieza?',sonidoFinal:'¿Con qué sonido termina?',construir:'Construye la palabra',ordenarSilabas:'Ordena las sílabas',rimas:'Busca la rima'};
   const title=titles[t]||'Niveles';
   const rows=GAME.levels[t].map((n,index)=>{
     const s=stats(n.id),done=s.partidas>0,unlocked=levelUnlocked(t,index),p=s.respuestas?Math.round(s.aciertos/s.respuestas*100):0,reward=levelDiamonds(n,done);
-    const activity=t==='sopa'?`${n.count} palabras · 1 tablero`:t==='comparar'?'10 comparaciones':t==='palabras'?'10 ejercicios':'10 ejercicios';
+    const activity=t==='sopa'?`${n.count} palabras · 1 tablero`:t==='comparar'?'10 comparaciones':'10 ejercicios';
     let action='';
     if(unlocked){
       if(t==='suma'||t==='resta')action=`<button class="small play" onclick='startMath(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
       else if(t==='comparar')action=`<button class="small play" onclick='startCompare(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
       else if(t==='palabras')action=`<button class="small play" onclick='startWords(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
+      else if(READING_TYPES.has(t))action=`<button class="small play" onclick='startReadingGame(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
       else action=`<button class="small play" onclick='startSoup(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
     }else action='<button class="small locked-button" disabled>Bloqueado</button>';
     return `<div class="row level-row ${done?'level-done':''} ${unlocked?'':'level-locked'}"><div class="level-main"><div class="level-title"><b>${done?'✅ ':unlocked?'':'🔒 '}${n.name}</b>${done?'<span class="done-badge">HECHO</span>':''}</div><div class="muted">${n.desc}</div><div class="level-meta"><span>${activity}</span><span>💎 ${reward} ${done?'al repetir':'primera vez'}</span>${done?`<span>Aciertos: ${p}%</span>`:''}</div></div><div class="actions">${action}</div></div>`;
@@ -161,6 +250,114 @@ function wordQuestion(){if(state.i>=state.total)return finishWords();state.locke
   state.correct=correct;layout(`<div class="top"><button class="btn secondary back" onclick="levels('palabras')">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${state.i+1} de ${state.total}</div><div class="word-exercise-icon">${q.icon}</div><div class="question letter-word">${prompt}</div><div class="muted center word-instruction">${sub}</div><div class="answers">${opts.map(o=>`<button class="answer word-answer" onclick="answerWord('${o}',this)">${o}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);state.i++;}
 function answerWord(v,b){if(state.locked)return;state.locked=true;if(String(v)===String(state.correct)){state.hits++;rewardProgressCorrect();b.classList.add('correct');document.getElementById('msg').textContent='¡Muy bien!';}else{playChime('bad');b.classList.add('wrong');document.getElementById('msg').textContent='La respuesta era '+state.correct;document.querySelectorAll('.answer').forEach(x=>{if(String(x.textContent).trim()===String(state.correct))x.classList.add('correct');});}setTimeout(wordQuestion,900);}
 function finishWords(){const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startWords(${JSON.stringify(state.level)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('palabras')">Volver a niveles</button></div>`);}
+function speakWord(text,prefix=''){
+  try{
+    if(!('speechSynthesis' in window))return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(prefix?`${prefix}. ${String(text).toLowerCase()}`:String(text).toLowerCase());
+    u.lang='es-ES';u.rate=.82;u.pitch=1.02;window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function readingWordPool(n,type){
+  return GAME.words.filter(w=>{
+    const len=w.word.length,sy=w.syllables.length,first=w.word[0],last=w.word.at(-1);
+    if(n.minLen&&len<n.minLen)return false;if(n.maxLen&&len>n.maxLen)return false;
+    if(n.minSyllables&&sy<n.minSyllables)return false;if(n.maxSyllables&&sy>n.maxSyllables)return false;
+    if(type==='sonidoInicial'&&n.letters&&!n.letters.includes(first))return false;
+    if(type==='sonidoFinal'&&n.endings&&!n.endings.includes(last))return false;
+    if((type==='construir'||type==='ordenarSilabas')&&sy<2)return false;
+    return true;
+  });
+}
+function fillReadingQuestions(pool,total=10){
+  if(!pool.length)return[];const out=[];let last='';
+  while(out.length<total){let batch=mix(pool);if(batch.length>1&&batch[0].word===last)batch=[...batch.slice(1),batch[0]];for(const q of batch){out.push(q);last=q.word;if(out.length>=total)break;}}
+  return out;
+}
+function startReadingGame(type,n){
+  if(type==='rimas')return startRhymes(n);
+  const pool=readingWordPool(n,type),qs=fillReadingQuestions(pool,10);
+  state={...state,type,level:n,mode:type,qs,i:0,hits:0,daily:false,total:10,locked:false,picked:[],tokens:[]};
+  readingQuestion();
+}
+function readingQuestion(){
+  if(state.i>=state.total)return finishReading();
+  if(state.type==='sonidoInicial'||state.type==='sonidoFinal')return soundQuestion();
+  return syllableQuestion();
+}
+function makeLetterOptions(correct,n,type){
+  const source=type==='sonidoInicial'?(n.letters||'MPLSTNCBDFGRVZJQ'):(n.endings||'AOLNSRZE');
+  const all=[...new Set(source.split('').filter(x=>x!==correct))];let set=new Set([correct]);
+  for(const letter of mix(all)){set.add(letter);if(set.size>=(n.options||3))break;}
+  return mix([...set]);
+}
+function soundQuestion(){
+  state.locked=false;const q=state.qs[state.i],initial=state.type==='sonidoInicial',correct=initial?q.word[0]:q.word.at(-1),opts=makeLetterOptions(correct,state.level,state.type);
+  state.correct=correct;const num=state.i+1,label=initial?'¿CON QUÉ LETRA EMPIEZA?':'¿CON QUÉ LETRA TERMINA?',spoken=initial?'Escucha la palabra. Toca la letra por la que empieza':'Escucha la palabra. Toca la letra por la que termina';
+  layout(`<div class="top"><button class="btn secondary back" onclick="levels('${state.type}')">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${num} de ${state.total}</div><div class="listen-card"><div class="reading-picture">${q.icon}</div><button class="listen-button" onclick="speakWord('${q.word}','${spoken}')">🔊</button><b>${label}</b></div><div class="answers reading-letter-answers">${opts.map(o=>`<button class="answer reading-letter" onclick="answerSound('${o}',this)">${o}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);
+  state.i++;setTimeout(()=>speakWord(q.word,spoken),140);
+}
+function answerSound(value,b){
+  if(state.locked)return;state.locked=true;
+  if(value===state.correct){state.hits++;rewardProgressCorrect();b.classList.add('correct');document.getElementById('msg').textContent='¡Muy bien!';}
+  else{playChime('bad');b.classList.add('wrong');document.getElementById('msg').textContent=`Era ${state.correct}`;document.querySelectorAll('.reading-letter').forEach(x=>{if(x.textContent.trim()===state.correct)x.classList.add('correct');});}
+  setTimeout(readingQuestion,900);
+}
+function randomSyllableDistractors(q,count){
+  const source=[...new Set(GAME.words.flatMap(w=>w.syllables))].filter(x=>!q.syllables.includes(x));return mix(source).slice(0,count);
+}
+function shuffledSyllableTokens(q,distractors=0){
+  const values=[...q.syllables,...randomSyllableDistractors(q,distractors)].map((text,i)=>({text,id:`${i}-${Math.random()}`}));
+  let shuffled=mix(values);const target=q.syllables.join('|');
+  for(let tries=0;tries<12&&shuffled.filter(x=>q.syllables.includes(x.text)).slice(0,q.syllables.length).map(x=>x.text).join('|')===target;tries++)shuffled=mix(values);
+  return shuffled;
+}
+function syllableQuestion(){
+  state.locked=false;const q=state.qs[state.i],build=state.type==='construir',num=state.i+1;
+  state.currentWord=q;state.picked=[];state.tokens=shuffledSyllableTokens(q,build?(state.level.distractors||0):0);state.i++;
+  renderSyllableQuestion(num);
+  setTimeout(()=>speakWord(q.word,build?'Construye esta palabra':'Ordena las sílabas para formar esta palabra'),140);
+}
+function renderSyllableQuestion(num=state.i){
+  const q=state.currentWord,build=state.type==='construir',need=q.syllables.length,chosen=state.picked.map(i=>state.tokens[i]?.text).filter(Boolean);
+  const slots=Array.from({length:need},(_,i)=>`<div class="syllable-slot ${chosen[i]?'filled':''}">${chosen[i]||'•'}</div>`).join('');
+  layout(`<div class="top"><button class="btn secondary back" onclick="levels('${state.type}')">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${num} de ${state.total}</div><div class="listen-card compact"><div class="reading-picture">${q.icon}</div><button class="listen-button" onclick="speakWord('${q.word}')">🔊</button><b>${build?'CONSTRUYE':'ORDENA'}</b></div><div class="syllable-slots">${slots}</div><div class="syllable-bank">${state.tokens.map((tok,i)=>`<button class="syllable-token ${state.picked.includes(i)?'used':''}" ${state.picked.includes(i)?'disabled':''} onclick="pickSyllable(${i})">${tok.text}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);
+}
+function pickSyllable(index){
+  if(state.locked||state.picked.includes(index))return;state.picked.push(index);const q=state.currentWord,need=q.syllables.length;
+  renderSyllableQuestion();
+  if(state.picked.length<need)return;
+  state.locked=true;const attempt=state.picked.map(i=>state.tokens[i].text),ok=attempt.join('|')===q.syllables.join('|'),msg=document.getElementById('msg');
+  if(ok){state.hits++;rewardProgressCorrect();if(msg)msg.textContent='¡Muy bien!';document.querySelectorAll('.syllable-slot').forEach(x=>x.classList.add('correct-slot'));}
+  else{playChime('bad');if(msg)msg.textContent=`Era ${q.syllables.join(' · ')}`;document.querySelectorAll('.syllable-slot').forEach(x=>x.classList.add('wrong-slot'));}
+  setTimeout(readingQuestion,1050);
+}
+function makeRhymeQuestion(n,index){
+  const groups=GAME.rhymes.slice(0,Math.min(n.groups||GAME.rhymes.length,GAME.rhymes.length)),group=groups[index%groups.length],pair=mix(group.words),reference=pair[0],correct=pair[1]||pair[0];
+  let candidates=groups.filter(g=>g.key!==group.key).flatMap(g=>g.words).filter(w=>w.word!==reference.word&&w.word!==correct.word);
+  if(n.hard)candidates=candidates.sort((a,b)=>(b.word[0]===reference.word[0])-(a.word[0]===reference.word[0]));else candidates=mix(candidates);
+  return{reference,correct,options:mix([correct,...candidates.slice(0,Math.max(1,(n.options||3)-1))])};
+}
+function startRhymes(n){
+  const order=mix(Array.from({length:10},(_,i)=>i));const qs=order.map((v,i)=>makeRhymeQuestion(n,v+i));
+  state={...state,type:'rimas',level:n,mode:'rimas',qs,i:0,hits:0,daily:false,total:10,locked:false};rhymeQuestion();
+}
+function rhymeQuestion(){
+  if(state.i>=state.total)return finishReading();state.locked=false;const q=state.qs[state.i],num=state.i+1;state.correct=q.correct.word;
+  layout(`<div class="top"><button class="btn secondary back" onclick="levels('rimas')">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${num} de ${state.total}</div><div class="rhyme-prompt"><span>${q.reference.icon}</span><b>${q.reference.word}</b><button class="listen-button" onclick="speakWord('${q.reference.word}','Busca una palabra que rime con')">🔊</button></div><div class="rhyme-options">${q.options.map(o=>`<div class="rhyme-option"><button class="rhyme-choice" data-word="${o.word}" onclick="answerRhyme('${o.word}',this)"><span>${o.icon}</span><b>${o.word}</b></button><button class="rhyme-hear" onclick="speakWord('${o.word}')" aria-label="Escuchar ${o.word}">🔊</button></div>`).join('')}</div><div id="msg" class="muted msg"></div>`);
+  state.i++;setTimeout(()=>speakWord(q.reference.word,'Busca una palabra que rime con'),140);
+}
+function answerRhyme(word,b){
+  if(state.locked)return;state.locked=true;
+  if(word===state.correct){state.hits++;rewardProgressCorrect();b.classList.add('correct');document.getElementById('msg').textContent='¡Sí, riman!';}
+  else{playChime('bad');b.classList.add('wrong');document.getElementById('msg').textContent='Escucha cómo terminan';document.querySelectorAll('.rhyme-choice').forEach(x=>{if(x.dataset.word===state.correct)x.classList.add('correct');});}
+  setTimeout(rhymeQuestion,1050);
+}
+function finishReading(){
+  const type=state.type,n=state.level,s=stats(n.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[n.id]=s;
+  const reward=levelDiamonds(n,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
+  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startReadingGame(${JSON.stringify(type)},${JSON.stringify(n)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('${type}')">Volver a niveles</button></div>`);
+}
 function startSoup(n,daily=false){const pool=GAME.words.filter(w=>w.word.length>=(n.minLen||3)&&w.word.length<=(n.maxLen||n.size));const count=daily?1:n.count;const words=mix(pool).slice(0,count);state={...state,type:'sopa',level:n,mode:null,qs:words,i:0,hits:0,daily,total:count,path:[],found:[]};const built=buildMultiGrid(words.map(w=>w.word),n.size,n.dirs);state.grid=built.grid;state.targets=built.targets;state.found=Array(words.length).fill(false);renderSoup();}
 function renderSoup(){const n=state.level,cols=`repeat(${n.size},1fr)`;layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':"levels('sopa')"}">← Salir</button>${diamond()}</div><div class="muted">Encuentra ${state.qs.length===1?'la palabra':`las ${state.qs.length} palabras`}</div><div class="soup-targets">${state.qs.map((q,i)=>`<div class="soup-target ${state.found[i]?'done':''}" data-target="${i}"><span>${state.found[i]?'✅':q.icon}</span><b>${q.word}</b></div>`).join('')}</div><div class="word-hint center">Toca la primera y la última letra de cada palabra.</div><div id="wordGrid" class="word-grid" style="grid-template-columns:${cols}">${state.grid.flatMap((row,r)=>row.map((letter,c)=>`<button class="word-cell" data-r="${r}" data-c="${c}" onclick="pickSoup(${r},${c})">${letter}</button>`)).join('')}</div><div id="wordStatus" class="word-status"></div>`);paintFoundSoup();}
 function buildMultiGrid(words,size,dirs){for(let restart=0;restart<150;restart++){const grid=Array.from({length:size},()=>Array(size).fill('')),targets=[];let ok=true;for(const word of words){let placed=false;for(let attempt=0;attempt<250&&!placed;attempt++){const dir=dirs[rnd(0,dirs.length-1)];let dr=0,dc=1;if(dir==='v'){dr=1;dc=0;}if(dir==='d'){dr=1;dc=1;}const maxR=size-1-dr*(word.length-1),maxC=size-1-dc*(word.length-1);if(maxR<0||maxC<0)continue;const sr=rnd(0,maxR),sc=rnd(0,maxC),cells=[];let fits=true;for(let i=0;i<word.length;i++){const r=sr+dr*i,c=sc+dc*i;if(grid[r][c]&&grid[r][c]!==word[i]){fits=false;break;}cells.push([r,c]);}if(!fits)continue;[...word].forEach((ch,i)=>{const [r,c]=cells[i];grid[r][c]=ch;});targets.push(cells);placed=true;}if(!placed){ok=false;break;}}if(ok){const abc='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(!grid[r][c])grid[r][c]=abc[rnd(0,abc.length-1)];return{grid,targets};}}throw new Error('No se pudo generar la sopa');}
@@ -194,7 +391,7 @@ function parentDashboard(){
   <div class="parent-card"><h3>⚠️ Reinicio</h3><button class="btn danger" onclick="resetAll()">Borrar todo el progreso</button></div>
   </div>`);
 }
-function parentTestLevels(){layout(`<div class="top"><button class="btn secondary back" onclick="parentDashboard()">← Padres</button><span class="parent-active">🔓 Pruebas</span></div><h2>Probar niveles</h2><p class="muted">Elige una actividad. Todos sus niveles estarán disponibles mientras el modo Padres siga activo.</p><div class="game-grid"><button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b></button><button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b></button><button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b></button><button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b></button><button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopas</b></button></div>`);}
+function parentTestLevels(){layout(`<div class="top"><button class="btn secondary back" onclick="parentDashboard()">← Padres</button><span class="parent-active">🔓 Pruebas</span></div><h2>Probar niveles</h2><p class="muted">Elige una actividad. Todos sus niveles estarán disponibles mientras el modo Padres siga activo.</p><div class="game-grid"><button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b></button><button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b></button><button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b></button><button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b></button><button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopas</b></button><button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b></button><button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b></button><button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye</b></button><button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b></button><button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Rimas</b></button></div>`);}
 function disableParentMode(){parentMode=false;home();}
 function setParentProgress(){
   const level=Math.max(1,Math.floor(Number(document.getElementById('parentLevel')?.value)||1));
@@ -209,10 +406,3 @@ function exportData(){const a=document.createElement('a');a.href=URL.createObjec
 function importData(e){const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{localStorage.setItem(STORE,r.result);D=load();alert('Progreso importado');home();}catch{alert('Archivo no válido');}};r.readAsText(file);}
 function resetAll(){if(confirm('¿Borrar todo el progreso? Esta acción no se puede deshacer.')){localStorage.removeItem(STORE);D=load();home();}}
 home();
-
-
-/* Compatibilidad temporal con el validador del actualizador heredado.
-   No activa ni muestra ninguna tienda. */
-function shopScreen(){home();}
-function inventoryScreen(){home();}
-void AvatarSystem.buy;
