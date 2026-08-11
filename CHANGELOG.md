@@ -1,5 +1,14 @@
 # Changelog
 
+## V2.15.0 — 2026-08-11
+- Redimensionado el casco sobre el avatar maestro y añadida cobertura completa de cabeza, pelo y orejas.
+- Ajustada cada bota por separado y eliminada la superposición visual con el calzado base.
+- Añadidas capas interiores de armadura para evitar que se vean piel o ropa base entre las piezas equipadas.
+- Rediseñada la diferenciación legendaria con acabados dorados, energía cian, halo y destellos.
+- Añadida una animación ligera al equipamiento legendario, respetando la preferencia de movimiento reducido.
+- Regeneradas y verificadas las 24 capas del avatar y sus 24 miniaturas de tienda.
+- Conservadas íntegramente la economía, las compras, el inventario y los diez juegos de V2.14.0.
+
 ## V2.14.0 — 2026-08-11
 - Corregida la alineación de las ocho capas Guardián Nova respecto al avatar maestro.
 - Ampliada la tienda de 8 a 24 objetos: 8 comunes, 8 raros y 8 legendarios.

@@ -4,11 +4,13 @@ Aplicación web educativa para móvil, tablet y ordenador.
 
 ## Versión
 
-`2.14.0`
+`2.15.0`
 
 Incluye:
 - Avatar paper-doll, inventario y tienda estelar Guardián Nova.
 - 24 piezas equipables prealineadas: 8 comunes, 8 raras y 8 legendarias.
+- Casco, armadura y botas con cobertura completa del avatar, sin capas dobles.
+- Nivel legendario con materiales dorados, energía cian, destellos y aura animada.
 - Progresión de precios por nivel ×1, ×2 y ×4, desde 30 diamantes.
 - Multiplicador global de precios configurable en la Zona de padres (×0,25–×3).
 - 10 niveles progresivos de sumas, restas, comparación, palabras y sopas de letras.

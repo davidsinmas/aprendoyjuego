@@ -97,7 +97,7 @@
     return [...bySlot.values()]
       .sort((a,b)=>AVATAR.slots[a.slot].layer-AVATAR.slots[b.slot].layer);
   }
-  function makeLayer(src,layer,kind,id){
+  function makeLayer(src,layer,kind,id,rarity=''){
     const img=document.createElement('img');
     img.src=assetURL(src);
     img.alt='';
@@ -105,6 +105,7 @@
     img.className='avatar-layer';
     img.dataset.kind=kind;
     if(id)img.dataset.itemId=id;
+    if(rarity)img.dataset.rarity=rarity;
     img.style.zIndex=String(layer);
     return img;
   }
@@ -126,9 +127,12 @@
       },{once:true});
       container.appendChild(img);
     };
-    if(showBase&&AVATAR.base.src)add(makeLayer(AVATAR.base.src,AVATAR.base.layer,'base',AVATAR.base.id));
     const items=previewItemId?previewItems(data,previewItemId):equippedItems(data);
-    for(const item of items)add(makeLayer(item.avatarLayer,AVATAR.slots[item.slot].layer,previewItemId===item.id?'preview':'equipment',item.id));
+    const legendaryCount=items.filter(item=>item.rarity==='legendary').length;
+    container.classList.toggle('has-legendary',legendaryCount>0);
+    container.style.setProperty('--legendary-aura-opacity',String(Math.min(.26,.08+legendaryCount*.022)));
+    if(showBase&&AVATAR.base.src)add(makeLayer(AVATAR.base.src,AVATAR.base.layer,'base',AVATAR.base.id));
+    for(const item of items)add(makeLayer(item.avatarLayer,AVATAR.slots[item.slot].layer,previewItemId===item.id?'preview':'equipment',item.id,item.rarity));
     return container;
   }
   function inspectImageDimensions(src){

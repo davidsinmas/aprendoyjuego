@@ -14,7 +14,7 @@ const NOVA_PIECES=[
     descriptions:{
       common:'Aleación ligera y visor reforzado para las primeras misiones.',
       rare:'Visor de cobalto con sensores para descubrir nuevos mundos.',
-      legendary:'Visor estelar y protección completa para las misiones más difíciles.'
+      legendary:'Visor estelar de cobertura completa con halo de energía cian.'
     }
   },
   {
@@ -22,7 +22,7 @@ const NOVA_PIECES=[
     descriptions:{
       common:'Protección de acero grafito con un núcleo Nova de baja potencia.',
       rare:'Acero de cobalto reforzado con un núcleo de energía azul.',
-      legendary:'Núcleo de energía reforzado con acero azul y detalles dorados.'
+      legendary:'Núcleo estelar, acero de élite, detalles dorados y aura energética.'
     }
   },
   {
@@ -54,7 +54,7 @@ const NOVA_PIECES=[
     descriptions:{
       common:'Las primeras botas magnéticas del futuro guardián.',
       rare:'Botas magnéticas de cobalto para caminar por cualquier planeta.',
-      legendary:'Botas gravitatorias de élite con suela magnética reforzada.'
+      legendary:'Botas gravitatorias de zafiro y oro con impulso de energía cian.'
     }
   },
   {
@@ -76,7 +76,7 @@ const NOVA_PIECES=[
 ];
 
 const AVATAR={
-  schemaVersion:3,
+  schemaVersion:4,
   canvas:{width:1024,height:1024},
   base:{
     id:'avatar_base',
