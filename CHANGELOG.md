@@ -1,5 +1,14 @@
 # Changelog
 
+## V2.14.0 — 2026-08-11
+- Corregida la alineación de las ocho capas Guardián Nova respecto al avatar maestro.
+- Ampliada la tienda de 8 a 24 objetos: 8 comunes, 8 raros y 8 legendarios.
+- Añadidos tres niveles visuales coherentes para cada categoría de equipamiento.
+- Precios escalonados por rareza con factores ×1, ×2 y ×4; el primer objeto cuesta 30 diamantes.
+- Añadido un multiplicador global de precios entre ×0,25 y ×3 en la Zona de padres.
+- Conservadas las compras y piezas equipadas de V2.13.0, que pasan a representar el nivel legendario.
+- Conservados íntegramente Mayor o menor y los cinco juegos de prelectura de V2.13.0.
+
 ## V2.13.0 — 2026-08-10
 - Restaurados íntegramente el avatar, inventario y tienda Guardián Nova de V2.11.1.
 - Recuperadas las 8 capas equipables originales y sus miniaturas de tienda.

@@ -11,6 +11,7 @@ function blank(){
     retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false},
     retosCompletadosTotal:0,
     logros:[],
+    ajustes:{multiplicadorPrecios:1},
     avatar:{
       owned:[],
       equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}
@@ -40,6 +41,9 @@ function load(){
   d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false};
   d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);
   d.logros=Array.isArray(d.logros)?d.logros:[];
+  d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{};
+  const multiplier=Number(d.ajustes.multiplicadorPrecios);
+  d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(0.25,Number.isFinite(multiplier)?multiplier:1));
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;

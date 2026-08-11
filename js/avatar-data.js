@@ -1,10 +1,82 @@
 /**
- * Infraestructura de avatar paper-doll.
- * Todos los PNG equipables deben compartir exactamente el mismo lienzo maestro.
- * No se permiten coordenadas, escala o rotación por objeto.
+ * Catálogo y configuración del avatar paper-doll.
+ * Las 24 capas comparten el lienzo maestro 1024 × 1024 y vienen prealineadas.
  */
+const NOVA_TIERS=[
+  {id:'common',level:1,label:'Común',nameSuffix:'de cadete',priceFactor:1,directory:'common/'},
+  {id:'rare',level:2,label:'Raro',nameSuffix:'de explorador',priceFactor:2,directory:'rare/'},
+  {id:'legendary',level:3,label:'Legendario',nameSuffix:'Guardián Nova',priceFactor:4,directory:''}
+];
+
+const NOVA_PIECES=[
+  {
+    key:'helmet',asset:'nova_helmet',label:'Casco Nova',slot:'helmet',basePrice:54,
+    descriptions:{
+      common:'Aleación ligera y visor reforzado para las primeras misiones.',
+      rare:'Visor de cobalto con sensores para descubrir nuevos mundos.',
+      legendary:'Visor estelar y protección completa para las misiones más difíciles.'
+    }
+  },
+  {
+    key:'chest',asset:'nova_chest',label:'Peto Nova',slot:'chest',basePrice:48,
+    descriptions:{
+      common:'Protección de acero grafito con un núcleo Nova de baja potencia.',
+      rare:'Acero de cobalto reforzado con un núcleo de energía azul.',
+      legendary:'Núcleo de energía reforzado con acero azul y detalles dorados.'
+    }
+  },
+  {
+    key:'shoulders',asset:'nova_shoulders',label:'Hombreras Nova',slot:'shoulders',basePrice:38,
+    descriptions:{
+      common:'Placas de cobre y acero preparadas para entrenar con seguridad.',
+      rare:'Placas plateadas para misiones más largas y exigentes.',
+      legendary:'Placas de élite preparadas para proteger toda la galaxia.'
+    }
+  },
+  {
+    key:'gloves',asset:'nova_gloves',label:'Guanteletes Nova',slot:'gloves',basePrice:34,
+    descriptions:{
+      common:'Guanteletes firmes para sujetar el equipo durante el aprendizaje.',
+      rare:'Canalizan energía azul con mayor precisión y potencia.',
+      legendary:'Canalizan energía cian para controlar el equipo con máxima precisión.'
+    }
+  },
+  {
+    key:'legs',asset:'nova_legs',label:'Grebas Nova',slot:'legs',basePrice:44,
+    descriptions:{
+      common:'Armadura articulada de iniciación para moverse con confianza.',
+      rare:'Protección articulada de cobalto para avanzar con rapidez.',
+      legendary:'Protección articulada de élite para moverse con fuerza y velocidad.'
+    }
+  },
+  {
+    key:'boots',asset:'nova_boots',label:'Botas Nova',slot:'boots',basePrice:30,
+    descriptions:{
+      common:'Las primeras botas magnéticas del futuro guardián.',
+      rare:'Botas magnéticas de cobalto para caminar por cualquier planeta.',
+      legendary:'Botas gravitatorias de élite con suela magnética reforzada.'
+    }
+  },
+  {
+    key:'shield',asset:'nova_shield',label:'Escudo Nova',slot:'shield',basePrice:58,
+    descriptions:{
+      common:'Escudo de entrenamiento equilibrado y resistente.',
+      rare:'Campo de defensa azul con borde de acero plateado.',
+      legendary:'Campo protector dorado capaz de detener cualquier impacto.'
+    }
+  },
+  {
+    key:'weapon',asset:'nova_weapon',label:'Espada Nova',slot:'weapon',basePrice:64,
+    descriptions:{
+      common:'Hoja de energía estable para comenzar el entrenamiento estelar.',
+      rare:'Hoja de energía azul para las misiones de exploración.',
+      legendary:'La hoja fotónica más poderosa de la colección Nova.'
+    }
+  }
+];
+
 const AVATAR={
-  schemaVersion:2,
+  schemaVersion:3,
   canvas:{width:1024,height:1024},
   base:{
     id:'avatar_base',
@@ -25,107 +97,29 @@ const AVATAR={
     weapon:{layer:100,label:'Arma'},
     effects:{layer:110,label:'Efectos'}
   },
-  rarities:{
-    common:{label:'Común'},
-    rare:{label:'Raro'},
-    epic:{label:'Épico'},
-    legendary:{label:'Legendario'}
+  rarities:Object.fromEntries(NOVA_TIERS.map(tier=>[tier.id,{label:tier.label,level:tier.level}])),
+  economy:{
+    defaultPriceMultiplier:1,
+    minimumPriceMultiplier:0.25,
+    maximumPriceMultiplier:3
   },
   collections:{
     nova_guardian:{
       name:'Guardián Nova',
-      description:'Armadura espacial creada para proteger las estrellas.',
-      itemCount:8
+      description:'Tres niveles de equipamiento espacial para proteger las estrellas.',
+      itemCount:NOVA_TIERS.length*NOVA_PIECES.length
     }
   },
-  items:[
-    {
-      id:'nova_helmet',
-      name:'Casco Nova',
-      description:'Visor estelar y protección completa para las misiones más difíciles.',
-      slot:'helmet',
-      rarity:'legendary',
-      price:55,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_helmet.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_helmet.png'
-    },
-    {
-      id:'nova_chest',
-      name:'Peto Nova',
-      description:'Núcleo de energía reforzado con acero y detalles dorados.',
-      slot:'chest',
-      rarity:'epic',
-      price:42,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_chest.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_chest.png'
-    },
-    {
-      id:'nova_shoulders',
-      name:'Hombreras orbitales',
-      description:'Placas ligeras preparadas para aventuras por toda la galaxia.',
-      slot:'shoulders',
-      rarity:'rare',
-      price:28,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_shoulders.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_shoulders.png'
-    },
-    {
-      id:'nova_gloves',
-      name:'Guanteletes de impulso',
-      description:'Canalizan energía para sujetar el equipo con máxima precisión.',
-      slot:'gloves',
-      rarity:'rare',
-      price:26,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_gloves.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_gloves.png'
-    },
-    {
-      id:'nova_legs',
-      name:'Grebas del cometa',
-      description:'Protección articulada para moverse rápido y con seguridad.',
-      slot:'legs',
-      rarity:'epic',
-      price:34,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_legs.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_legs.png'
-    },
-    {
-      id:'nova_boots',
-      name:'Botas gravitatorias',
-      description:'Botas magnéticas con suela reforzada para cualquier planeta.',
-      slot:'boots',
-      rarity:'rare',
-      price:24,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_boots.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_boots.png'
-    },
-    {
-      id:'nova_shield',
-      name:'Escudo estelar',
-      description:'Un campo protector de luz capaz de detener cualquier impacto.',
-      slot:'shield',
-      rarity:'epic',
-      price:45,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_shield.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_shield.png'
-    },
-    {
-      id:'nova_weapon',
-      name:'Espada fotónica',
-      description:'Hoja de energía Nova: brillante, poderosa y segura para el héroe.',
-      slot:'weapon',
-      rarity:'legendary',
-      price:60,
-      collection:'nova_guardian',
-      shopImage:'assets/shop/nova_guardian/nova_weapon.png',
-      avatarLayer:'assets/avatar/equipment/nova_guardian/nova_weapon.png'
-    }
-  ]
+  items:NOVA_TIERS.flatMap(tier=>NOVA_PIECES.map(piece=>({
+    id:tier.id==='legendary'?piece.asset:`${piece.asset}_${tier.id}`,
+    name:`${piece.label} ${tier.nameSuffix}`,
+    description:piece.descriptions[tier.id],
+    slot:piece.slot,
+    rarity:tier.id,
+    level:tier.level,
+    price:piece.basePrice*tier.priceFactor,
+    collection:'nova_guardian',
+    shopImage:`assets/shop/nova_guardian/${tier.directory}${piece.asset}.png`,
+    avatarLayer:`assets/avatar/equipment/nova_guardian/${tier.directory}${piece.asset}.png`
+  })))
 };

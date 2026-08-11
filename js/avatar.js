@@ -11,6 +11,7 @@
     if(!item.id||typeof item.id!=='string')errors.push('Falta id');
     if(!VALID_SLOTS.includes(item.slot))errors.push(`Slot no válido: ${item.slot}`);
     if(!item.avatarLayer||typeof item.avatarLayer!=='string')errors.push('Falta avatarLayer');
+    if(!Number.isFinite(Number(item.price))||Number(item.price)<0)errors.push('Precio no válido');
     if('x' in item||'y' in item||'scale' in item||'rotation' in item)errors.push('No se permiten ajustes de posición, escala o rotación por objeto');
     return errors;
   }
@@ -41,12 +42,22 @@
     if(!avatar.owned.includes(itemId))avatar.owned.push(itemId);
     return true;
   }
+  function priceFor(data,itemOrId){
+    const item=typeof itemOrId==='string'?getItem(itemOrId):itemOrId;
+    if(!item)return 0;
+    const configured=Number(data?.ajustes?.multiplicadorPrecios);
+    const fallback=Number(AVATAR.economy?.defaultPriceMultiplier)||1;
+    const minimum=Number(AVATAR.economy?.minimumPriceMultiplier)||0.25;
+    const maximum=Number(AVATAR.economy?.maximumPriceMultiplier)||3;
+    const multiplier=Math.min(maximum,Math.max(minimum,Number.isFinite(configured)?configured:fallback));
+    return Math.max(1,Math.round((Number(item.price)||0)*multiplier));
+  }
   function buy(data,itemId){
     const item=getItem(itemId);
     if(!item)throw new Error(`Objeto de avatar desconocido: ${itemId}`);
     const avatar=ensureState(data);
     if(avatar.owned.includes(itemId))return{ok:false,reason:'owned',item};
-    const price=Math.max(0,Number(item.price)||0);
+    const price=priceFor(data,item);
     const diamonds=Math.max(0,Number(data.diamantes)||0);
     if(diamonds<price)return{ok:false,reason:'diamonds',item};
     data.diamantes=diamonds-price;
@@ -88,7 +99,7 @@
   }
   function makeLayer(src,layer,kind,id){
     const img=document.createElement('img');
-    img.src=src;
+    img.src=assetURL(src);
     img.alt='';
     img.draggable=false;
     img.className='avatar-layer';
@@ -96,6 +107,11 @@
     if(id)img.dataset.itemId=id;
     img.style.zIndex=String(layer);
     return img;
+  }
+  function assetURL(src){
+    const version=window.APP_VERSION;
+    if(!version)return src;
+    return `${src}${src.includes('?')?'&':'?'}v=${encodeURIComponent(version)}`;
   }
   function render(container,data,{showBase=true,onAssetError=null,previewItemId=null}={}){
     if(typeof container==='string')container=document.querySelector(container);
@@ -120,7 +136,7 @@
       const img=new Image();
       img.onload=()=>resolve({src,ok:img.naturalWidth===AVATAR.canvas.width&&img.naturalHeight===AVATAR.canvas.height,width:img.naturalWidth,height:img.naturalHeight,expected:{...AVATAR.canvas}});
       img.onerror=()=>resolve({src,ok:false,error:'No se pudo cargar el recurso',expected:{...AVATAR.canvas}});
-      img.src=src;
+      img.src=assetURL(src);
     });
   }
   async function validateAssets({includeBase=true}={}){
@@ -139,6 +155,7 @@
     ensureState,
     owns,
     grant,
+    priceFor,
     buy,
     revoke,
     equip,

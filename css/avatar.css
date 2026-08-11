@@ -39,6 +39,11 @@
 .shop-head{display:grid;grid-template-columns:1fr minmax(260px,360px);gap:20px;align-items:end;margin:22px 0}
 .shop-head p,.inventory-head p{margin:7px 0 0}
 .shop-feedback{margin:-4px 0 18px;padding:12px 15px;border:1px solid #9acdb2;border-radius:15px;background:#eaf8ef;color:#286246;font-weight:850}
+.shop-tier-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:-4px 0 20px;padding:7px;border:1px solid var(--line);border-radius:20px;background:#f1ece3}
+.shop-tier-tab{display:grid;gap:2px;min-height:58px;padding:9px 12px;border:1px solid transparent;border-radius:15px;background:transparent;color:var(--ink);cursor:pointer}
+.shop-tier-tab span{color:var(--muted);font-size:.7rem;font-weight:850;text-transform:uppercase}
+.shop-tier-tab b{font-size:.98rem}
+.shop-tier-tab.active{border-color:#70b7d1;background:#fff;box-shadow:0 5px 14px rgba(27,75,98,.12)}
 .shop-layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(390px,1.25fr);gap:24px;align-items:start}
 .shop-showcase{position:sticky;top:12px;display:grid;gap:14px}
 .shop-preview-card{padding:8px}
@@ -64,11 +69,11 @@
 .shop-slot{display:block;margin-top:7px;color:var(--muted);font-size:.76rem;font-weight:800}
 .shop-card-state{display:block;margin-top:5px;color:#356d85;font-size:.83rem;font-weight:950}
 .rarity,.owned-badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#e7e1d7;font-size:.64rem;font-weight:950;letter-spacing:.03em;text-transform:uppercase}
+.rarity-common{background:#e3ded5;color:#5d5548}
 .rarity-rare{background:#d8eef8;color:#27627d}
-.rarity-epic{background:#eadcf6;color:#694588}
 .rarity-legendary{background:#f5e1a8;color:#6d5213}
+.rarity-border-common{border-left-color:#968c7c}
 .rarity-border-rare{border-left-color:#56a8c9}
-.rarity-border-epic{border-left-color:#9a68bd}
 .rarity-border-legendary{border-left-color:#d6a72f}
 
 .inventory-head{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:22px 0}
@@ -82,6 +87,8 @@
 .empty-state{padding:30px;border:1px dashed #b9cbd4;border-radius:22px;background:linear-gradient(145deg,#f9fcfd,#f3f5f3);text-align:center}
 .empty-state p{margin:8px auto 18px;max-width:360px}
 .empty-state-icon{margin-bottom:8px;font-size:3rem}
+.price-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.price-presets .small{padding:10px 6px}
 
 @media(max-width:840px){
   .avatar-hub,.shop-layout,.inventory-layout{grid-template-columns:1fr}
@@ -98,6 +105,8 @@
   .avatar-preview{max-width:360px}
   .shop-head{grid-template-columns:1fr;align-items:start}
   .shop-head .collection-progress{width:100%}
+  .shop-tier-tabs{gap:6px;padding:5px}
+  .shop-tier-tab{min-height:54px;padding:7px 5px}
   .shop-card{grid-template-columns:1fr;min-height:0;padding:9px}
   .shop-icon{width:100%;height:auto;aspect-ratio:1}
   .shop-title{align-items:flex-start}

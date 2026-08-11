@@ -53,8 +53,10 @@ ${xpPanel()}
 <button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>Escucha y encuentra cuál rima</small></button>
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
-let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null;
-function avatarCatalog(){return (AVATAR.items||[]).filter(item=>!item.technical);}
+let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopTierFilter='common';
+function avatarCatalog(tier=null){return (AVATAR.items||[]).filter(item=>!item.technical&&(!tier||item.rarity===tier));}
+function avatarItemPrice(item){return AvatarSystem.priceFor(D,item);}
+function tierLabel(item){return `Nivel ${item.level||AVATAR.rarities?.[item.rarity]?.level||1}`;}
 function avatarCollectionStats(){
   const items=avatarCatalog(),avatar=AvatarSystem.ensureState(D),owned=items.filter(item=>avatar.owned.includes(item.id)).length;
   return{owned,total:items.length,equipped:AvatarSystem.equippedItems(D).length};
@@ -88,27 +90,29 @@ function avatarScreen(){
   renderAvatarStage('avatarPreview',{statusId:'avatarAssetStatus'});
 }
 function rarityLabel(item){return AVATAR.rarities?.[item.rarity]?.label||item.rarity||'Objeto';}
-function shopVisual(item){return item.shopImage?`<img src="${escapeHTML(item.shopImage)}" alt="${escapeHTML(item.name)}">`:(item.shopIcon||'🎁');}
+function shopVisual(item){const src=item.shopImage?`${item.shopImage}${item.shopImage.includes('?')?'&':'?'}v=${encodeURIComponent(window.APP_VERSION||'')}`:'';return src?`<img src="${escapeHTML(src)}" alt="${escapeHTML(item.name)}">`:(item.shopIcon||'🎁');}
 function shopItemCard(item,selected){
   const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id;
-  const state=equipped?'Equipado':owned?'En tu inventario':`${item.price} 💎`;
-  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><span class="shop-card-state">${state}</span></span></button>`;
+  const state=equipped?'Equipado':owned?'En tu inventario':`${avatarItemPrice(item)} 💎`;
+  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)} · ${tierLabel(item)}</span><span class="shop-card-state">${state}</span></span></button>`;
 }
 function shopDetail(item){
-  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,missing=Math.max(0,item.price-D.diamantes);
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,price=avatarItemPrice(item),missing=Math.max(0,price-D.diamantes);
   let action='';
   if(equipped)action=`<button class="btn secondary shop-main-action" onclick="unequipAvatarFromShop('${item.slot}')">✓ Equipado · Quitar</button>`;
   else if(owned)action=`<button class="btn primary shop-main-action" onclick="equipAvatarFromShop('${item.id}')">Equipar ahora</button>`;
-  else if(!missing)action=`<button class="btn primary shop-main-action" onclick="buyAndEquipAvatarItem('${item.id}')">Comprar y equipar · ${item.price} 💎</button>`;
+  else if(!missing)action=`<button class="btn primary shop-main-action" onclick="buyAndEquipAvatarItem('${item.id}')">Comprar y equipar · ${price} 💎</button>`;
   else action=`<button class="btn secondary shop-main-action" disabled>Te faltan ${missing} 💎</button>`;
   return `<div class="shop-detail"><div class="shop-detail-title"><div><span class="eyebrow">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><h2>${escapeHTML(item.name)}</h2></div><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><p>${escapeHTML(item.description||'')}</p>${action}${!owned?'<small>Al comprarla se equipará automáticamente.</small>':'<small>La pieza seguirá guardada en tu inventario.</small>'}</div>`;
 }
 function openShopScreen(){shopFeedback='';shopScreen();}
+function setShopTierFilter(tier){if(!AVATAR.rarities?.[tier])return;shopTierFilter=tier;selectedShopItemId=null;shopFeedback='';shopScreen();}
+function shopTierTabs(){return `<div class="shop-tier-tabs" aria-label="Nivel de equipamiento">${Object.entries(AVATAR.rarities).map(([id,tier])=>`<button type="button" class="shop-tier-tab ${shopTierFilter===id?'active':''}" onclick="setShopTierFilter('${id}')" aria-pressed="${shopTierFilter===id}"><span>Nivel ${tier.level}</span><b>${escapeHTML(tier.label)}</b></button>`).join('')}</div>`;}
 function shopScreen(){
-  const items=avatarCatalog();
+  const items=avatarCatalog(shopTierFilter).sort((a,b)=>avatarItemPrice(a)-avatarItemPrice(b));
   if(!items.some(item=>item.id===selectedShopItemId))selectedShopItemId=items[0]?.id||null;
   const selected=AvatarSystem.getItem(selectedShopItemId);
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Selecciona una pieza para probarla antes de comprar.</p></div>${collectionProgress()}</div>${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">Piezas del conjunto</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}`);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Elige un nivel y prueba cada pieza antes de comprar.</p></div>${collectionProgress()}</div>${shopTierTabs()}${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA · ${tierLabel(selected).toUpperCase()}</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">Piezas de ${escapeHTML(rarityLabel(selected).toLowerCase())}</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}`);
   if(selected)renderAvatarStage('shopAvatarPreview',{statusId:'shopAssetStatus',previewItemId:selected.id});
 }
 function selectShopItem(id){selectedShopItemId=id;shopFeedback='';shopScreen();}
@@ -122,10 +126,10 @@ function equipAvatarFromShop(id){try{const item=AvatarSystem.equip(D,id);save(D)
 function unequipAvatarFromShop(slot){try{AvatarSystem.unequip(D,slot);save(D);shopFeedback='Pieza guardada en el inventario.';shopScreen();}catch(error){alert(error.message);}}
 function inventoryItemCard(item){
   const equipped=AvatarSystem.ensureState(D).equipped[item.slot]===item.id;
-  return `<article class="inventory-card rarity-border-${item.rarity} ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</div></div><div class="inventory-action">${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></article>`;
+  return `<article class="inventory-card rarity-border-${item.rarity} ${equipped?'equipped':''}"><div class="shop-icon">${shopVisual(item)}</div><div class="shop-info"><div class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><div class="muted">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)} · ${tierLabel(item)}</div></div><div class="inventory-action">${equipped?`<button class="btn secondary" onclick="unequipAvatarSlot('${item.slot}')">Quitar</button>`:`<button class="btn primary" onclick="equipAvatarItem('${item.id}')">Equipar</button>`}</div></article>`;
 }
 function inventoryScreen(){
-  const avatar=AvatarSystem.ensureState(D),items=avatar.owned.map(id=>AvatarSystem.getItem(id)).filter(Boolean);
+  const avatar=AvatarSystem.ensureState(D),items=avatar.owned.map(id=>AvatarSystem.getItem(id)).filter(Boolean).sort((a,b)=>(a.level||0)-(b.level||0)||a.slot.localeCompare(b.slot));
   layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="inventory-head"><div><span class="eyebrow">Tu equipamiento</span><h2>Inventario</h2><p class="muted">Combina las piezas que has conseguido. Solo puede haber una de cada categoría.</p></div><button class="btn primary" onclick="openShopScreen()">Ir a la tienda</button></div><div class="inventory-layout"><div class="avatar-preview-card inventory-preview-card"><div class="space-orbit" aria-hidden="true"></div><div id="inventoryAvatarPreview" class="avatar-preview" aria-label="Equipamiento actual del avatar"></div><div id="inventoryAssetStatus" class="avatar-status muted">Cargando equipamiento…</div>${collectionProgress()}</div><div>${items.length?`<div class="inventory-list">${items.map(inventoryItemCard).join('')}</div>`:'<div class="empty-state"><div class="empty-state-icon">🛰️</div><b>Tu inventario está esperando su primera pieza</b><p class="muted">Juega para ganar diamantes y visita la tienda estelar.</p><button class="btn primary" onclick="openShopScreen()">Ver colección</button></div>'}</div></div>`);
   renderAvatarStage('inventoryAvatarPreview',{statusId:'inventoryAssetStatus'});
 }
@@ -387,6 +391,7 @@ function parentDashboard(){
   <div class="parent-card"><h3>🧪 Modo de pruebas</h3><p class="muted">Todos los niveles están desbloqueados mientras este modo esté activo.</p><button class="btn secondary" onclick="parentTestLevels()">Probar cualquier nivel</button><button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button></div>
   <div class="parent-card"><h3>⭐ Experiencia y nivel</h3><label>Nivel actual</label><input id="parentLevel" type="number" min="1" max="999" step="1" value="${D.nivelJugador}"><label>XP actual</label><input id="parentXP" type="number" min="0" step="1" value="${D.xp}"><button class="btn secondary" onclick="setParentProgress()">Aplicar nivel y XP</button></div>
   <div class="parent-card"><h3>💎 Diamantes</h3><div class="grid2"><button class="btn secondary" onclick="changeDiamonds(-100)">−100</button><button class="btn secondary" onclick="changeDiamonds(100)">+100</button></div><button class="btn secondary" onclick="changeDiamonds(500)">+500</button><label>Cantidad exacta</label><input id="parentDiamonds" type="number" min="0" step="1" value="${D.diamantes}"><button class="btn secondary" onclick="setDiamondsExact()">Aplicar diamantes</button></div>
+  <div class="parent-card"><h3>🛍️ Precios de la tienda</h3><p class="muted">Multiplica a la vez el precio de los 24 objetos. Las compras ya realizadas no cambian.</p><div class="price-presets"><button class="small secondary" onclick="setShopPriceMultiplier(0.5)">×0,5</button><button class="small secondary" onclick="setShopPriceMultiplier(1)">×1</button><button class="small secondary" onclick="setShopPriceMultiplier(1.5)">×1,5</button><button class="small secondary" onclick="setShopPriceMultiplier(2)">×2</button></div><label>Multiplicador global</label><input id="shopPriceMultiplier" type="number" min="0.25" max="3" step="0.25" value="${D.ajustes.multiplicadorPrecios}"><button class="btn secondary" onclick="setShopPriceMultiplier()">Aplicar a toda la tienda</button><small class="muted">Rango actual: ${Math.min(...avatarCatalog().map(avatarItemPrice))}–${Math.max(...avatarCatalog().map(avatarItemPrice))} 💎</small></div>
   <div class="parent-card"><h3>💾 Progreso</h3><div class="grid"><button class="btn secondary" onclick="exportData()">Exportar progreso</button><label class="btn secondary file-label" for="importFile">Importar progreso</label><input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)" hidden></div></div>
   <div class="parent-card"><h3>⚠️ Reinicio</h3><button class="btn danger" onclick="resetAll()">Borrar todo el progreso</button></div>
   </div>`);
@@ -400,6 +405,13 @@ function setParentProgress(){
 }
 function changeDiamonds(amount){D.diamantes=Math.max(0,D.diamantes+amount);save(D);parentDashboard();}
 function setDiamondsExact(){D.diamantes=Math.max(0,Math.floor(Number(document.getElementById('parentDiamonds')?.value)||0));save(D);parentDashboard();}
+function setShopPriceMultiplier(preset=null){
+  const input=document.getElementById('shopPriceMultiplier'),raw=preset??input?.value,value=Number(String(raw).replace(',','.'));
+  const min=AVATAR.economy?.minimumPriceMultiplier||0.25,max=AVATAR.economy?.maximumPriceMultiplier||3;
+  if(!Number.isFinite(value)){alert('Introduce un multiplicador válido.');return;}
+  D.ajustes.multiplicadorPrecios=Math.min(max,Math.max(min,Math.round(value*4)/4));
+  save(D);parentDashboard();
+}
 function escapeHTML(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function setName(){const i=document.getElementById('nameInput');D.perfil.nombre=(i?.value||'Jugador').trim().slice(0,24)||'Jugador';save(D);alert('Nombre guardado');}
 function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,2)],{type:'application/json'}));a.download='progreso-aprendo-jugando.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
