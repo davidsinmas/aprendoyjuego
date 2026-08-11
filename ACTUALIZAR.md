@@ -1,7 +1,11 @@
-# Actualización automática
+# Actualizar desde el móvil
 
-1. Desde el móvil, sube únicamente `actualizacion.zip` a la raíz del repositorio `aprendoyjuego`.
-2. Haz Commit changes en `main`.
-3. GitHub Actions valida el paquete, instala la nueva versión, elimina el ZIP y publica automáticamente.
+1. Descarga el archivo `actualizacion.zip`.
+2. No lo descomprimas.
+3. En GitHub abre el repositorio `aprendoyjuego`.
+4. Pulsa **Add file → Upload files**.
+5. Sube `actualizacion.zip` a la raíz del repositorio.
+6. Pulsa **Commit changes** sobre `main`.
+7. GitHub Actions validará e instalará automáticamente la actualización.
 
-No hay que descomprimir el ZIP ni sustituir archivos manualmente.
+No es necesario sustituir archivos manualmente.

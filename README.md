@@ -1,23 +1,28 @@
 # Aprendo Jugando
 
-Aplicación web educativa para móvil, tablet y ordenador.
+Juego educativo web infantil publicado mediante GitHub Pages.
 
-## Versión
+## Actividades
 
-`2.15.0`
+- Sumas
+- Restas
+- Mayor o menor
+- Palabras
+- Sopa de letras
+- Sonido inicial
+- Sonido final
+- Construye la palabra
+- Ordena sílabas
+- Busca la rima
 
-Incluye:
-- Avatar paper-doll, inventario y tienda estelar Guardián Nova.
-- 24 piezas equipables prealineadas: 8 comunes, 8 raras y 8 legendarias.
-- Casco, armadura y botas con cobertura completa del avatar, sin capas dobles.
-- Nivel legendario con materiales dorados, energía cian, destellos y aura animada.
-- Progresión de precios por nivel ×1, ×2 y ×4, desde 30 diamantes.
-- Multiplicador global de precios configurable en la Zona de padres (×0,25–×3).
-- 10 niveles progresivos de sumas, restas, comparación, palabras y sopas de letras.
-- 5 juegos nuevos de prelectura, cada uno con 10 niveles: sonido inicial, sonido final, construye la palabra, ordena las sílabas y rimas.
-- Apoyo de audio en los nuevos juegos para no depender de lectura autónoma.
-- Desbloqueo secuencial, marcado HECHO y recompensas progresivas.
-- Retos diarios, XP, logros, estadísticas y zona de padres protegida.
-- Modo Padres para probar todos los niveles y editar XP, nivel, diamantes y precios.
+Cada actividad tiene progresión por niveles, recompensas y registro de progreso.
 
-La versión se define en `version.json` y los recursos se cargan con esa versión para evitar caché antigua.
+## Avatar y tienda
+
+El juego incluye el avatar Guardián Nova mediante un sistema paper-doll con capas prealineadas de 1024 × 1024, inventario y tienda-catálogo con 24 piezas repartidas en tres rarezas: común, rara y legendaria.
+
+La tienda permite filtrar por categoría y rareza y muestra el estado de cada pieza. Los precios pueden ajustarse globalmente desde el Modo Padres.
+
+## Actualización
+
+Las actualizaciones se distribuyen como un único archivo `actualizacion.zip`, que se sube sin descomprimir a la raíz del repositorio. GitHub Actions valida e instala automáticamente el contenido.

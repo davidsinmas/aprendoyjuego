@@ -97,6 +97,11 @@
     return [...bySlot.values()]
       .sort((a,b)=>AVATAR.slots[a.slot].layer-AVATAR.slots[b.slot].layer);
   }
+  function assetURL(src){
+    const version=window.APP_VERSION;
+    if(!version)return src;
+    return `${src}${src.includes('?')?'&':'?'}v=${encodeURIComponent(version)}`;
+  }
   function makeLayer(src,layer,kind,id,rarity=''){
     const img=document.createElement('img');
     img.src=assetURL(src);
@@ -108,11 +113,6 @@
     if(rarity)img.dataset.rarity=rarity;
     img.style.zIndex=String(layer);
     return img;
-  }
-  function assetURL(src){
-    const version=window.APP_VERSION;
-    if(!version)return src;
-    return `${src}${src.includes('?')?'&':'?'}v=${encodeURIComponent(version)}`;
   }
   function render(container,data,{showBase=true,onAssetError=null,previewItemId=null}={}){
     if(typeof container==='string')container=document.querySelector(container);

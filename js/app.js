@@ -53,7 +53,8 @@ ${xpPanel()}
 <button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>Escucha y encuentra cuál rima</small></button>
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
-let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopTierFilter='common';
+let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopCategoryFilter='all',shopRarityFilter='all';
+const SHOP_CATEGORY_ORDER=['helmet','chest','shoulders','gloves','legs','boots','shield','weapon'];
 function avatarCatalog(tier=null){return (AVATAR.items||[]).filter(item=>!item.technical&&(!tier||item.rarity===tier));}
 function avatarItemPrice(item){return AvatarSystem.priceFor(D,item);}
 function tierLabel(item){return `Nivel ${item.level||AVATAR.rarities?.[item.rarity]?.level||1}`;}
@@ -91,10 +92,19 @@ function avatarScreen(){
 }
 function rarityLabel(item){return AVATAR.rarities?.[item.rarity]?.label||item.rarity||'Objeto';}
 function shopVisual(item){const src=item.shopImage?`${item.shopImage}${item.shopImage.includes('?')?'&':'?'}v=${encodeURIComponent(window.APP_VERSION||'')}`:'';return src?`<img src="${escapeHTML(src)}" alt="${escapeHTML(item.name)}">`:(item.shopIcon||'🎁');}
+function shopFilteredCatalog(){
+  return avatarCatalog().filter(item=>(shopCategoryFilter==='all'||item.slot===shopCategoryFilter)&&(shopRarityFilter==='all'||item.rarity===shopRarityFilter));
+}
+function shopItemState(item){
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,price=avatarItemPrice(item);
+  if(equipped)return{label:'Equipado',kind:'equipped'};
+  if(owned)return{label:'Comprado',kind:'owned'};
+  if(D.diamantes<price)return{label:`Bloqueado · ${price} 💎`,kind:'locked'};
+  return{label:`Disponible · ${price} 💎`,kind:'available'};
+}
 function shopItemCard(item,selected){
-  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id;
-  const state=equipped?'Equipado':owned?'En tu inventario':`${avatarItemPrice(item)} 💎`;
-  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)} · ${tierLabel(item)}</span><span class="shop-card-state">${state}</span></span></button>`;
+  const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),stateInfo=shopItemState(item);
+  return `<button type="button" class="shop-card rarity-border-${item.rarity} ${selected?'selected':''} ${owned?'owned':''} state-${stateInfo.kind}" onclick="selectShopItem('${item.id}')" aria-pressed="${selected}"><span class="shop-icon">${shopVisual(item)}</span><span class="shop-info"><span class="shop-title"><b>${escapeHTML(item.name)}</b><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></span><span class="shop-slot">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)} · ${tierLabel(item)}</span><span class="shop-card-state shop-state-${stateInfo.kind}">${stateInfo.label}</span></span></button>`;
 }
 function shopDetail(item){
   const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,price=avatarItemPrice(item),missing=Math.max(0,price-D.diamantes);
@@ -102,17 +112,31 @@ function shopDetail(item){
   if(equipped)action=`<button class="btn secondary shop-main-action" onclick="unequipAvatarFromShop('${item.slot}')">✓ Equipado · Quitar</button>`;
   else if(owned)action=`<button class="btn primary shop-main-action" onclick="equipAvatarFromShop('${item.id}')">Equipar ahora</button>`;
   else if(!missing)action=`<button class="btn primary shop-main-action" onclick="buyAndEquipAvatarItem('${item.id}')">Comprar y equipar · ${price} 💎</button>`;
-  else action=`<button class="btn secondary shop-main-action" disabled>Te faltan ${missing} 💎</button>`;
+  else action=`<button class="btn secondary shop-main-action" disabled>🔒 Te faltan ${missing} 💎</button>`;
   return `<div class="shop-detail"><div class="shop-detail-title"><div><span class="eyebrow">${escapeHTML(AVATAR.slots[item.slot]?.label||item.slot)}</span><h2>${escapeHTML(item.name)}</h2></div><span class="rarity rarity-${item.rarity}">${escapeHTML(rarityLabel(item))}</span></div><p>${escapeHTML(item.description||'')}</p>${action}${!owned?'<small>Al comprarla se equipará automáticamente.</small>':'<small>La pieza seguirá guardada en tu inventario.</small>'}</div>`;
 }
 function openShopScreen(){shopFeedback='';shopScreen();}
-function setShopTierFilter(tier){if(!AVATAR.rarities?.[tier])return;shopTierFilter=tier;selectedShopItemId=null;shopFeedback='';shopScreen();}
-function shopTierTabs(){return `<div class="shop-tier-tabs" aria-label="Nivel de equipamiento">${Object.entries(AVATAR.rarities).map(([id,tier])=>`<button type="button" class="shop-tier-tab ${shopTierFilter===id?'active':''}" onclick="setShopTierFilter('${id}')" aria-pressed="${shopTierFilter===id}"><span>Nivel ${tier.level}</span><b>${escapeHTML(tier.label)}</b></button>`).join('')}</div>`;}
+function setShopCategoryFilter(value){
+  if(value!=='all'&&!SHOP_CATEGORY_ORDER.includes(value))return;
+  shopCategoryFilter=value;selectedShopItemId=null;shopFeedback='';shopScreen();
+}
+function setShopRarityFilter(value){
+  if(value!=='all'&&!AVATAR.rarities?.[value])return;
+  shopRarityFilter=value;selectedShopItemId=null;shopFeedback='';shopScreen();
+}
+function shopFilters(){
+  const rarityButtons=[['all','Todas'],...Object.entries(AVATAR.rarities).map(([id,tier])=>[id,tier.label])];
+  const categoryButtons=[['all','Todo'],...SHOP_CATEGORY_ORDER.map(slot=>[slot,AVATAR.slots[slot]?.label||slot])];
+  return `<div class="shop-filters"><div class="shop-filter-row"><span class="shop-filter-label">Rareza</span><div class="shop-filter-chips">${rarityButtons.map(([id,label])=>`<button type="button" class="shop-filter-chip ${shopRarityFilter===id?'active':''}" onclick="setShopRarityFilter('${id}')" aria-pressed="${shopRarityFilter===id}">${escapeHTML(label)}</button>`).join('')}</div></div><div class="shop-filter-row"><span class="shop-filter-label">Categoría</span><div class="shop-filter-chips">${categoryButtons.map(([id,label])=>`<button type="button" class="shop-filter-chip ${shopCategoryFilter===id?'active':''}" onclick="setShopCategoryFilter('${id}')" aria-pressed="${shopCategoryFilter===id}">${escapeHTML(label)}</button>`).join('')}</div></div></div>`;
+}
 function shopScreen(){
-  const items=avatarCatalog(shopTierFilter).sort((a,b)=>avatarItemPrice(a)-avatarItemPrice(b));
+  const slotOrder=new Map(SHOP_CATEGORY_ORDER.map((slot,index)=>[slot,index]));
+  const items=shopFilteredCatalog().sort((a,b)=>(a.level||0)-(b.level||0)||(slotOrder.get(a.slot)||0)-(slotOrder.get(b.slot)||0)||avatarItemPrice(a)-avatarItemPrice(b));
   if(!items.some(item=>item.id===selectedShopItemId))selectedShopItemId=items[0]?.id||null;
-  const selected=AvatarSystem.getItem(selectedShopItemId);
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Elige un nivel y prueba cada pieza antes de comprar.</p></div>${collectionProgress()}</div>${shopTierTabs()}${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA · ${tierLabel(selected).toUpperCase()}</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">Piezas de ${escapeHTML(rarityLabel(selected).toLowerCase())}</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:'<div class="empty-state">Todavía no hay objetos disponibles.</div>'}`);
+  const selected=items.find(item=>item.id===selectedShopItemId)||null;
+  const filters=shopFilters();
+  const catalogTitle=items.length===1?'1 pieza':`${items.length} piezas`;
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colección Guardián Nova</span><h2>Tienda estelar</h2><p class="muted">Filtra por categoría y rareza. Toca una pieza para probarla antes de comprar.</p></div>${collectionProgress()}</div>${filters}${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA · ${tierLabel(selected).toUpperCase()}</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">${catalogTitle}</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:`<div class="empty-state">No hay piezas que coincidan con estos filtros.</div>`}`);
   if(selected)renderAvatarStage('shopAvatarPreview',{statusId:'shopAssetStatus',previewItemId:selected.id});
 }
 function selectShopItem(id){selectedShopItemId=id;shopFeedback='';shopScreen();}
@@ -362,7 +386,7 @@ function finishReading(){
   const reward=levelDiamonds(n,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
   layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startReadingGame(${JSON.stringify(type)},${JSON.stringify(n)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('${type}')">Volver a niveles</button></div>`);
 }
-function startSoup(n,daily=false){const pool=GAME.words.filter(w=>w.word.length>=(n.minLen||3)&&w.word.length<=(n.maxLen||n.size));const count=daily?1:n.count;const words=mix(pool).slice(0,count);state={...state,type:'sopa',level:n,mode:null,qs:words,i:0,hits:0,daily,total:count,path:[],found:[]};const built=buildMultiGrid(words.map(w=>w.word),n.size,n.dirs);state.grid=built.grid;state.targets=built.targets;state.found=Array(words.length).fill(false);renderSoup();}
+function startSoup(n,daily=false){const pool=GAME.words.filter(w=>w.word.length>=(n.minLen||3)&&w.word.length<=(n.maxLen||n.size));const count=daily?1:n.count;const words=mix(pool).slice(0,count);state={...state,type:'sopa',level:n,mode:null,qs:words,i:0,hits:0,daily,total:count,path:[],found:[],locked:false};const built=buildMultiGrid(words.map(w=>w.word),n.size,n.dirs);state.grid=built.grid;state.targets=built.targets;state.found=Array(words.length).fill(false);renderSoup();}
 function renderSoup(){const n=state.level,cols=`repeat(${n.size},1fr)`;layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':"levels('sopa')"}">← Salir</button>${diamond()}</div><div class="muted">Encuentra ${state.qs.length===1?'la palabra':`las ${state.qs.length} palabras`}</div><div class="soup-targets">${state.qs.map((q,i)=>`<div class="soup-target ${state.found[i]?'done':''}" data-target="${i}"><span>${state.found[i]?'✅':q.icon}</span><b>${q.word}</b></div>`).join('')}</div><div class="word-hint center">Toca la primera y la última letra de cada palabra.</div><div id="wordGrid" class="word-grid" style="grid-template-columns:${cols}">${state.grid.flatMap((row,r)=>row.map((letter,c)=>`<button class="word-cell" data-r="${r}" data-c="${c}" onclick="pickSoup(${r},${c})">${letter}</button>`)).join('')}</div><div id="wordStatus" class="word-status"></div>`);paintFoundSoup();}
 function buildMultiGrid(words,size,dirs){for(let restart=0;restart<150;restart++){const grid=Array.from({length:size},()=>Array(size).fill('')),targets=[];let ok=true;for(const word of words){let placed=false;for(let attempt=0;attempt<250&&!placed;attempt++){const dir=dirs[rnd(0,dirs.length-1)];let dr=0,dc=1;if(dir==='v'){dr=1;dc=0;}if(dir==='d'){dr=1;dc=1;}const maxR=size-1-dr*(word.length-1),maxC=size-1-dc*(word.length-1);if(maxR<0||maxC<0)continue;const sr=rnd(0,maxR),sc=rnd(0,maxC),cells=[];let fits=true;for(let i=0;i<word.length;i++){const r=sr+dr*i,c=sc+dc*i;if(grid[r][c]&&grid[r][c]!==word[i]){fits=false;break;}cells.push([r,c]);}if(!fits)continue;[...word].forEach((ch,i)=>{const [r,c]=cells[i];grid[r][c]=ch;});targets.push(cells);placed=true;}if(!placed){ok=false;break;}}if(ok){const abc='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(!grid[r][c])grid[r][c]=abc[rnd(0,abc.length-1)];return{grid,targets};}}throw new Error('No se pudo generar la sopa');}
 function pickSoup(r,c){if(state.locked)return;if(!state.path.length){state.path=[[r,c]];paintPath();document.getElementById('wordStatus').textContent='Ahora toca la última letra.';return;}const line=getLine(state.path[0],[r,c]);state.path=line;paintPath();let idx=-1;for(let i=0;i<state.targets.length;i++){if(!state.found[i]&&samePath(line,state.targets[i])){idx=i;break;}}if(idx>=0){state.found[idx]=true;state.hits++;rewardProgressCorrect();state.path=[];playChime('ok');const status=document.getElementById('wordStatus');if(status)status.textContent='¡Encontrada!';if(state.hits>=state.qs.length){state.locked=true;setTimeout(finishSoup,700);}else setTimeout(renderSoup,450);}else{const status=document.getElementById('wordStatus');if(status)status.textContent='Prueba otra vez.';setTimeout(()=>{state.path=[];paintPath();if(status)status.textContent='';},550);}}

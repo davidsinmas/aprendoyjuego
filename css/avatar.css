@@ -135,3 +135,21 @@
   .shop-card{padding:8px}
   .rarity{font-size:.58rem}
 }
+
+/* V2.16 · filtros de catálogo por rareza y categoría */
+.shop-filters{display:grid;gap:10px;margin:-4px 0 20px;padding:12px;border:1px solid var(--line);border-radius:20px;background:#f1ece3}
+.shop-filter-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;align-items:center}
+.shop-filter-label{color:var(--muted);font-size:.75rem;font-weight:950;text-transform:uppercase}
+.shop-filter-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 1px 4px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.shop-filter-chip{flex:0 0 auto;min-height:38px;padding:8px 12px;border:1px solid #d4cec2;border-radius:999px;background:#fbf9f4;color:var(--ink);font:inherit;font-size:.8rem;font-weight:850;cursor:pointer}
+.shop-filter-chip.active{border-color:#70b7d1;background:#fff;box-shadow:0 4px 12px rgba(27,75,98,.12);color:#285874}
+.shop-state-equipped{color:#27704c}
+.shop-state-owned{color:#4e6f7c}
+.shop-state-locked{color:#8b5c4d}
+.shop-state-available{color:#356d85}
+.shop-card.state-locked:not(.selected){opacity:.86}
+@media(max-width:600px){
+  .shop-filter-row{grid-template-columns:1fr;gap:5px}
+  .shop-filters{padding:10px}
+  .shop-filter-label{padding-left:2px}
+}

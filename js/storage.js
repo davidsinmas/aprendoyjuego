@@ -41,9 +41,9 @@ function load(){
   d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false};
   d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);
   d.logros=Array.isArray(d.logros)?d.logros:[];
-  d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{};
-  const multiplier=Number(d.ajustes.multiplicadorPrecios);
-  d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(0.25,Number.isFinite(multiplier)?multiplier:1));
+  d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1};
+  const rawMultiplier=Number(d.ajustes.multiplicadorPrecios);
+  d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(0.25,Number.isFinite(rawMultiplier)?Math.round(rawMultiplier*4)/4:1));
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
