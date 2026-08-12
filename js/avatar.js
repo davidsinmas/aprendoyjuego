@@ -102,7 +102,7 @@
     if(!version)return src;
     return `${src}${src.includes('?')?'&':'?'}v=${encodeURIComponent(version)}`;
   }
-  function makeLayer(src,layer,kind,id,rarity=''){
+  function makeLayer(src,layer,kind,id,rarity='',collection=''){
     const img=document.createElement('img');
     img.src=assetURL(src);
     img.alt='';
@@ -111,6 +111,7 @@
     img.dataset.kind=kind;
     if(id)img.dataset.itemId=id;
     if(rarity)img.dataset.rarity=rarity;
+    if(collection)img.dataset.collection=collection;
     img.style.zIndex=String(layer);
     return img;
   }
@@ -129,10 +130,13 @@
     };
     const items=previewItemId?previewItems(data,previewItemId):equippedItems(data);
     const legendaryCount=items.filter(item=>item.rarity==='legendary').length;
+    const eclipseCount=items.filter(item=>item.collection==='eclipse_aureo').length;
     container.classList.toggle('has-legendary',legendaryCount>0);
+    container.classList.toggle('has-eclipse',eclipseCount>0);
     container.style.setProperty('--legendary-aura-opacity',String(Math.min(.26,.08+legendaryCount*.022)));
+    container.style.setProperty('--eclipse-aura-opacity',String(Math.min(.34,.10+eclipseCount*.028)));
     if(showBase&&AVATAR.base.src)add(makeLayer(AVATAR.base.src,AVATAR.base.layer,'base',AVATAR.base.id));
-    for(const item of items)add(makeLayer(item.avatarLayer,AVATAR.slots[item.slot].layer,previewItemId===item.id?'preview':'equipment',item.id,item.rarity));
+    for(const item of items)add(makeLayer(item.avatarLayer,AVATAR.slots[item.slot].layer,previewItemId===item.id?'preview':'equipment',item.id,item.rarity,item.collection));
     return container;
   }
   function inspectImageDimensions(src){

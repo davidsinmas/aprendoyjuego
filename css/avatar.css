@@ -10,7 +10,7 @@
 @keyframes novaLegendaryPulse{from{filter:drop-shadow(0 0 2px rgba(90,229,255,.28)) brightness(1)}to{filter:drop-shadow(0 0 7px rgba(80,225,255,.58)) brightness(1.08)}}
 
 @media(prefers-reduced-motion:reduce){
-  .avatar-stage.has-legendary::before,.avatar-layer[data-rarity="legendary"]{animation:none}
+  .avatar-stage.has-legendary::before,.avatar-layer[data-rarity="legendary"],.avatar-layer[data-collection="eclipse_aureo"]{animation:none}
 }
 
 .eyebrow{display:block;margin-bottom:5px;color:#48718c;font-size:.72rem;font-weight:950;letter-spacing:.13em;text-transform:uppercase}
@@ -153,3 +153,12 @@
   .shop-filters{padding:10px}
   .shop-filter-label{padding-left:2px}
 }
+
+
+/* V2.19 · colección Eclipse Áureo */
+.avatar-stage.has-eclipse::before{background:radial-gradient(circle,rgba(255,201,69,.72) 0,rgba(194,125,15,.34) 38%,rgba(26,22,16,.10) 60%,transparent 73%);opacity:var(--eclipse-aura-opacity,.20)}
+@keyframes eclipseGoldPulse{from{filter:drop-shadow(0 0 2px rgba(255,190,48,.24)) brightness(1)}to{filter:drop-shadow(0 0 8px rgba(255,183,34,.54)) brightness(1.07)}}
+.avatar-layer[data-collection="eclipse_aureo"]{animation:eclipseGoldPulse 2.6s ease-in-out infinite alternate}
+.shop-card.collection-eclipse_aureo,.inventory-card.collection-eclipse_aureo{border-left-color:#c99a2b;background:linear-gradient(145deg,#fffaf0,#f7eed6)}
+.shop-card.collection-eclipse_aureo.selected{border-color:#c99a2b;background:linear-gradient(145deg,#fff9e9,#f3e2af);box-shadow:0 0 0 2px rgba(201,154,43,.14),0 12px 28px rgba(74,53,16,.14)}
+.shop-card.collection-eclipse_aureo .shop-icon,.inventory-card.collection-eclipse_aureo .shop-icon{border-color:rgba(201,154,43,.36);background:radial-gradient(circle at 50% 42%,#2b2925,#111 72%)}

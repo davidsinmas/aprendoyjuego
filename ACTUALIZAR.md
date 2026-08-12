@@ -1,11 +1,9 @@
-# Actualizar desde el móvil
+# Actualizar Aprendo Jugando
 
-1. Descarga el archivo `actualizacion.zip`.
-2. No lo descomprimas.
-3. En GitHub abre el repositorio `aprendoyjuego`.
-4. Pulsa **Add file → Upload files**.
-5. Sube `actualizacion.zip` a la raíz del repositorio.
-6. Pulsa **Commit changes** sobre `main`.
-7. GitHub Actions validará e instalará automáticamente la actualización.
+Versión incluida: **2.19.0**
 
-No es necesario sustituir archivos manualmente.
+1. Descarga `actualizacion.zip`.
+2. Desde el móvil, abre el repositorio `aprendoyjuego` en GitHub.
+3. Usa **Add file → Upload files** y sube `actualizacion.zip` en la raíz, sin descomprimirlo.
+4. Haz **Commit changes** en `main`.
+5. GitHub Actions valida, instala y elimina automáticamente el ZIP.

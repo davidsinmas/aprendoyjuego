@@ -17,11 +17,15 @@ Juego educativo web infantil publicado mediante GitHub Pages.
 
 Cada actividad tiene progresión por niveles, recompensas y registro de progreso.
 
+## Retos diarios
+
+Cada día aparecen 3 retos cortos elegidos mediante una rotación entre los 10 juegos. La dificultad se adapta al progreso de cada actividad y completar un reto diario no desbloquea ni marca como hecho un nivel normal.
+
 ## Avatar y tienda
 
-El juego incluye el avatar Guardián Nova mediante un sistema paper-doll con capas prealineadas de 1024 × 1024, inventario y tienda-catálogo con 24 piezas repartidas en tres rarezas: común, rara y legendaria.
+El juego incluye el avatar Guardián Nova mediante un sistema paper-doll con capas prealineadas de 1024 × 1024, inventario y tienda-catálogo con 32 piezas en total: 24 de Guardián Nova y 8 de Eclipse Áureo. Eclipse Áureo es una colección de nivel 4 negra y dorada que incluye el Cañón Eclipse Áureo. En V2.18 se afinó el anclaje de espada y escudo directamente en sus capas maestras.
 
-La tienda permite filtrar por categoría y rareza y muestra el estado de cada pieza. Los precios pueden ajustarse globalmente desde el Modo Padres.
+La tienda permite filtrar por colección, categoría y rareza y muestra el estado de cada pieza. Los precios pueden ajustarse globalmente desde el Modo Padres.
 
 ## Actualización
 

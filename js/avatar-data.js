@@ -75,8 +75,20 @@ const NOVA_PIECES=[
   }
 ];
 
+
+const ECLIPSE_PIECES=[
+  {id:'eclipse_helmet',name:'Casco Eclipse Áureo',slot:'helmet',price:320,asset:'eclipse_helmet',description:'Casco de obsidiana estelar con líneas de oro y visor de energía áurea.'},
+  {id:'eclipse_chest',name:'Peto Eclipse Áureo',slot:'chest',price:300,asset:'eclipse_chest',description:'Armadura negra reforzada con núcleo dorado y placas de élite.'},
+  {id:'eclipse_shoulders',name:'Hombreras Eclipse Áureo',slot:'shoulders',price:260,asset:'eclipse_shoulders',description:'Hombreras de obsidiana con bordes dorados para misiones de máximo nivel.'},
+  {id:'eclipse_gloves',name:'Guanteletes Eclipse Áureo',slot:'gloves',price:240,asset:'eclipse_gloves',description:'Guanteletes negros con conductos de energía dorada de alta precisión.'},
+  {id:'eclipse_legs',name:'Grebas Eclipse Áureo',slot:'legs',price:280,asset:'eclipse_legs',description:'Grebas articuladas oscuras con refuerzos áureos y gran movilidad.'},
+  {id:'eclipse_boots',name:'Botas Eclipse Áureo',slot:'boots',price:220,asset:'eclipse_boots',description:'Botas de gravedad negras con estabilizadores dorados.'},
+  {id:'eclipse_shield',name:'Escudo Eclipse Áureo',slot:'shield',price:340,asset:'eclipse_shield',description:'Escudo de obsidiana y oro preparado para las misiones más exigentes.'},
+  {id:'eclipse_cannon',name:'Cañón Eclipse Áureo',slot:'weapon',price:380,asset:'eclipse_cannon',description:'Cañón estelar de gran tamaño con cuerpo negro, anillos dorados y núcleo luminoso.'}
+];
+
 const AVATAR={
-  schemaVersion:4,
+  schemaVersion:5,
   canvas:{width:1024,height:1024},
   base:{
     id:'avatar_base',
@@ -108,18 +120,37 @@ const AVATAR={
       name:'Guardián Nova',
       description:'Tres niveles de equipamiento espacial para proteger las estrellas.',
       itemCount:NOVA_TIERS.length*NOVA_PIECES.length
+    },
+    eclipse_aureo:{
+      name:'Eclipse Áureo',
+      description:'Equipamiento de nivel 4 en obsidiana negra y oro, con un cañón estelar exclusivo.',
+      itemCount:ECLIPSE_PIECES.length
     }
   },
-  items:NOVA_TIERS.flatMap(tier=>NOVA_PIECES.map(piece=>({
-    id:tier.id==='legendary'?piece.asset:`${piece.asset}_${tier.id}`,
-    name:`${piece.label} ${tier.nameSuffix}`,
-    description:piece.descriptions[tier.id],
-    slot:piece.slot,
-    rarity:tier.id,
-    level:tier.level,
-    price:piece.basePrice*tier.priceFactor,
-    collection:'nova_guardian',
-    shopImage:`assets/shop/nova_guardian/${tier.directory}${piece.asset}.png`,
-    avatarLayer:`assets/avatar/equipment/nova_guardian/${tier.directory}${piece.asset}.png`
-  })))
+  items:[
+    ...NOVA_TIERS.flatMap(tier=>NOVA_PIECES.map(piece=>({
+      id:tier.id==='legendary'?piece.asset:`${piece.asset}_${tier.id}`,
+      name:`${piece.label} ${tier.nameSuffix}`,
+      description:piece.descriptions[tier.id],
+      slot:piece.slot,
+      rarity:tier.id,
+      level:tier.level,
+      price:piece.basePrice*tier.priceFactor,
+      collection:'nova_guardian',
+      shopImage:`assets/shop/nova_guardian/${tier.directory}${piece.asset}.png`,
+      avatarLayer:`assets/avatar/equipment/nova_guardian/${tier.directory}${piece.asset}.png`
+    }))),
+    ...ECLIPSE_PIECES.map(piece=>({
+      id:piece.id,
+      name:piece.name,
+      description:piece.description,
+      slot:piece.slot,
+      rarity:'legendary',
+      level:4,
+      price:piece.price,
+      collection:'eclipse_aureo',
+      shopImage:`assets/shop/eclipse_aureo/${piece.asset}.png`,
+      avatarLayer:`assets/avatar/equipment/eclipse_aureo/${piece.asset}.png`
+    }))
+  ]
 };

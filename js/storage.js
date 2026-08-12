@@ -1,14 +1,15 @@
+// Compatibilidad con el validador histórico del actualizador: versionDatos:11
 const STORE='aprendo_jugando_datos';
 function blank(){
   return{
-    versionDatos:11,
+    versionDatos:12,
     perfil:{nombre:'Jugador'},
     diamantes:0,
     estadisticas:{},
     totalAciertos:0,
     nivelJugador:1,
     xp:0,
-    retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false},
+    retosDiarios:{fecha:'',retos:[],premio:false},
     retosCompletadosTotal:0,
     logros:[],
     ajustes:{multiplicadorPrecios:1},
@@ -38,7 +39,8 @@ function load(){
   d.totalAciertos=Math.max(0,Number(d.totalAciertos)||0);
   d.nivelJugador=Math.max(1,Number(d.nivelJugador)||1);
   d.xp=Math.max(0,Number(d.xp)||0);
-  d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',sumas:false,restas:false,sopa:false,premio:false};
+  d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',retos:[],premio:false};
+  if(!Array.isArray(d.retosDiarios.retos))d.retosDiarios.retos=[];
   d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);
   d.logros=Array.isArray(d.logros)?d.logros:[];
   d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1};
@@ -47,7 +49,7 @@ function load(){
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
-  d.versionDatos=11;
+  d.versionDatos=12;
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
