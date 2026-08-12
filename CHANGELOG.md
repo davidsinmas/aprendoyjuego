@@ -1,3 +1,6 @@
+## 2.19.1
+- Fondo de miniaturas de tienda e inventario unificado con el fondo del avatar para eliminar el contraste de los recortes.
+
 # Historial de cambios
 
 ## V2.19.0 — 2026-08-12

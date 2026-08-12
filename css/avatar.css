@@ -1,4 +1,5 @@
 /* Avatar paper-doll: todas las capas ocupan el mismo lienzo maestro. */
+:root{--avatar-backdrop:radial-gradient(circle at 50% 40%,rgba(38,133,177,.34),transparent 34%),radial-gradient(circle at 28% 23%,rgba(255,255,255,.75) 0 1px,transparent 2px),radial-gradient(circle at 72% 17%,rgba(255,255,255,.58) 0 1px,transparent 2px),linear-gradient(155deg,#071a31,#102d4d 58%,#17374d);}
 .avatar-stage{position:relative;width:100%;aspect-ratio:var(--avatar-aspect,1/1);overflow:hidden;isolation:isolate}
 .avatar-stage::before{position:absolute;inset:13%;z-index:1;border-radius:50%;background:radial-gradient(circle,rgba(80,225,255,.68) 0,rgba(25,128,255,.34) 35%,rgba(255,190,53,.13) 57%,transparent 72%);content:"";opacity:0;transform:scale(.84);transition:opacity .25s ease}
 .avatar-stage.has-legendary::before{opacity:var(--legendary-aura-opacity,.16);animation:novaAuraPulse 2.8s ease-in-out infinite alternate}
@@ -17,7 +18,7 @@
 .progress-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 14px}
 .progress-action{min-height:60px;font-size:1.05rem}
 
-.avatar-preview-card{position:relative;isolation:isolate;overflow:hidden;width:100%;padding:14px;border:1px solid rgba(95,211,255,.22);border-radius:28px;background:radial-gradient(circle at 50% 40%,rgba(38,133,177,.34),transparent 34%),radial-gradient(circle at 28% 23%,rgba(255,255,255,.75) 0 1px,transparent 2px),radial-gradient(circle at 72% 17%,rgba(255,255,255,.58) 0 1px,transparent 2px),linear-gradient(155deg,#071a31,#102d4d 58%,#17374d);box-shadow:0 18px 42px rgba(9,31,55,.24)}
+.avatar-preview-card{position:relative;isolation:isolate;overflow:hidden;width:100%;padding:14px;border:1px solid rgba(95,211,255,.22);border-radius:28px;background:var(--avatar-backdrop);box-shadow:0 18px 42px rgba(9,31,55,.24)}
 .avatar-preview-card::after{position:absolute;inset:0;z-index:-2;background-image:radial-gradient(circle at 18% 66%,rgba(255,255,255,.42) 0 1px,transparent 2px),radial-gradient(circle at 84% 54%,rgba(88,216,255,.52) 0 1px,transparent 2px),radial-gradient(circle at 62% 79%,rgba(255,255,255,.28) 0 1px,transparent 2px);background-size:143px 131px,177px 159px,119px 151px;content:""}
 .space-orbit{position:absolute;left:50%;top:54%;z-index:-1;width:74%;aspect-ratio:1;border:1px solid rgba(96,219,255,.22);border-radius:50%;box-shadow:0 0 45px rgba(36,197,255,.13),inset 0 0 45px rgba(36,197,255,.08);transform:translate(-50%,-50%) rotate(-12deg)}
 .space-orbit::after{position:absolute;left:8%;top:13%;width:12px;height:12px;border-radius:50%;background:#74dfff;box-shadow:0 0 18px #74dfff;content:""}
@@ -71,7 +72,7 @@
 .shop-card:hover,.shop-card:focus-visible{border-color:#7ab9d1;box-shadow:0 10px 24px rgba(27,75,98,.11);outline:0;transform:translateY(-2px)}
 .shop-card.selected{border-color:#3c9bc0;background:linear-gradient(145deg,#f4fbff,#edf7f8);box-shadow:0 0 0 2px rgba(59,155,192,.13),0 12px 26px rgba(27,75,98,.14)}
 .shop-card.owned:not(.selected){background:#f3f8f3}
-.shop-icon{display:grid;place-items:center;width:86px;height:86px;overflow:hidden;border:1px solid rgba(45,85,105,.12);border-radius:17px;background:radial-gradient(circle at 50% 42%,#f7fdff,#dbeaf1);font-size:2.3rem}
+.shop-icon{display:grid;place-items:center;width:86px;height:86px;overflow:hidden;border:1px solid rgba(45,85,105,.12);border-radius:17px;background:var(--avatar-backdrop);font-size:2.3rem}
 .shop-icon img{width:100%;height:100%;object-fit:contain}
 .shop-info{display:block;min-width:0}
 .shop-title{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -161,4 +162,4 @@
 .avatar-layer[data-collection="eclipse_aureo"]{animation:eclipseGoldPulse 2.6s ease-in-out infinite alternate}
 .shop-card.collection-eclipse_aureo,.inventory-card.collection-eclipse_aureo{border-left-color:#c99a2b;background:linear-gradient(145deg,#fffaf0,#f7eed6)}
 .shop-card.collection-eclipse_aureo.selected{border-color:#c99a2b;background:linear-gradient(145deg,#fff9e9,#f3e2af);box-shadow:0 0 0 2px rgba(201,154,43,.14),0 12px 28px rgba(74,53,16,.14)}
-.shop-card.collection-eclipse_aureo .shop-icon,.inventory-card.collection-eclipse_aureo .shop-icon{border-color:rgba(201,154,43,.36);background:radial-gradient(circle at 50% 42%,#2b2925,#111 72%)}
+.shop-card.collection-eclipse_aureo .shop-icon,.inventory-card.collection-eclipse_aureo .shop-icon{border-color:rgba(201,154,43,.36);background:var(--avatar-backdrop)}
