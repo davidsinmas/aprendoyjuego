@@ -1,3 +1,12 @@
+## V3.0.1 — 2026-08-13
+
+- Los retos diarios aumentan de 3 a 5 y combinan cada día actividades de números, palabras, sonidos y sílabas.
+- Al actualizar durante el mismo día se conservan los retos ya completados; si el premio diario ya estaba conseguido, continúa conseguido.
+- En **Sonido inicial**, la explicación completa solo se reproduce en la primera palabra; desde la segunda se pronuncia únicamente la palabra.
+- Aumentada ligeramente la cadencia inicial y máxima de los disparos de **Duelo de Guardianes**.
+- Los dos guardianes tienen 2 segundos de inmunidad con parpadeo al comenzar cada ronda y tras recibir un impacto.
+- Se conservan la partida al mejor de 5, los 5 impactos por ronda, el desbloqueo diario y el desbloqueo desde Modo Padres.
+
 ## V3.0.0 — 2026-08-13
 
 - Integrado **Duelo de Guardianes**, juego de acción local para dos jugadores con pantalla dividida y control simultáneo mediante dos dedos.

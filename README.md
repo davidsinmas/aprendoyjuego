@@ -19,13 +19,13 @@ Cada actividad tiene progresión por niveles, recompensas y registro de progreso
 
 ## Retos diarios
 
-Cada día aparecen 3 retos cortos elegidos mediante una rotación entre los 10 juegos. La dificultad se adapta al progreso de cada actividad y completar un reto diario no desbloquea ni marca como hecho un nivel normal.
+Cada día aparecen 5 retos cortos y diferentes. La selección combina actividades de números, palabras, sonidos y sílabas para que el conjunto sea más variado. La dificultad se adapta al progreso de cada actividad y completar un reto diario no desbloquea ni marca como hecho un nivel normal.
 
 ## Duelo de Guardianes
 
-Juego de acción para dos jugadores en el mismo dispositivo. Cada jugador mueve su guardián con el dedo dentro de su mitad de la pantalla y ambos disparan automáticamente. El ritmo de disparo aumenta si nadie recibe impactos y vuelve al ritmo normal cuando alguien es alcanzado. Cada ronda requiere 5 impactos y la partida completa la gana quien consigue primero 3 rondas, al mejor de 5.
+Juego de acción para dos jugadores en el mismo dispositivo. Cada jugador mueve su guardián con el dedo dentro de su mitad de la pantalla y ambos disparan automáticamente. El ritmo de disparo aumenta si nadie recibe impactos y vuelve al ritmo normal cuando alguien es alcanzado. Al comenzar una ronda y después de recibir un disparo, el guardián parpadea y permanece inmune durante 2 segundos. Cada ronda requiere 5 impactos y la partida completa la gana quien consigue primero 3 rondas, al mejor de 5.
 
-El duelo se desbloquea permanentemente al completar los 3 retos diarios. El Modo Padres permite probarlo y desbloquearlo permanentemente.
+El duelo se desbloquea permanentemente al completar los 5 retos diarios. El Modo Padres permite probarlo y desbloquearlo permanentemente.
 
 ## Avatar y tienda
 

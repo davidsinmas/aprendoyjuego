@@ -8,11 +8,12 @@ const DUEL_MAX_LIFE=100;
 const DUEL_HIT_DAMAGE=20;
 const DUEL_PLAYER_RADIUS=22;
 const DUEL_EDGE=45;
-const DUEL_BASE_FIRE=0.95;
-const DUEL_MIN_FIRE=0.35;
+const DUEL_BASE_FIRE=0.82;
+const DUEL_MIN_FIRE=0.30;
 const DUEL_PACE_SECONDS=5;
 const DUEL_PACE_REDUCTION=0.10;
 const DUEL_ROUNDS_TO_WIN=3;
+const DUEL_INVULNERABILITY=2;
 
 const DUEL_STARS=Array.from({length:88},(_,i)=>({
   x:(i*173+47)%DUEL_W,
@@ -23,8 +24,8 @@ const DUEL_STARS=Array.from({length:88},(_,i)=>({
 
 function duelFighters(){
   return[
-    {x:155,y:DUEL_H/2,targetX:155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:0,fireTimer:.85,flash:0},
-    {x:DUEL_W-155,y:DUEL_H/2,targetX:DUEL_W-155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:0,fireTimer:.85,flash:0}
+    {x:155,y:DUEL_H/2,targetX:155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:DUEL_INVULNERABILITY,fireTimer:.7,flash:0},
+    {x:DUEL_W-155,y:DUEL_H/2,targetX:DUEL_W-155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:DUEL_INVULNERABILITY,fireTimer:.7,flash:0}
   ];
 }
 
@@ -254,7 +255,7 @@ function duelUpdate(dt){
     if(bullet.life>0&&target.invulnerable<=0&&Math.hypot(bullet.x-target.x,bullet.y-target.y)<DUEL_PLAYER_RADIUS+bullet.r){
       bullet.life=0;
       target.life=Math.max(0,target.life-DUEL_HIT_DAMAGE);
-      target.invulnerable=.55;target.flash=.22;
+      target.invulnerable=DUEL_INVULNERABILITY;target.flash=.22;
       target.targetX+=bullet.owner===0?20:-20;
       game.noHitTime=0;game.pace=0;
       duelParticles(target.x,target.y,bullet.owner===0?'#76f6ff':'#ff75b1',18);

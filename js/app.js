@@ -4,6 +4,13 @@ const mix=a=>[...a].sort(()=>Math.random()-.5);
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const READING_TYPES=new Set(['sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas']);
 const DAILY_TYPES=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
+const DAILY_COUNT=5;
+const DAILY_GROUPS=[
+  ['suma','resta','comparar'],
+  ['palabras','sopa'],
+  ['sonidoInicial','sonidoFinal'],
+  ['construir','ordenarSilabas','rimas']
+];
 const DAILY_INFO={
   suma:{icon:'＋',label:'5 sumas',time:'2 min'},
   resta:{icon:'−',label:'5 restas',time:'2 min'},
@@ -20,12 +27,22 @@ const stats=id=>D.estadisticas[id]||{partidas:0,aciertos:0,respuestas:0};
 const today=()=>new Date().toLocaleDateString('sv-SE');
 function dailyTypesForDate(date){
   const stamp=Math.floor(new Date(`${date}T12:00:00`).getTime()/86400000);
-  const start=((stamp*3)%DAILY_TYPES.length+DAILY_TYPES.length)%DAILY_TYPES.length;
-  return [0,1,2].map(i=>DAILY_TYPES[(start+i)%DAILY_TYPES.length]);
+  const chosen=DAILY_GROUPS.map((group,index)=>group[Math.abs(stamp*(index*2+3)+index*7)%group.length]);
+  const remaining=DAILY_TYPES.filter(type=>!chosen.includes(type));
+  chosen.push(remaining[Math.abs(stamp*11+5)%remaining.length]);
+  return chosen;
 }
 function ensureDaily(){
-  const date=today(),valid=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos)&&D.retosDiarios.retos.length===3;
-  if(!valid)D.retosDiarios={fecha:date,retos:dailyTypesForDate(date).map(type=>({type,done:false})),premio:false};
+  const date=today(),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
+  if(!sameDay){
+    D.retosDiarios={fecha:date,retos:dailyTypesForDate(date).map(type=>({type,done:false})),premio:false};
+  }else if(D.retosDiarios.retos.length!==DAILY_COUNT){
+    const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
+    for(const type of dailyTypesForDate(date)){if(types.length>=DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
+    for(const type of DAILY_TYPES){if(types.length>=DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
+    const completed=new Set(previous.filter(reto=>reto.done).map(reto=>reto.type)),rewarded=!!D.retosDiarios.premio;
+    D.retosDiarios.retos=types.slice(0,DAILY_COUNT).map(type=>({type,done:rewarded||completed.has(type)}));
+  }
   if(D.retosDiarios.premio&&!D.dueloGuardianes.unlocked)unlockGuardianDuel('daily');
   save(D);
 }
@@ -39,7 +56,7 @@ function unlockGuardianDuel(source='daily'){
 function unlockGuardianDuelFromParents(){unlockGuardianDuel('parents');parentDashboard();}
 function guardianDuelCard(){
   const unlocked=guardianDuelAvailable(),permanent=!!D.dueloGuardianes.unlocked;
-  const note=permanent?'Partida al mejor de 5 · hacen falta 5 impactos por ronda':parentMode?'Disponible mientras el modo Padres esté activo':'Completa los 3 retos de hoy para desbloquearlo';
+  const note=permanent?'Partida al mejor de 5 · hacen falta 5 impactos por ronda':parentMode?'Disponible mientras el modo Padres esté activo':'Completa los 5 retos de hoy para desbloquearlo';
   return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function xpNeeded(level){return 260+(level-1)*85;}
@@ -48,7 +65,7 @@ const ACHIEVEMENTS=[
   {id:'first_game',icon:'🎮',name:'Primera partida',desc:'Termina una actividad',test:()=>totalGames()>=1,reward:5},
   {id:'ten_correct',icon:'⭐',name:'Buen comienzo',desc:'Consigue 10 respuestas correctas',test:()=>D.totalAciertos>=10,reward:8},
   {id:'fifty_correct',icon:'🏅',name:'Aprendiz constante',desc:'Consigue 50 respuestas correctas',test:()=>D.totalAciertos>=50,reward:15},
-  {id:'daily_complete',icon:'☀️',name:'Día completo',desc:'Completa los tres retos diarios',test:()=>D.retosDiarios.premio,reward:10},
+  {id:'daily_complete',icon:'☀️',name:'Día completo',desc:'Completa los cinco retos diarios',test:()=>D.retosDiarios.premio,reward:10},
   {id:'level_3',icon:'🚀',name:'Nivel 3',desc:'Alcanza el nivel 3',test:()=>D.nivelJugador>=3,reward:12}
 ];
 let pendingAchievements=[],pendingLevelRewards=[];
@@ -77,7 +94,7 @@ function dailyHTML(){
     const info=DAILY_INFO[challenge.type]||{icon:'🎯',label:challenge.type,time:'2 min'},ok=challenge.done;
     return `<button class="daily-row ${ok?'done locked':''}" ${ok?'disabled aria-disabled="true"':`onclick="startDaily('${challenge.type}')"`}><span>${ok?'🔒 ✅':info.icon} ${info.label}</span><small>${ok?'Completado':info.time}</small></button>`;
   };
-  return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/3</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':'🎁 Completa los 3: +10 💎 y +10 XP'}</div></div>`;
+  return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/${DAILY_COUNT}</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':'🎁 Completa los 5: +10 💎 y +10 XP'}</div></div>`;
 }
 function startDaily(type){
   ensureDaily();
@@ -406,7 +423,7 @@ function makeLetterOptions(correct,n,type){
 }
 function soundQuestion(){
   state.locked=false;const q=state.qs[state.i],initial=state.type==='sonidoInicial',correct=initial?q.word[0]:q.word.at(-1),opts=makeLetterOptions(correct,state.level,state.type);
-  state.correct=correct;const num=state.i+1,label=initial?'¿CON QUÉ LETRA EMPIEZA?':'¿CON QUÉ LETRA TERMINA?',spoken=initial?'Escucha la palabra. Toca la letra por la que empieza':'Escucha la palabra. Toca la letra por la que termina';
+  state.correct=correct;const num=state.i+1,label=initial?'¿CON QUÉ LETRA EMPIEZA?':'¿CON QUÉ LETRA TERMINA?',spoken=initial?(state.i===0?'Escucha la palabra. Toca la letra por la que empieza':''):'Escucha la palabra. Toca la letra por la que termina';
   layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':`levels('${state.type}')`}">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${num} de ${state.total}</div><div class="listen-card"><div class="reading-picture">${q.icon}</div><button class="listen-button" onclick="speakWord('${q.word}','${spoken}')">🔊</button><b>${label}</b></div><div class="answers reading-letter-answers">${opts.map(o=>`<button class="answer reading-letter" onclick="answerSound('${o}',this)">${o}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);
   state.i++;setTimeout(()=>speakWord(q.word,spoken),140);
 }
