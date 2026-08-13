@@ -1,3 +1,13 @@
+## V3.0.0 — 2026-08-13
+
+- Integrado **Duelo de Guardianes**, juego de acción local para dos jugadores con pantalla dividida y control simultáneo mediante dos dedos.
+- Los guardianes se mueven únicamente dentro de su mitad y disparan de forma automática.
+- El ritmo de disparo aumenta cada 5 segundos sin impactos y vuelve al ritmo normal cuando alguien es alcanzado.
+- Cada ronda termina tras 5 impactos; la partida completa se juega al mejor de 5 y la gana quien llega primero a 3 rondas.
+- El juego se desbloquea permanentemente al completar los 3 retos diarios.
+- El Modo Padres permite probar el duelo y desbloquearlo permanentemente.
+- Se conserva íntegramente la base V2.19.1: los 10 juegos educativos, retos diarios, tienda, avatar, accesorios, Guardián Nova, Eclipse Áureo, economía y progreso.
+
 ## 2.19.1
 - Fondo de miniaturas de tienda e inventario unificado con el fondo del avatar para eliminar el contraste de los recortes.
 
