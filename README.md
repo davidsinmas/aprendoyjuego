@@ -33,7 +33,7 @@ Juego de acción cooperativo para dos jugadores. Cada participante controla un g
 
 Los dos juegos de acción comparten el pase diario de una partida. El Modo Padres permite probarlos sin dejarlos desbloqueados fuera de ese modo.
 
-Los dos juegos de acción utilizan efectos sonoros breves y de volumen moderado para acompañar disparos, impactos, bonus y resultados sin resultar estridentes.
+Todos los juegos utilizan efectos sonoros breves y de volumen moderado para confirmar aciertos y acompañar disparos, impactos, bonus y resultados sin resultar estridentes.
 
 Desde la V3.1.1, la entrada a Defensa del planeta utiliza un controlador explícito para asegurar que se abra correctamente tanto desde Inicio como desde el Modo Padres.
 

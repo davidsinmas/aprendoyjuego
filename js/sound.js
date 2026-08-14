@@ -47,5 +47,5 @@
     }
   }
   window.GameSound={play,resume:audio};
+  window.playChime=kind=>play(kind==='ok'?'correct':'wrong');
 })();
-

@@ -1,6 +1,6 @@
 ## V3.3.0 — 2026-08-15
 
-- Añadidos sonidos suaves y breves al Duelo de Guardianes y a Defensa del planeta, evitando efectos estridentes.
+- Añadidos sonidos suaves y breves a los juegos educativos, al Duelo de Guardianes y a Defensa del planeta, evitando efectos estridentes.
 - El Duelo enfrenta ahora al avatar contra un monstruo de aspecto propio, dibujado directamente en el juego.
 - El disparo del avatar avanza siempre en horizontal y el del monstruo se dirige hacia la posición del avatar.
 - Aparecen tres bonus en la zona del avatar: **Potencia**, **Cadencia** y **Satélite**. Hay que recogerlos antes de que salgan de la pantalla y todos son temporales.

@@ -24,7 +24,7 @@
       link.href=href+'?v='+encodeURIComponent(version);
       document.head.appendChild(link);
     }
-    const scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/sound.js','js/duel.js','js/planet.js','js/app.js'];
+    const scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/duel.js','js/planet.js','js/app.js','js/sound.js'];
     for(const src of scripts){
       await new Promise((resolve,reject)=>{
         const script=document.createElement('script');
