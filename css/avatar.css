@@ -105,7 +105,11 @@
   .avatar-hub,.shop-layout,.inventory-layout{grid-template-columns:1fr}
   .avatar-hub{gap:20px}
   .avatar-preview-card-hero{max-width:500px}
-  .shop-showcase,.inventory-preview-card{position:relative;top:auto;max-width:540px;width:100%;margin:auto}
+  .shop-layout{position:relative}
+  .shop-showcase{display:contents}
+  .shop-preview-card{position:sticky;top:0;z-index:20;align-self:start;max-width:540px;width:100%;margin:auto;box-shadow:0 14px 34px rgba(9,31,55,.3)}
+  .shop-detail{max-width:540px;width:100%;margin:auto}
+  .inventory-preview-card{position:relative;top:auto;max-width:540px;width:100%;margin:auto}
   .shop-layout>section:last-child{width:100%}
 }
 
@@ -118,6 +122,7 @@
   .shop-head .collection-progress{width:100%}
   .shop-tier-tabs{gap:6px;padding:5px}
   .shop-tier-tab{min-height:54px;padding:7px 5px}
+  .shop-preview-card .avatar-preview{width:min(70vw,280px)}
   .shop-card{grid-template-columns:1fr;min-height:0;padding:9px}
   .shop-icon{width:100%;height:auto;aspect-ratio:1}
   .shop-title{align-items:flex-start}
@@ -144,6 +149,12 @@
 .shop-filter-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 1px 4px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
 .shop-filter-chip{flex:0 0 auto;min-height:38px;padding:8px 12px;border:1px solid #d4cec2;border-radius:999px;background:#fbf9f4;color:var(--ink);font:inherit;font-size:.8rem;font-weight:850;cursor:pointer}
 .shop-filter-chip.active{border-color:#70b7d1;background:#fff;box-shadow:0 4px 12px rgba(27,75,98,.12);color:#285874}
+.shop-filter-chip:disabled,.shop-filter-chip.is-disabled{border-color:#d6d3cc;background:#e5e2dc;box-shadow:none;color:#92908b;cursor:not-allowed;filter:grayscale(1);opacity:.42}
+.shop-category-chips{gap:9px}
+.shop-category-chip{display:grid;place-items:center;gap:2px;min-width:68px;min-height:66px;padding:6px 9px;border-radius:16px}
+.shop-category-chip .shop-filter-icon{font-size:1.85rem;line-height:1}
+.shop-category-chip small{font-size:.62rem;font-weight:900;line-height:1.1}
+.shop-category-chip.active{transform:translateY(-1px)}
 .shop-state-equipped{color:#27704c}
 .shop-state-owned{color:#4e6f7c}
 .shop-state-locked{color:#8b5c4d}
@@ -153,6 +164,7 @@
   .shop-filter-row{grid-template-columns:1fr;gap:5px}
   .shop-filters{padding:10px}
   .shop-filter-label{padding-left:2px}
+  .shop-category-chip{min-width:64px}
 }
 
 

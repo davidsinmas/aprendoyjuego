@@ -157,6 +157,17 @@ ${guardianDuelCard()}
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
 let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopCategoryFilter='all',shopRarityFilter='all',shopCollectionFilter='all';
 const SHOP_CATEGORY_ORDER=['helmet','chest','shoulders','gloves','legs','boots','shield','weapon'];
+const SHOP_CATEGORY_FILTERS=[
+  {id:'all',label:'Todo',icon:'✦'},
+  {id:'helmet',label:'Casco',icon:'🪖'},
+  {id:'chest',label:'Peto',icon:'🦺'},
+  {id:'shoulders',label:'Hombreras',icon:'💪'},
+  {id:'gloves',label:'Guantes',icon:'🧤'},
+  {id:'legs',label:'Piernas',icon:'👖'},
+  {id:'boots',label:'Botas',icon:'🥾'},
+  {id:'shield',label:'Escudo',icon:'🛡️'},
+  {id:'weapon',label:'Arma',icon:'⚔️'}
+];
 function avatarCatalog(tier=null,collection=null){return (AVATAR.items||[]).filter(item=>!item.technical&&(!tier||item.rarity===tier)&&(!collection||item.collection===collection));}
 function avatarItemPrice(item){return AvatarSystem.priceFor(D,item);}
 function tierLabel(item){return `Nivel ${item.level||AVATAR.rarities?.[item.rarity]?.level||1}`;}
@@ -198,6 +209,11 @@ function shopVisual(item){const src=item.shopImage?`${item.shopImage}${item.shop
 function shopFilteredCatalog(){
   return avatarCatalog().filter(item=>(shopCategoryFilter==='all'||item.slot===shopCategoryFilter)&&(shopRarityFilter==='all'||item.rarity===shopRarityFilter)&&(shopCollectionFilter==='all'||item.collection===shopCollectionFilter));
 }
+function shopFilterAvailable(kind,value){
+  const filters={category:shopCategoryFilter,rarity:shopRarityFilter,collection:shopCollectionFilter};
+  filters[kind]=value;
+  return avatarCatalog().some(item=>(filters.category==='all'||item.slot===filters.category)&&(filters.rarity==='all'||item.rarity===filters.rarity)&&(filters.collection==='all'||item.collection===filters.collection));
+}
 function shopItemState(item){
   const avatar=AvatarSystem.ensureState(D),owned=avatar.owned.includes(item.id),equipped=avatar.equipped[item.slot]===item.id,price=avatarItemPrice(item);
   if(equipped)return{label:'Equipado',kind:'equipped'};
@@ -220,22 +236,23 @@ function shopDetail(item){
 }
 function openShopScreen(){shopFeedback='';shopScreen();}
 function setShopCategoryFilter(value){
-  if(value!=='all'&&!SHOP_CATEGORY_ORDER.includes(value))return;
+  if((value!=='all'&&!SHOP_CATEGORY_ORDER.includes(value))||!shopFilterAvailable('category',value))return;
   shopCategoryFilter=value;selectedShopItemId=null;shopFeedback='';shopScreen();
 }
 function setShopRarityFilter(value){
-  if(value!=='all'&&!AVATAR.rarities?.[value])return;
+  if((value!=='all'&&!AVATAR.rarities?.[value])||!shopFilterAvailable('rarity',value))return;
   shopRarityFilter=value;selectedShopItemId=null;shopFeedback='';shopScreen();
 }
 function setShopCollectionFilter(value){
-  if(value!=='all'&&!AVATAR.collections?.[value])return;
+  if((value!=='all'&&!AVATAR.collections?.[value])||!shopFilterAvailable('collection',value))return;
   shopCollectionFilter=value;selectedShopItemId=null;shopFeedback='';shopScreen();
 }
 function shopFilters(){
   const collectionButtons=[['all','Todas'],...Object.entries(AVATAR.collections||{}).map(([id,collection])=>[id,collection.name])];
   const rarityButtons=[['all','Todas'],...Object.entries(AVATAR.rarities).map(([id,tier])=>[id,tier.label])];
-  const categoryButtons=[['all','Todo'],...SHOP_CATEGORY_ORDER.map(slot=>[slot,AVATAR.slots[slot]?.label||slot])];
-  return `<div class="shop-filters"><div class="shop-filter-row"><span class="shop-filter-label">Colección</span><div class="shop-filter-chips">${collectionButtons.map(([id,label])=>`<button type="button" class="shop-filter-chip ${shopCollectionFilter===id?'active':''}" onclick="setShopCollectionFilter('${id}')" aria-pressed="${shopCollectionFilter===id}">${escapeHTML(label)}</button>`).join('')}</div></div><div class="shop-filter-row"><span class="shop-filter-label">Rareza</span><div class="shop-filter-chips">${rarityButtons.map(([id,label])=>`<button type="button" class="shop-filter-chip ${shopRarityFilter===id?'active':''}" onclick="setShopRarityFilter('${id}')" aria-pressed="${shopRarityFilter===id}">${escapeHTML(label)}</button>`).join('')}</div></div><div class="shop-filter-row"><span class="shop-filter-label">Categoría</span><div class="shop-filter-chips">${categoryButtons.map(([id,label])=>`<button type="button" class="shop-filter-chip ${shopCategoryFilter===id?'active':''}" onclick="setShopCategoryFilter('${id}')" aria-pressed="${shopCategoryFilter===id}">${escapeHTML(label)}</button>`).join('')}</div></div></div>`;
+  const textButton=(id,label,kind,current,setter)=>{const available=shopFilterAvailable(kind,id);return `<button type="button" class="shop-filter-chip ${current===id?'active':''} ${available?'':'is-disabled'}" ${available?`onclick="${setter}('${id}')"`:'disabled aria-disabled="true"'} aria-pressed="${current===id}">${escapeHTML(label)}</button>`;};
+  const categoryButton=({id,label,icon})=>{const available=shopFilterAvailable('category',id);return `<button type="button" class="shop-filter-chip shop-category-chip ${shopCategoryFilter===id?'active':''} ${available?'':'is-disabled'}" ${available?`onclick="setShopCategoryFilter('${id}')"`:'disabled aria-disabled="true"'} aria-pressed="${shopCategoryFilter===id}" aria-label="${escapeHTML(label)}"><span class="shop-filter-icon" aria-hidden="true">${icon}</span><small>${escapeHTML(label)}</small></button>`;};
+  return `<div class="shop-filters"><div class="shop-filter-row"><span class="shop-filter-label">Colección</span><div class="shop-filter-chips">${collectionButtons.map(([id,label])=>textButton(id,label,'collection',shopCollectionFilter,'setShopCollectionFilter')).join('')}</div></div><div class="shop-filter-row"><span class="shop-filter-label">Rareza</span><div class="shop-filter-chips">${rarityButtons.map(([id,label])=>textButton(id,label,'rarity',shopRarityFilter,'setShopRarityFilter')).join('')}</div></div><div class="shop-filter-row shop-category-row"><span class="shop-filter-label">Categoría</span><div class="shop-filter-chips shop-category-chips">${SHOP_CATEGORY_FILTERS.map(categoryButton).join('')}</div></div></div>`;
 }
 function shopScreen(){
   const slotOrder=new Map(SHOP_CATEGORY_ORDER.map((slot,index)=>[slot,index]));
@@ -244,7 +261,7 @@ function shopScreen(){
   const selected=items.find(item=>item.id===selectedShopItemId)||null;
   const filters=shopFilters();
   const catalogTitle=items.length===1?'1 pieza':`${items.length} piezas`;
-  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colecciones de equipamiento</span><h2>Tienda estelar</h2><p class="muted">Filtra por colección, categoría y rareza. Toca una pieza para probarla antes de comprar.</p></div>${collectionProgress(shopCollectionFilter)}</div>${filters}${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA · ${tierLabel(selected).toUpperCase()}</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section><h3 class="catalog-title">${catalogTitle}</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:`<div class="empty-state">No hay piezas que coincidan con estos filtros.</div>`}`);
+  layout(`<div class="top"><button class="btn secondary back" onclick="avatarScreen()">← Avatar</button>${diamond()}</div><div class="shop-head"><div><span class="eyebrow">Colecciones de equipamiento</span><h2>Tienda estelar</h2><p class="muted">Filtra por colección, categoría y rareza. Toca una pieza para probarla antes de comprar.</p></div>${collectionProgress(shopCollectionFilter)}</div>${filters}${shopFeedback?`<div class="shop-feedback" role="status">${escapeHTML(shopFeedback)}</div>`:''}${selected?`<div class="shop-layout"><section class="shop-showcase"><div class="avatar-preview-card shop-preview-card"><div class="preview-label">VISTA PREVIA · ${tierLabel(selected).toUpperCase()}</div><div class="space-orbit" aria-hidden="true"></div><div id="shopAvatarPreview" class="avatar-preview" aria-label="Vista previa de ${escapeHTML(selected.name)}"></div><div id="shopAssetStatus" class="avatar-status muted">Preparando vista previa…</div></div>${shopDetail(selected)}</section><section class="shop-catalog"><h3 class="catalog-title">${catalogTitle}</h3><div class="shop-list">${items.map(item=>shopItemCard(item,item.id===selected.id)).join('')}</div></section></div>`:`<div class="empty-state">No hay piezas que coincidan con estos filtros.</div>`}`);
   if(selected)renderAvatarStage('shopAvatarPreview',{statusId:'shopAssetStatus',previewItemId:selected.id});
 }
 function selectShopItem(id){selectedShopItemId=id;shopFeedback='';shopScreen();}

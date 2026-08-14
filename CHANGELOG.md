@@ -1,3 +1,9 @@
+## V3.0.2 — 2026-08-14
+
+- Los grupos de accesorios de la tienda se seleccionan mediante pictogramas grandes con su descripción en pequeño.
+- Los filtros que no tienen piezas compatibles con la selección actual quedan deshabilitados, sin color y no se pueden pulsar.
+- En móvil, la vista previa del avatar permanece pegada al borde superior mientras se recorren los accesorios para ver cada cambio al instante.
+
 ## V3.0.1 — 2026-08-13
 
 - Los retos diarios aumentan de 3 a 5 y combinan cada día actividades de números, palabras, sonidos y sílabas.
