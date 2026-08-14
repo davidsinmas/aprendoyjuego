@@ -128,7 +128,7 @@ const GAME={
   },
   words:[
     ['SOL','☀️',['SOL']],['MAR','🌊',['MAR']],['PAN','🍞',['PAN']],['PEZ','🐟',['PEZ']],['BUS','🚌',['BUS']],
-    ['GATO','🐱',['GA','TO']],['PATO','🦆',['PA','TO']],['CASA','🏠',['CA','SA']],['MESA','🪑',['ME','SA']],['MANO','✋',['MA','NO']],['LUNA','🌙',['LU','NA']],['SOPA','🥣',['SO','PA']],['CAMA','🛏️',['CA','MA']],['PERA','🍐',['PE','RA']],['RANA','🐸',['RA','NA']],['VACA','🐮',['VA','CA']],['LEON','🦁',['LE','ON']],['OSO','🐻',['O','SO']],['MONO','🐵',['MO','NO']],['FLOR','🌸',['FLOR']],['HOJA','🍃',['HO','JA']],['NUBE','☁️',['NU','BE']],['ISLA','🏝️',['IS','LA']],['UVA','🍇',['U','VA']],['BICI','🚲',['BI','CI']],
+    ['GATO','🐱',['GA','TO']],['PATO','🦆',['PA','TO']],['CASA','🏠',['CA','SA']],['SILLA','🪑',['SI','LLA']],['MANO','✋',['MA','NO']],['LUNA','🌙',['LU','NA']],['SOPA','🥣',['SO','PA']],['CAMA','🛏️',['CA','MA']],['PERA','🍐',['PE','RA']],['RANA','🐸',['RA','NA']],['VACA','🐮',['VA','CA']],['LEON','🦁',['LE','ON']],['OSO','🐻',['O','SO']],['MONO','🐵',['MO','NO']],['FLOR','🌸',['FLOR']],['HOJA','🍃',['HO','JA']],['NUBE','☁️',['NU','BE']],['ISLA','🏝️',['IS','LA']],['UVA','🍇',['U','VA']],['BICI','🚲',['BI','CI']],
     ['PERRO','🐶',['PE','RRO']],['RATON','🐭',['RA','TON']],['CERDO','🐷',['CER','DO']],['OVEJA','🐑',['O','VE','JA']],['TIGRE','🐯',['TI','GRE']],['PANDA','🐼',['PAN','DA']],['ZORRO','🦊',['ZO','RRO']],['KOALA','🐨',['KO','A','LA']],['POLLO','🐤',['PO','LLO']],['ABEJA','🐝',['A','BE','JA']],['ARBOL','🌳',['AR','BOL']],['NIEVE','❄️',['NIE','VE']],['FUEGO','🔥',['FUE','GO']],['QUESO','🧀',['QUE','SO']],['HUEVO','🥚',['HUE','VO']],['LECHE','🥛',['LE','CHE']],['FRESA','🍓',['FRE','SA']],['COCHE','🚗',['CO','CHE']],['BARCO','🚢',['BAR','CO']],['TREN','🚆',['TREN']],['AVION','✈️',['A','VION']],['RELOJ','⌚',['RE','LOJ']],['LLAVE','🔑',['LLA','VE']],['LIBRO','📘',['LI','BRO']],['LAPIZ','✏️',['LA','PIZ']],
     ['PELOTA','⚽',['PE','LO','TA']],['TOMATE','🍅',['TO','MA','TE']],['CAMISA','👕',['CA','MI','SA']],['MALETA','🧳',['MA','LE','TA']],['PALOMA','🕊️',['PA','LO','MA']],['CONEJO','🐰',['CO','NE','JO']],['ZAPATO','👟',['ZA','PA','TO']],['BANANA','🍌',['BA','NA','NA']],['NARANJA','🍊',['NA','RAN','JA']],['VENTANA','🪟',['VEN','TA','NA']],['CABALLO','🐴',['CA','BA','LLO']],['GALLINA','🐔',['GA','LLI','NA']],['ESTRELLA','⭐',['ES','TRE','LLA']],['CAMELLO','🐫',['CA','ME','LLO']],['CANGURO','🦘',['CAN','GU','RO']],['TORTUGA','🐢',['TOR','TU','GA']],['SEMILLA','🌱',['SE','MI','LLA']],['GIRASOL','🌻',['GI','RA','SOL']]
   ].map(([word,icon,syllables])=>({word,icon,syllables})),
@@ -145,9 +145,10 @@ const GAME={
     {key:'UNA',words:[['LUNA','🌙'],['CUNA','🛏️']]},
     {key:'ISA',words:[['CAMISA','👕'],['SONRISA','😊']]},
     {key:'ANA2',words:[['VENTANA','🪟'],['MANZANA','🍎']]},
-    {key:'ESA',words:[['FRESA','🍓'],['MESA','🪑']]},
+    {key:'ESA',words:[['FRESA','🍓'],['PRINCESA','👸']]},
     {key:'ERO',words:[['PERRO','🐶'],['SOMBRERO','🎩']]},
     {key:'OJA',words:[['HOJA','🍃'],['ROJA','🔴']]},
     {key:'AVE',words:[['LLAVE','🔑'],['AVE','🐦']]}
   ].map(g=>({...g,words:g.words.map(([word,icon])=>({word,icon}))}))
 };
+

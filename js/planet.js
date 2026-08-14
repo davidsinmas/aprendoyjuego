@@ -302,13 +302,15 @@ function planetEndMission(won){
   const game=planetDefense;
   if(!game||!['playing','countdown'].includes(game.status))return;
   game.status=won?'missionWon':'missionLost';
-  D.defensaPlaneta=D.defensaPlaneta&&typeof D.defensaPlaneta==='object'?D.defensaPlaneta:{unlocked:true,unlockedBy:'daily',missions:0,bestScore:0};
+  D.defensaPlaneta=D.defensaPlaneta&&typeof D.defensaPlaneta==='object'?D.defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0};
   if(won)D.defensaPlaneta.missions=(D.defensaPlaneta.missions||0)+1;
-  D.defensaPlaneta.bestScore=Math.max(D.defensaPlaneta.bestScore||0,game.score);save(D);
+  D.defensaPlaneta.bestScore=Math.max(D.defensaPlaneta.bestScore||0,game.score);
+  if(typeof consumeActionGameAccess==='function')consumeActionGameAccess();else save(D);
+  const replay=planetCanPlay()?won?'<button class="duel-main-button planet-main-button" onclick="PlanetDefense.newMission()">NUEVA MISIÓN</button>':'<button class="duel-main-button planet-main-button" onclick="PlanetDefense.newMission()">REPETIR MISIÓN</button>':'';
   if(won){
-    planetOverlay(`<div class="duel-result planet-result planet-win"><span>🌍✨</span><small>MISIÓN SUPERADA</small><h2>¡Planeta a salvo!</h2><div class="planet-final-stats"><b>${game.score}<small>PUNTOS</small></b><b>${game.destroyed}<small>METEORITOS</small></b><b>${game.shield}<small>ESCUDO</small></b></div><button class="duel-main-button planet-main-button" onclick="PlanetDefense.newMission()">NUEVA MISIÓN</button><button class="duel-text-button" onclick="PlanetDefense.exit()">Volver a Aprendo Jugando</button></div>`);
+    planetOverlay(`<div class="duel-result planet-result planet-win"><span>🌍✨</span><small>MISIÓN SUPERADA</small><h2>¡Planeta a salvo!</h2><div class="planet-final-stats"><b>${game.score}<small>PUNTOS</small></b><b>${game.destroyed}<small>METEORITOS</small></b><b>${game.shield}<small>ESCUDO</small></b></div>${replay}<button class="duel-text-button" onclick="PlanetDefense.exit()">Volver a Aprendo Jugando</button></div>`);
   }else{
-    planetOverlay(`<div class="duel-result planet-result planet-loss"><span>🛡️</span><small>MISIÓN TERMINADA</small><h2>¡Volved a intentarlo!</h2><p>Habéis conseguido ${game.score} puntos y destruido ${game.destroyed} meteoritos.</p><button class="duel-main-button planet-main-button" onclick="PlanetDefense.newMission()">REPETIR MISIÓN</button><button class="duel-text-button" onclick="PlanetDefense.exit()">Volver a Aprendo Jugando</button></div>`);
+    planetOverlay(`<div class="duel-result planet-result planet-loss"><span>🛡️</span><small>MISIÓN TERMINADA</small><h2>¡Volved a intentarlo!</h2><p>Habéis conseguido ${game.score} puntos y destruido ${game.destroyed} meteoritos.</p>${replay}<button class="duel-text-button" onclick="PlanetDefense.exit()">Volver a Aprendo Jugando</button></div>`);
   }
 }
 
@@ -373,3 +375,4 @@ window.PlanetDefense={
   newMission:newPlanetDefenseMission,
   exit:exitPlanetDefense
 };
+

@@ -180,6 +180,7 @@ function nextGuardianDuelRound(){duelResetRound();}
 
 function newGuardianDuelMatch(){
   if(!guardianDuel)return;
+  if(!duelCanPlay()){exitGuardianDuel();return;}
   guardianDuel.scores=[0,0];
   guardianDuel.matchWinner=null;
   duelResetRound();
@@ -294,8 +295,10 @@ function duelEndRound(winner){
   duelUpdateHud();
   if(game.scores[winner]>=DUEL_ROUNDS_TO_WIN){
     game.status='matchOver';game.matchWinner=winner;
-    D.dueloGuardianes.matches=(D.dueloGuardianes.matches||0)+1;save(D);
-    duelOverlay(`<div class="duel-result duel-match-result"><span>🏆</span><small>PARTIDA TERMINADA</small><h2>¡Gana el jugador ${winner+1}!</h2><div class="duel-final-score"><b>${game.scores[0]}</b><i>—</i><b>${game.scores[1]}</b></div><button class="duel-main-button" onclick="newGuardianDuelMatch()">NUEVA PARTIDA</button><button class="duel-text-button" onclick="exitGuardianDuel()">Volver a Aprendo Jugando</button></div>`);
+    D.dueloGuardianes.matches=(D.dueloGuardianes.matches||0)+1;
+    if(typeof consumeActionGameAccess==='function')consumeActionGameAccess();else save(D);
+    const replay=duelCanPlay()?'<button class="duel-main-button" onclick="newGuardianDuelMatch()">NUEVA PARTIDA</button>':'';
+    duelOverlay(`<div class="duel-result duel-match-result"><span>🏆</span><small>PARTIDA TERMINADA</small><h2>¡Gana el jugador ${winner+1}!</h2><div class="duel-final-score"><b>${game.scores[0]}</b><i>—</i><b>${game.scores[1]}</b></div>${replay}<button class="duel-text-button" onclick="exitGuardianDuel()">Volver a Aprendo Jugando</button></div>`);
   }else{
     game.status='roundOver';
     duelOverlay(`<div class="duel-result"><span>⭐</span><small>RONDA TERMINADA</small><h2>¡Punto para el jugador ${winner+1}!</h2><div class="duel-final-score"><b>${game.scores[0]}</b><i>—</i><b>${game.scores[1]}</b></div><button class="duel-main-button" onclick="nextGuardianDuelRound()">SIGUIENTE RONDA</button><button class="duel-text-button" onclick="exitGuardianDuel()">Terminar partida</button></div>`);
@@ -377,3 +380,4 @@ function stopGuardianDuel(removeClass=true){
 }
 
 function exitGuardianDuel(){stopGuardianDuel();home();}
+

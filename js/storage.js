@@ -1,8 +1,15 @@
 // Compatibilidad con el validador histórico del actualizador: versionDatos:11
 const STORE='aprendo_jugando_datos';
+const STORE_BACKUP='aprendo_jugando_respaldo';
+function storedProgressScore(d){
+  if(!d||typeof d!=='object')return -1;
+  const games=Object.values(d.estadisticas||{}).reduce((sum,item)=>sum+Math.max(0,Number(item?.partidas)||0),0);
+  return games*1000+Math.max(0,Number(d.totalAciertos)||0)*10+Math.max(1,Number(d.nivelJugador)||1);
+}
+function readStored(key){try{return JSON.parse(localStorage.getItem(key))}catch{return null;}}
 function blank(){
   return{
-    versionDatos:14,
+    versionDatos:15,
     perfil:{nombre:'Jugador'},
     diamantes:0,
     estadisticas:{},
@@ -11,6 +18,7 @@ function blank(){
     xp:0,
     retosDiarios:{fecha:'',retos:[],premio:false},
     retosCompletadosTotal:0,
+    actionAccess:{date:'',available:false,consumed:false},
     dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0},
     defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0},
     logros:[],
@@ -31,8 +39,8 @@ function normalizeAvatar(raw){
   return{owned,equipped};
 }
 function load(){
-  let d;
-  try{d=JSON.parse(localStorage.getItem(STORE))}catch{}
+  const primary=readStored(STORE),backup=readStored(STORE_BACKUP);
+  let d=storedProgressScore(backup)>storedProgressScore(primary)?backup:primary||backup;
   if(!d)d=blank();
   d.perfil=d.perfil&&typeof d.perfil==='object'?d.perfil:{nombre:'Jugador'};
   if(!d.perfil.nombre)d.perfil.nombre='Jugador';
@@ -44,16 +52,17 @@ function load(){
   d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',retos:[],premio:false};
   if(!Array.isArray(d.retosDiarios.retos))d.retosDiarios.retos=[];
   d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);
+  d.actionAccess=d.actionAccess&&typeof d.actionAccess==='object'?d.actionAccess:{date:'',available:false,consumed:false};
+  d.actionAccess.date=typeof d.actionAccess.date==='string'?d.actionAccess.date:'';
+  d.actionAccess.consumed=!!d.actionAccess.consumed;
+  d.actionAccess.available=!!d.actionAccess.available&&!d.actionAccess.consumed;
   d.dueloGuardianes=d.dueloGuardianes&&typeof d.dueloGuardianes==='object'?d.dueloGuardianes:{};
-  d.dueloGuardianes.unlocked=!!d.dueloGuardianes.unlocked;
-  d.dueloGuardianes.unlockedBy=['daily','parents'].includes(d.dueloGuardianes.unlockedBy)?d.dueloGuardianes.unlockedBy:null;
+  d.dueloGuardianes.unlocked=false;
+  d.dueloGuardianes.unlockedBy=null;
   d.dueloGuardianes.matches=Math.max(0,Math.floor(Number(d.dueloGuardianes.matches)||0));
   d.defensaPlaneta=d.defensaPlaneta&&typeof d.defensaPlaneta==='object'?d.defensaPlaneta:{};
-  const actionUnlocked=!!d.dueloGuardianes.unlocked||!!d.defensaPlaneta.unlocked;
-  const actionUnlockedBy=['daily','parents'].includes(d.defensaPlaneta.unlockedBy)?d.defensaPlaneta.unlockedBy:d.dueloGuardianes.unlockedBy;
-  d.dueloGuardianes.unlocked=actionUnlocked;
-  d.defensaPlaneta.unlocked=actionUnlocked;
-  d.defensaPlaneta.unlockedBy=actionUnlocked?actionUnlockedBy:null;
+  d.defensaPlaneta.unlocked=false;
+  d.defensaPlaneta.unlockedBy=null;
   d.defensaPlaneta.missions=Math.max(0,Math.floor(Number(d.defensaPlaneta.missions)||0));
   d.defensaPlaneta.bestScore=Math.max(0,Math.floor(Number(d.defensaPlaneta.bestScore)||0));
   d.logros=Array.isArray(d.logros)?d.logros:[];
@@ -63,7 +72,7 @@ function load(){
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
-  d.versionDatos=14;
+  d.versionDatos=15;
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
@@ -79,4 +88,9 @@ function load(){
   }
   save(d);return d;
 }
-function save(d){localStorage.setItem(STORE,JSON.stringify(d));}
+function save(d){
+  const serialized=JSON.stringify(d);
+  localStorage.setItem(STORE,serialized);
+  localStorage.setItem(STORE_BACKUP,serialized);
+}
+

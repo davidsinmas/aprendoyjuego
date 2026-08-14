@@ -25,15 +25,19 @@ Cada día aparecen 5 retos cortos y diferentes. La selección combina actividade
 
 Juego de acción para dos jugadores en el mismo dispositivo. Cada jugador mueve su guardián con el dedo dentro de su mitad de la pantalla y ambos disparan automáticamente. El ritmo de disparo aumenta si nadie recibe impactos y vuelve al ritmo normal cuando alguien es alcanzado. Al comenzar una ronda y después de recibir un disparo, el guardián parpadea y permanece inmune durante 2 segundos. Cada ronda requiere 5 impactos y la partida completa la gana quien consigue primero 3 rondas, al mejor de 5.
 
-El duelo se desbloquea permanentemente al completar los 5 retos diarios. El Modo Padres permite probarlo y desbloquearlo permanentemente.
+Al completar los 5 retos diarios se desbloquea una sola partida de acción. Al terminarla, los juegos vuelven a bloquearse. El Modo Padres permite probar el duelo sin consumir la recompensa diaria.
 
 ## Defensa del planeta
 
 Juego de acción cooperativo para dos jugadores. Cada participante controla un guardián dentro de su mitad mientras ambos disparan automáticamente contra los meteoritos. La misión dura 75 segundos, la dificultad aumenta progresivamente y el equipo comparte un escudo de 5 impactos. Se gana resistiendo hasta el final y se pierde si el escudo llega a cero.
 
-Los dos juegos de acción comparten desbloqueo: se habilitan permanentemente al completar los 5 retos diarios o desde el Modo Padres.
+Los dos juegos de acción comparten el pase diario de una partida. El Modo Padres permite probarlos sin dejarlos desbloqueados fuera de ese modo.
 
 Desde la V3.1.1, la entrada a Defensa del planeta utiliza un controlador explícito para asegurar que se abra correctamente tanto desde Inicio como desde el Modo Padres.
+
+## Guardado del progreso
+
+El progreso se conserva en dos copias dentro del navegador. Desde el Modo Padres también puede guardarse en un archivo local mediante **💾 Guardar copia** y restaurarse con **📂 Recuperar copia**. Esta copia permite recuperar la evolución si el navegador elimina sus datos o si se cambia de dispositivo o dirección web.
 
 ## Avatar y tienda
 
@@ -44,3 +48,4 @@ La tienda permite filtrar por colección, categoría y rareza y muestra el estad
 ## Actualización
 
 Las actualizaciones se distribuyen como un único archivo `actualizacion.zip`, que se sube sin descomprimir a la raíz del repositorio. GitHub Actions valida e instala automáticamente el contenido.
+

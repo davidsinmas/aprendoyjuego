@@ -32,10 +32,17 @@ function dailyTypesForDate(date){
   chosen.push(remaining[Math.abs(stamp*11+5)%remaining.length]);
   return chosen;
 }
+function ensureActionAccess(){
+  const date=today();
+  if(!D.actionAccess||typeof D.actionAccess!=='object'||D.actionAccess.date!==date)D.actionAccess={date,available:false,consumed:false};
+  D.actionAccess.consumed=!!D.actionAccess.consumed;
+  D.actionAccess.available=!!D.actionAccess.available&&!D.actionAccess.consumed;
+}
 function ensureDaily(){
   const date=today(),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
   if(!sameDay){
     D.retosDiarios={fecha:date,retos:dailyTypesForDate(date).map(type=>({type,done:false})),premio:false};
+    D.actionAccess={date,available:false,consumed:false};
   }else if(D.retosDiarios.retos.length!==DAILY_COUNT){
     const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
     for(const type of dailyTypesForDate(date)){if(types.length>=DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
@@ -43,10 +50,11 @@ function ensureDaily(){
     const completed=new Set(previous.filter(reto=>reto.done).map(reto=>reto.type)),rewarded=!!D.retosDiarios.premio;
     D.retosDiarios.retos=types.slice(0,DAILY_COUNT).map(type=>({type,done:rewarded||completed.has(type)}));
   }
-  if(D.retosDiarios.premio&&(!D.dueloGuardianes.unlocked||!D.defensaPlaneta.unlocked))unlockActionGames('daily');
+  ensureActionAccess();
+  if(D.retosDiarios.premio&&!D.actionAccess.available&&!D.actionAccess.consumed)unlockActionGames('daily');
   save(D);
 }
-function actionGamesAvailable(){return parentMode||!!D.dueloGuardianes.unlocked||!!D.defensaPlaneta.unlocked;}
+function actionGamesAvailable(){ensureActionAccess();return parentMode||D.actionAccess.available;}
 function guardianDuelAvailable(){return actionGamesAvailable();}
 function planetDefenseAvailable(){return actionGamesAvailable();}
 function openPlanetDefense(){
@@ -55,24 +63,28 @@ function openPlanetDefense(){
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div><div class="parent-login"><div class="parent-lock">🌍</div><h2>Defensa del planeta</h2><p class="muted center">No se ha podido abrir el juego. Recarga la página para completar la actualización.</p><button class="btn primary" onclick="location.reload()">Recargar</button></div>`);
 }
 function unlockActionGames(source='daily'){
-  D.dueloGuardianes=D.dueloGuardianes&&typeof D.dueloGuardianes==='object'?D.dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0};
-  D.defensaPlaneta=D.defensaPlaneta&&typeof D.defensaPlaneta==='object'?D.defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0};
-  D.dueloGuardianes.unlocked=true;
-  D.dueloGuardianes.unlockedBy=source==='parents'?'parents':'daily';
-  D.defensaPlaneta.unlocked=true;
-  D.defensaPlaneta.unlockedBy=source==='parents'?'parents':'daily';
+  ensureActionAccess();
+  if(source==='daily')D.actionAccess={date:today(),available:true,consumed:false};
   save(D);
 }
+function consumeActionGameAccess(){
+  ensureActionAccess();
+  if(parentMode||!D.actionAccess.available)return false;
+  D.actionAccess.available=false;D.actionAccess.consumed=true;
+  D.dueloGuardianes.unlocked=false;D.dueloGuardianes.unlockedBy=null;
+  D.defensaPlaneta.unlocked=false;D.defensaPlaneta.unlockedBy=null;
+  save(D);return true;
+}
 function unlockGuardianDuel(source='daily'){unlockActionGames(source);}
-function unlockActionGamesFromParents(){unlockActionGames('parents');parentDashboard();}
+function unlockActionGamesFromParents(){parentDashboard();}
 function guardianDuelCard(){
-  const unlocked=actionGamesAvailable(),permanent=!!D.dueloGuardianes.unlocked;
-  const note=permanent?'Partida al mejor de 5 · hacen falta 5 impactos por ronda':parentMode?'Disponible mientras el modo Padres esté activo':'Completa los 5 retos de hoy para desbloquearlo';
+  const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
+  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los 5 retos de hoy para desbloquear una partida';
   return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function planetDefenseCard(){
-  const unlocked=actionGamesAvailable(),permanent=!!D.defensaPlaneta.unlocked;
-  const note=permanent?'Proteged juntos el planeta durante 75 segundos':parentMode?'Disponible mientras el modo Padres esté activo':'Completa los 5 retos de hoy para desbloquearlo';
+  const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
+  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los 5 retos de hoy para desbloquear una partida';
   return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="openPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function xpNeeded(level){return 260+(level-1)*85;}
@@ -440,7 +452,7 @@ function fillReadingQuestions(pool,total=10){
 function startReadingGame(type,n,daily=false){
   if(type==='rimas')return startRhymes(n,daily);
   const total=daily?5:10,pool=readingWordPool(n,type),qs=fillReadingQuestions(pool,total);
-  state={...state,type,level:n,mode:type,qs,i:0,hits:0,daily,total,locked:false,picked:[],tokens:[]};
+  state={...state,type,level:n,mode:type,qs,i:0,hits:0,daily,total,locked:false,picked:[],tokens:[],soundInstructionPlayed:false};
   readingQuestion();
 }
 function readingQuestion(){
@@ -456,7 +468,8 @@ function makeLetterOptions(correct,n,type){
 }
 function soundQuestion(){
   state.locked=false;const q=state.qs[state.i],initial=state.type==='sonidoInicial',correct=initial?q.word[0]:q.word.at(-1),opts=makeLetterOptions(correct,state.level,state.type);
-  state.correct=correct;const num=state.i+1,label=initial?'¿CON QUÉ LETRA EMPIEZA?':'¿CON QUÉ LETRA TERMINA?',spoken=initial?(state.i===0?'Escucha la palabra. Toca la letra por la que empieza':''):'Escucha la palabra. Toca la letra por la que termina';
+  state.correct=correct;const num=state.i+1,label=initial?'¿CON QUÉ LETRA EMPIEZA?':'¿CON QUÉ LETRA TERMINA?',spoken=initial?(!state.soundInstructionPlayed?'Escucha las palabras. Toca la letra por la que empieza':''):'Escucha la palabra. Toca la letra por la que termina';
+  if(initial)state.soundInstructionPlayed=true;
   layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':`levels('${state.type}')`}">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${num} de ${state.total}</div><div class="listen-card"><div class="reading-picture">${q.icon}</div><button class="listen-button" onclick="speakWord('${q.word}','${spoken}')">🔊</button><b>${label}</b></div><div class="answers reading-letter-answers">${opts.map(o=>`<button class="answer reading-letter" onclick="answerSound('${o}',this)">${o}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);
   state.i++;setTimeout(()=>speakWord(q.word,spoken),140);
 }
@@ -471,8 +484,13 @@ function randomSyllableDistractors(q,count){
 }
 function shuffledSyllableTokens(q,distractors=0){
   const values=[...q.syllables,...randomSyllableDistractors(q,distractors)].map((text,i)=>({text,id:`${i}-${Math.random()}`}));
-  let shuffled=mix(values);const target=q.syllables.join('|');
-  for(let tries=0;tries<12&&shuffled.filter(x=>q.syllables.includes(x.text)).slice(0,q.syllables.length).map(x=>x.text).join('|')===target;tries++)shuffled=mix(values);
+  const target=q.syllables.join('|'),isSolved=tokens=>tokens.slice(0,q.syllables.length).map(x=>x.text).join('|')===target;
+  let shuffled=mix(values);
+  for(let tries=0;tries<12&&isSolved(shuffled);tries++)shuffled=mix(values);
+  if(isSolved(shuffled)){
+    const first=q.syllables[0],swapIndex=shuffled.findIndex((token,index)=>index>0&&token.text!==first);
+    if(swapIndex>0)[shuffled[0],shuffled[swapIndex]]=[shuffled[swapIndex],shuffled[0]];
+  }
   return shuffled;
 }
 function syllableQuestion(){
@@ -495,14 +513,19 @@ function pickSyllable(index){
   else{playChime('bad');if(msg)msg.textContent=`Era ${q.syllables.join(' · ')}`;document.querySelectorAll('.syllable-slot').forEach(x=>x.classList.add('wrong-slot'));}
   setTimeout(readingQuestion,1050);
 }
-function makeRhymeQuestion(n,index){
-  const groups=GAME.rhymes.slice(0,Math.min(n.groups||GAME.rhymes.length,GAME.rhymes.length)),group=groups[index%groups.length],pair=mix(group.words),reference=pair[0],correct=pair[1]||pair[0];
+function rhymeExercisePool(n){
+  const groups=GAME.rhymes.slice(0,Math.min(n.groups||GAME.rhymes.length,GAME.rhymes.length)),exercises=[];
+  for(const group of groups)for(const reference of group.words)for(const correct of group.words)if(reference.word!==correct.word)exercises.push({group,reference,correct,groups});
+  return mix(exercises);
+}
+function makeRhymeQuestion(n,exercise){
+  const {group,reference,correct,groups}=exercise;
   let candidates=groups.filter(g=>g.key!==group.key).flatMap(g=>g.words).filter(w=>w.word!==reference.word&&w.word!==correct.word);
   if(n.hard)candidates=candidates.sort((a,b)=>(b.word[0]===reference.word[0])-(a.word[0]===reference.word[0]));else candidates=mix(candidates);
   return{reference,correct,options:mix([correct,...candidates.slice(0,Math.max(1,(n.options||3)-1))])};
 }
 function startRhymes(n,daily=false){
-  const total=daily?5:10,order=mix(Array.from({length:total},(_,i)=>i)),qs=order.map((v,i)=>makeRhymeQuestion(n,v+i));
+  const wanted=daily?5:10,pool=rhymeExercisePool(n),total=Math.min(wanted,pool.length),qs=pool.slice(0,total).map(exercise=>makeRhymeQuestion(n,exercise));
   state={...state,type:'rimas',level:n,mode:'rimas',qs,i:0,hits:0,daily,total,locked:false};rhymeQuestion();
 }
 function rhymeQuestion(){
@@ -549,11 +572,11 @@ function parentDashboard(){
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button><span class="parent-active">🔓 Modo Padres activo</span>${diamond()}</div><h2>Zona de padres</h2><div class="parent-grid">
   <div class="parent-card"><h3>👤 Jugador</h3><label>Nombre</label><input id="nameInput" type="text" maxlength="24" value="${escapeHTML(D.perfil.nombre)}"><button class="btn secondary" onclick="setName()">Guardar nombre</button></div>
   <div class="parent-card"><h3>🧪 Modo de pruebas</h3><p class="muted">Todos los niveles están desbloqueados mientras este modo esté activo.</p><button class="btn secondary" onclick="parentTestLevels()">Probar cualquier nivel</button><button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button></div>
-  <div class="parent-card"><h3>⚡ Juegos de acción</h3><p class="muted">${D.dueloGuardianes.unlocked?'Duelo y Defensa del planeta están desbloqueados permanentemente.':'El modo Padres permite probar ambos juegos o desbloquearlos permanentemente.'}</p>${D.dueloGuardianes.unlocked?'<button class="btn secondary" onclick="startGuardianDuel()">Abrir duelo</button><button class="btn secondary" onclick="openPlanetDefense()">Defender el planeta</button>':'<button class="btn secondary" onclick="unlockActionGamesFromParents()">Desbloquear ambos</button><button class="btn secondary" onclick="startGuardianDuel()">Probar duelo</button><button class="btn secondary" onclick="openPlanetDefense()">Probar defensa</button>'}</div>
+  <div class="parent-card"><h3>⚡ Juegos de acción</h3><p class="muted">Duelo y Defensa están disponibles mientras el modo Padres siga activo. Fuera de este modo se desbloquea una sola partida al completar los cinco retos diarios.</p><button class="btn secondary" onclick="startGuardianDuel()">⚡ Probar duelo</button><button class="btn secondary" onclick="openPlanetDefense()">🌍 Probar defensa</button></div>
   <div class="parent-card"><h3>⭐ Experiencia y nivel</h3><label>Nivel actual</label><input id="parentLevel" type="number" min="1" max="999" step="1" value="${D.nivelJugador}"><label>XP actual</label><input id="parentXP" type="number" min="0" step="1" value="${D.xp}"><button class="btn secondary" onclick="setParentProgress()">Aplicar nivel y XP</button></div>
   <div class="parent-card"><h3>💎 Diamantes</h3><div class="grid2"><button class="btn secondary" onclick="changeDiamonds(-100)">−100</button><button class="btn secondary" onclick="changeDiamonds(100)">+100</button></div><button class="btn secondary" onclick="changeDiamonds(500)">+500</button><label>Cantidad exacta</label><input id="parentDiamonds" type="number" min="0" step="1" value="${D.diamantes}"><button class="btn secondary" onclick="setDiamondsExact()">Aplicar diamantes</button></div>
   <div class="parent-card"><h3>🛍️ Precios de la tienda</h3><p class="muted">Multiplica a la vez el precio de los 24 objetos. Las compras ya realizadas no cambian.</p><div class="price-presets"><button class="small secondary" onclick="setShopPriceMultiplier(0.5)">×0,5</button><button class="small secondary" onclick="setShopPriceMultiplier(1)">×1</button><button class="small secondary" onclick="setShopPriceMultiplier(1.5)">×1,5</button><button class="small secondary" onclick="setShopPriceMultiplier(2)">×2</button></div><label>Multiplicador global</label><input id="shopPriceMultiplier" type="number" min="0.25" max="3" step="0.25" value="${D.ajustes.multiplicadorPrecios}"><button class="btn secondary" onclick="setShopPriceMultiplier()">Aplicar a toda la tienda</button><small class="muted">Rango actual: ${Math.min(...avatarCatalog().map(avatarItemPrice))}–${Math.max(...avatarCatalog().map(avatarItemPrice))} 💎</small></div>
-  <div class="parent-card"><h3>💾 Progreso</h3><div class="grid"><button class="btn secondary" onclick="exportData()">Exportar progreso</button><label class="btn secondary file-label" for="importFile">Importar progreso</label><input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)" hidden></div></div>
+  <div class="parent-card"><h3>💾 Copia de seguridad</h3><p class="muted">Guarda el progreso en un archivo del dispositivo y recupéralo cuando lo necesites.</p><div class="grid"><button class="btn secondary" onclick="exportData()">💾 Guardar copia</button><label class="btn secondary file-label" for="importFile">📂 Recuperar copia</label><input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)" hidden></div></div>
   <div class="parent-card"><h3>⚠️ Reinicio</h3><button class="btn danger" onclick="resetAll()">Borrar todo el progreso</button></div>
   </div>`);
 }
@@ -575,7 +598,18 @@ function setShopPriceMultiplier(preset=null){
 }
 function escapeHTML(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function setName(){const i=document.getElementById('nameInput');D.perfil.nombre=(i?.value||'Jugador').trim().slice(0,24)||'Jugador';save(D);alert('Nombre guardado');}
-function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,2)],{type:'application/json'}));a.download='progreso-aprendo-jugando.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-function importData(e){const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{localStorage.setItem(STORE,r.result);D=load();alert('Progreso importado');home();}catch{alert('Archivo no válido');}};r.readAsText(file);}
-function resetAll(){if(confirm('¿Borrar todo el progreso? Esta acción no se puede deshacer.')){localStorage.removeItem(STORE);D=load();home();}}
+async function exportData(){
+  const json=JSON.stringify(D,null,2),name=`aprendo-jugando-progreso-${today()}.json`,file=new File([json],name,{type:'application/json'});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'Progreso de Aprendo Jugando'});return;}catch(error){if(error?.name==='AbortError')return;}
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function importData(e){
+  const file=e.target.files&&e.target.files[0];if(!file)return;const r=new FileReader();
+  r.onload=()=>{try{const imported=JSON.parse(r.result);if(!imported||typeof imported!=='object'||Array.isArray(imported))throw new Error('invalid');const serialized=JSON.stringify(imported);localStorage.setItem(STORE,serialized);localStorage.setItem(STORE_BACKUP,serialized);D=load();alert('Progreso recuperado');home();}catch{alert('Archivo de progreso no válido');}};
+  r.readAsText(file);
+}
+function resetAll(){if(confirm('¿Borrar todo el progreso? Esta acción no se puede deshacer.')){localStorage.removeItem(STORE);localStorage.removeItem(STORE_BACKUP);D=load();home();}}
 home();
+
