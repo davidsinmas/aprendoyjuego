@@ -102,6 +102,12 @@ function checkAchievements(){for(const a of ACHIEVEMENTS){if(!D.logros.includes(
 function showPendingAchievement(){if(!pendingAchievements.length)return false;const a=pendingAchievements.shift();layout(`<div class="levelup"><div class="levelup-stars">✨ 🏆 ✨</div><h2>¡Nuevo logro!</h2><div class="achievement-big">${a.icon}</div><h3>${a.name}</h3><p>${a.desc}</p><div class="daily-prize">+${a.reward} 💎</div><button class="btn primary" onclick="home()">Continuar</button></div>`);return true;}
 function achievements(){checkAchievements();layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div><h2>Logros</h2><div class="achievement-list">${ACHIEVEMENTS.map(a=>{const ok=D.logros.includes(a.id);return `<div class="achievement-card ${ok?'unlocked':'locked'}"><div class="achievement-icon">${ok?a.icon:'🔒'}</div><div><b>${a.name}</b><div class="muted">${a.desc}</div><div class="achievement-reward">${ok?'Conseguido':'Premio: '+a.reward+' 💎'}</div></div></div>`;}).join('')}</div>`);}
 function progressSummary(){const games=totalGames();return `<div class="progress-summary"><div><b>${D.totalAciertos}</b><span>Aciertos</span></div><div><b>${games}</b><span>Partidas</span></div><div><b>${D.logros.length}/${ACHIEVEMENTS.length}</b><span>Logros</span></div></div>`;}
+function menuLevelStatus(type){
+  const levels=GAME.levels[type]||[];let highest=-1;
+  levels.forEach((level,index)=>{if(stats(level.id).partidas>0)highest=index;});
+  if(!levels.length)return '';
+  return highest>=levels.length-1?`🏆 Nivel ${levels.length} completado`:`⭐ Nivel actual: ${Math.min(levels.length,highest+2)} de ${levels.length}`;
+}
 function giveXP(amount){D.xp+=amount;while(D.xp>=xpNeeded(D.nivelJugador)){D.xp-=xpNeeded(D.nivelJugador);D.nivelJugador++;D.diamantes+=25;pendingLevelRewards.push('25 diamantes');}save(D);}
 function showPendingLevel(){if(!pendingLevelRewards.length)return false;const rewards=[...pendingLevelRewards];pendingLevelRewards=[];layout(`<div class="levelup"><div class="levelup-stars">✨ 🎉 ✨</div><h2>¡Has subido al nivel ${D.nivelJugador}!</h2><div class="gift-box">🎁</div><p>Has conseguido:</p><h3>${rewards.join('<br>')}</h3><button class="btn primary" onclick="home()">Continuar</button></div>`);return true;}
 function dailyDone(type){ensureDaily();return !!D.retosDiarios.retos.find(r=>r.type===type)?.done;}
@@ -168,19 +174,19 @@ ${xpPanel()}
 <div class="action-game-grid">${guardianDuelCard()}${planetDefenseCard()}</div>
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
-<button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>10 niveles · 10 ejercicios</small></button>
-<button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b><small>10 niveles · 10 ejercicios</small></button>
-<button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b><small>10 niveles · 10 comparaciones</small></button>
-<button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>10 niveles · 10 ejercicios</small></button>
-<button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>10 niveles progresivos</small></button>
+<button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>${menuLevelStatus('suma')}</small><small>10 ejercicios por nivel</small></button>
+<button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b><small>${menuLevelStatus('resta')}</small><small>10 ejercicios por nivel</small></button>
+<button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b><small>${menuLevelStatus('comparar')}</small><small>10 comparaciones por nivel</small></button>
+<button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>${menuLevelStatus('palabras')}</small><small>10 ejercicios por nivel</small></button>
+<button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>${menuLevelStatus('sopa')}</small><small>Tableros progresivos</small></button>
 </div>
 <h3 class="section-title">Aprender a leer</h3>
 <div class="game-grid reading-grid">
-<button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b><small>Escucha · elige la primera letra</small></button>
-<button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b><small>Escucha · elige la última letra</small></button>
-<button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye la palabra</b><small>Une sílabas con ayuda de audio</small></button>
-<button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b><small>Coloca las sílabas en orden</small></button>
-<button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>Escucha y encuentra cuál rima</small></button>
+<button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b><small>${menuLevelStatus('sonidoInicial')}</small><small>Escucha · elige la primera letra</small></button>
+<button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b><small>${menuLevelStatus('sonidoFinal')}</small><small>Escucha · elige la última letra</small></button>
+<button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye la palabra</b><small>${menuLevelStatus('construir')}</small><small>Une sílabas con ayuda de audio</small></button>
+<button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b><small>${menuLevelStatus('ordenarSilabas')}</small><small>Coloca las sílabas en orden</small></button>
+<button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>${menuLevelStatus('rimas')}</small><small>Escucha y encuentra cuál rima</small></button>
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
 let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopCategoryFilter='all',shopRarityFilter='all',shopCollectionFilter='all';
@@ -612,4 +618,3 @@ function importData(e){
 }
 function resetAll(){if(confirm('¿Borrar todo el progreso? Esta acción no se puede deshacer.')){localStorage.removeItem(STORE);localStorage.removeItem(STORE_BACKUP);D=load();home();}}
 home();
-

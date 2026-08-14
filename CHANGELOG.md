@@ -4,6 +4,7 @@
 - En **Sonido inicial**, la explicación completa se reproduce únicamente en la primera palabra; las siguientes locuciones dicen solo la palabra.
 - Los ejercicios de **Rimas** no repiten la misma pareja de palabras dentro de una partida.
 - En **Ordena sílabas**, las sílabas nunca se presentan ya colocadas en el orden correcto, incluido el nivel 1.
+- El menú principal muestra en cada actividad el nivel actual alcanzado, con una estrella, o una copa al completar el nivel 10.
 - El progreso se guarda en dos copias del navegador y el Modo Padres permite guardarlo o recuperarlo mediante un archivo local con botones identificados por símbolos.
 - Los juegos de acción requieren completar los cinco retos diarios, conceden una sola partida y vuelven a bloquearse al terminarla.
 - El Modo Padres permite probar ambos juegos sin consumir ni desbloquear permanentemente la recompensa diaria.
@@ -90,4 +91,3 @@
 - Filtros por categoría y rareza.
 - Estados visibles para piezas bloqueadas, compradas y equipadas.
 - Conservadas las mecánicas de avatar, economía y juego.
-
