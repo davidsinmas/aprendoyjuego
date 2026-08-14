@@ -1,3 +1,10 @@
+## V3.1.1 — 2026-08-14
+
+- Corregida la apertura de **Defensa del planeta** desde la pantalla principal y desde el Modo Padres.
+- El botón utiliza ahora un punto de entrada explícito y estable para cargar el juego.
+- Los botones internos de inicio, pausa, repetición y salida usan el mismo controlador.
+- Si el juego no hubiera terminado de cargar, se muestra un aviso con opción de recargar en vez de dejar el botón sin respuesta.
+
 ## V3.1.0 — 2026-08-14
 
 - Nuevo juego cooperativo para dos jugadores **Defensa del planeta**.

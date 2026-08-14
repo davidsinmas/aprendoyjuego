@@ -38,7 +38,7 @@ function startPlanetDefense(){
   const best=D?.defensaPlaneta?.bestScore||0,missions=D?.defensaPlaneta?.missions||0;
   A.innerHTML=`<main class="guardian-duel-menu planet-defense-menu">
     <section class="guardian-duel-menu-card planet-menu-card">
-      <button class="duel-close" onclick="exitPlanetDefense()" aria-label="Volver">×</button>
+      <button class="duel-close" onclick="PlanetDefense.exit()" aria-label="Volver">×</button>
       <span class="duel-kicker">MISIÓN COOPERATIVA PARA DOS</span>
       <h1>Defensa del planeta</h1>
       <p>Moved cada guardián con un dedo y destruid juntos los meteoritos antes de que atraviesen el escudo.</p>
@@ -48,7 +48,7 @@ function startPlanetDefense(){
         <div><span>🛡️</span><b>75 segundos</b><small>5 impactos de escudo</small></div>
       </div>
       <div class="planet-menu-record"><span>Misiones superadas <b>${missions}</b></span><span>Mejor puntuación <b>${best}</b></span></div>
-      <button class="duel-main-button planet-main-button" onclick="beginPlanetDefenseMission()">EMPEZAR MISIÓN</button>
+      <button class="duel-main-button planet-main-button" onclick="PlanetDefense.begin()">EMPEZAR MISIÓN</button>
       <small class="duel-landscape-hint">↻ Coloca el móvil en horizontal</small>
     </section>
   </main>`;
@@ -80,7 +80,7 @@ function beginPlanetDefenseMission(){
   document.body.classList.add('planet-defense-active');
   A.innerHTML=`<main class="planet-defense-shell">
     <header class="planet-topbar">
-      <button class="duel-back-button" onclick="exitPlanetDefense()">← SALIR</button>
+      <button class="duel-back-button" onclick="PlanetDefense.exit()">← SALIR</button>
       <div class="planet-brand"><small>APRENDO JUGANDO</small><b>Defensa del planeta</b></div>
       <div class="planet-timer"><small>TIEMPO</small><b id="planetTime">1:15</b></div>
     </header>
@@ -88,7 +88,7 @@ function beginPlanetDefenseMission(){
       <div class="planet-shield"><small>ESCUDO DEL PLANETA</small><div><i><span id="planetShieldBar"></span></i><b id="planetShield">5</b></div></div>
       <div id="planetWave" class="planet-wave"><small>OLEADA</small><b>1 / 5</b></div>
       <div class="planet-score"><small>PUNTOS</small><b id="planetScore">0</b></div>
-      <button id="planetPause" class="duel-pause planet-pause" onclick="togglePlanetDefensePause()" aria-label="Pausa">Ⅱ</button>
+      <button id="planetPause" class="duel-pause planet-pause" onclick="PlanetDefense.pause()" aria-label="Pausa">Ⅱ</button>
       <canvas id="planetDefenseCanvas" width="${PLANET_W}" height="${PLANET_H}" aria-label="Defensa cooperativa del planeta para dos jugadores"></canvas>
       <div id="planetOverlay" class="duel-overlay planet-overlay"></div>
     </section>
@@ -168,7 +168,7 @@ function togglePlanetDefensePause(){
   const pause=document.getElementById('planetPause');
   if(game.status==='playing'){
     game.status='paused';if(pause)pause.textContent='▶';
-    planetOverlay(`<div class="duel-result planet-result"><span>⏸</span><h2>Pausa</h2><button class="duel-main-button planet-main-button" onclick="togglePlanetDefensePause()">CONTINUAR</button><button class="duel-text-button" onclick="exitPlanetDefense()">Terminar misión</button></div>`);
+    planetOverlay(`<div class="duel-result planet-result"><span>⏸</span><h2>Pausa</h2><button class="duel-main-button planet-main-button" onclick="PlanetDefense.pause()">CONTINUAR</button><button class="duel-text-button" onclick="PlanetDefense.exit()">Terminar misión</button></div>`);
   }else if(game.status==='paused'){
     game.status='playing';game.last=0;if(pause)pause.textContent='Ⅱ';planetOverlay('');
   }
@@ -306,9 +306,9 @@ function planetEndMission(won){
   if(won)D.defensaPlaneta.missions=(D.defensaPlaneta.missions||0)+1;
   D.defensaPlaneta.bestScore=Math.max(D.defensaPlaneta.bestScore||0,game.score);save(D);
   if(won){
-    planetOverlay(`<div class="duel-result planet-result planet-win"><span>🌍✨</span><small>MISIÓN SUPERADA</small><h2>¡Planeta a salvo!</h2><div class="planet-final-stats"><b>${game.score}<small>PUNTOS</small></b><b>${game.destroyed}<small>METEORITOS</small></b><b>${game.shield}<small>ESCUDO</small></b></div><button class="duel-main-button planet-main-button" onclick="newPlanetDefenseMission()">NUEVA MISIÓN</button><button class="duel-text-button" onclick="exitPlanetDefense()">Volver a Aprendo Jugando</button></div>`);
+    planetOverlay(`<div class="duel-result planet-result planet-win"><span>🌍✨</span><small>MISIÓN SUPERADA</small><h2>¡Planeta a salvo!</h2><div class="planet-final-stats"><b>${game.score}<small>PUNTOS</small></b><b>${game.destroyed}<small>METEORITOS</small></b><b>${game.shield}<small>ESCUDO</small></b></div><button class="duel-main-button planet-main-button" onclick="PlanetDefense.newMission()">NUEVA MISIÓN</button><button class="duel-text-button" onclick="PlanetDefense.exit()">Volver a Aprendo Jugando</button></div>`);
   }else{
-    planetOverlay(`<div class="duel-result planet-result planet-loss"><span>🛡️</span><small>MISIÓN TERMINADA</small><h2>¡Volved a intentarlo!</h2><p>Habéis conseguido ${game.score} puntos y destruido ${game.destroyed} meteoritos.</p><button class="duel-main-button planet-main-button" onclick="newPlanetDefenseMission()">REPETIR MISIÓN</button><button class="duel-text-button" onclick="exitPlanetDefense()">Volver a Aprendo Jugando</button></div>`);
+    planetOverlay(`<div class="duel-result planet-result planet-loss"><span>🛡️</span><small>MISIÓN TERMINADA</small><h2>¡Volved a intentarlo!</h2><p>Habéis conseguido ${game.score} puntos y destruido ${game.destroyed} meteoritos.</p><button class="duel-main-button planet-main-button" onclick="PlanetDefense.newMission()">REPETIR MISIÓN</button><button class="duel-text-button" onclick="PlanetDefense.exit()">Volver a Aprendo Jugando</button></div>`);
   }
 }
 
@@ -365,3 +365,11 @@ function stopPlanetDefense(removeClass=true){
 }
 
 function exitPlanetDefense(){stopPlanetDefense();home();}
+
+window.PlanetDefense={
+  start:startPlanetDefense,
+  begin:beginPlanetDefenseMission,
+  pause:togglePlanetDefensePause,
+  newMission:newPlanetDefenseMission,
+  exit:exitPlanetDefense
+};

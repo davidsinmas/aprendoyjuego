@@ -1,6 +1,6 @@
 # Actualizar Aprendo Jugando
 
-Versión incluida: **3.1.0**
+Versión incluida: **3.1.1**
 
 1. Descarga `actualizacion.zip`.
 2. Desde el móvil, abre el repositorio `aprendoyjuego` en GitHub.
