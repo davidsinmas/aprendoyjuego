@@ -1,3 +1,13 @@
+## V3.1.0 — 2026-08-14
+
+- Nuevo juego cooperativo para dos jugadores **Defensa del planeta**.
+- Cada jugador mueve su guardián con un dedo dentro de su mitad y ambos disparan automáticamente contra los meteoritos.
+- La misión dura 75 segundos, el planeta dispone de 5 puntos de escudo y la dificultad aumenta en cinco oleadas.
+- Al recibir un impacto, el guardián afectado tiene 2 segundos de inmunidad y parpadeo; la partida se pierde si el escudo llega a cero.
+- Se registra el número de misiones superadas y la mejor puntuación.
+- El Duelo de Guardianes y Defensa del planeta comparten desbloqueo: completar los 5 retos diarios o desbloquearlos desde el Modo Padres.
+- Se conserva íntegramente la V3.0.2, incluidos los pictogramas de la tienda, filtros deshabilitados y avatar fijo en móvil.
+
 ## V3.0.2 — 2026-08-14
 
 - Los grupos de accesorios de la tienda se seleccionan mediante pictogramas grandes con su descripción en pequeño.

@@ -2,7 +2,7 @@
 const STORE='aprendo_jugando_datos';
 function blank(){
   return{
-    versionDatos:13,
+    versionDatos:14,
     perfil:{nombre:'Jugador'},
     diamantes:0,
     estadisticas:{},
@@ -12,6 +12,7 @@ function blank(){
     retosDiarios:{fecha:'',retos:[],premio:false},
     retosCompletadosTotal:0,
     dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0},
+    defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0},
     logros:[],
     ajustes:{multiplicadorPrecios:1},
     avatar:{
@@ -47,6 +48,14 @@ function load(){
   d.dueloGuardianes.unlocked=!!d.dueloGuardianes.unlocked;
   d.dueloGuardianes.unlockedBy=['daily','parents'].includes(d.dueloGuardianes.unlockedBy)?d.dueloGuardianes.unlockedBy:null;
   d.dueloGuardianes.matches=Math.max(0,Math.floor(Number(d.dueloGuardianes.matches)||0));
+  d.defensaPlaneta=d.defensaPlaneta&&typeof d.defensaPlaneta==='object'?d.defensaPlaneta:{};
+  const actionUnlocked=!!d.dueloGuardianes.unlocked||!!d.defensaPlaneta.unlocked;
+  const actionUnlockedBy=['daily','parents'].includes(d.defensaPlaneta.unlockedBy)?d.defensaPlaneta.unlockedBy:d.dueloGuardianes.unlockedBy;
+  d.dueloGuardianes.unlocked=actionUnlocked;
+  d.defensaPlaneta.unlocked=actionUnlocked;
+  d.defensaPlaneta.unlockedBy=actionUnlocked?actionUnlockedBy:null;
+  d.defensaPlaneta.missions=Math.max(0,Math.floor(Number(d.defensaPlaneta.missions)||0));
+  d.defensaPlaneta.bestScore=Math.max(0,Math.floor(Number(d.defensaPlaneta.bestScore)||0));
   d.logros=Array.isArray(d.logros)?d.logros:[];
   d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1};
   const rawMultiplier=Number(d.ajustes.multiplicadorPrecios);
@@ -54,7 +63,7 @@ function load(){
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
-  d.versionDatos=13;
+  d.versionDatos=14;
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}

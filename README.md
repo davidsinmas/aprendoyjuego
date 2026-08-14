@@ -27,6 +27,12 @@ Juego de acción para dos jugadores en el mismo dispositivo. Cada jugador mueve 
 
 El duelo se desbloquea permanentemente al completar los 5 retos diarios. El Modo Padres permite probarlo y desbloquearlo permanentemente.
 
+## Defensa del planeta
+
+Juego de acción cooperativo para dos jugadores. Cada participante controla un guardián dentro de su mitad mientras ambos disparan automáticamente contra los meteoritos. La misión dura 75 segundos, la dificultad aumenta progresivamente y el equipo comparte un escudo de 5 impactos. Se gana resistiendo hasta el final y se pierde si el escudo llega a cero.
+
+Los dos juegos de acción comparten desbloqueo: se habilitan permanentemente al completar los 5 retos diarios o desde el Modo Padres.
+
 ## Avatar y tienda
 
 El juego incluye el avatar Guardián Nova mediante un sistema paper-doll con capas prealineadas de 1024 × 1024, inventario y tienda-catálogo con 32 piezas en total: 24 de Guardián Nova y 8 de Eclipse Áureo. Eclipse Áureo es una colección de nivel 4 negra y dorada que incluye el Cañón Eclipse Áureo. En V2.18 se afinó el anclaje de espada y escudo directamente en sus capas maestras.

@@ -43,21 +43,32 @@ function ensureDaily(){
     const completed=new Set(previous.filter(reto=>reto.done).map(reto=>reto.type)),rewarded=!!D.retosDiarios.premio;
     D.retosDiarios.retos=types.slice(0,DAILY_COUNT).map(type=>({type,done:rewarded||completed.has(type)}));
   }
-  if(D.retosDiarios.premio&&!D.dueloGuardianes.unlocked)unlockGuardianDuel('daily');
+  if(D.retosDiarios.premio&&(!D.dueloGuardianes.unlocked||!D.defensaPlaneta.unlocked))unlockActionGames('daily');
   save(D);
 }
-function guardianDuelAvailable(){return parentMode||!!D.dueloGuardianes.unlocked;}
-function unlockGuardianDuel(source='daily'){
+function actionGamesAvailable(){return parentMode||!!D.dueloGuardianes.unlocked||!!D.defensaPlaneta.unlocked;}
+function guardianDuelAvailable(){return actionGamesAvailable();}
+function planetDefenseAvailable(){return actionGamesAvailable();}
+function unlockActionGames(source='daily'){
   D.dueloGuardianes=D.dueloGuardianes&&typeof D.dueloGuardianes==='object'?D.dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0};
+  D.defensaPlaneta=D.defensaPlaneta&&typeof D.defensaPlaneta==='object'?D.defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0};
   D.dueloGuardianes.unlocked=true;
   D.dueloGuardianes.unlockedBy=source==='parents'?'parents':'daily';
+  D.defensaPlaneta.unlocked=true;
+  D.defensaPlaneta.unlockedBy=source==='parents'?'parents':'daily';
   save(D);
 }
-function unlockGuardianDuelFromParents(){unlockGuardianDuel('parents');parentDashboard();}
+function unlockGuardianDuel(source='daily'){unlockActionGames(source);}
+function unlockActionGamesFromParents(){unlockActionGames('parents');parentDashboard();}
 function guardianDuelCard(){
-  const unlocked=guardianDuelAvailable(),permanent=!!D.dueloGuardianes.unlocked;
+  const unlocked=actionGamesAvailable(),permanent=!!D.dueloGuardianes.unlocked;
   const note=permanent?'Partida al mejor de 5 · hacen falta 5 impactos por ronda':parentMode?'Disponible mientras el modo Padres esté activo':'Completa los 5 retos de hoy para desbloquearlo';
   return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
+}
+function planetDefenseCard(){
+  const unlocked=actionGamesAvailable(),permanent=!!D.defensaPlaneta.unlocked;
+  const note=permanent?'Proteged juntos el planeta durante 75 segundos':parentMode?'Disponible mientras el modo Padres esté activo':'Completa los 5 retos de hoy para desbloquearlo';
+  return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function xpNeeded(level){return 260+(level-1)*85;}
 function xpPanel(){const need=xpNeeded(D.nivelJugador),pct=Math.min(100,Math.round(D.xp/need*100));return `<div class="xp-card"><div class="xp-head"><b>Nivel ${D.nivelJugador}</b><span>${D.xp} / ${need} XP</span></div><div class="xp-track"><div class="xp-fill" style="width:${pct}%"></div></div><div class="next-gift">Siguiente nivel: +25 💎</div></div>`;}
@@ -116,7 +127,7 @@ function markDaily(type){
   D.retosCompletadosTotal=(D.retosCompletadosTotal||0)+1;
   if(D.retosDiarios.retos.every(r=>r.done)&&!D.retosDiarios.premio){
     D.retosDiarios.premio=true;
-    unlockGuardianDuel('daily');
+    unlockActionGames('daily');
     D.diamantes+=10;
     giveXP(10);
   }
@@ -137,7 +148,7 @@ ${xpPanel()}
 <div class="progress-actions"><button class="btn secondary progress-action" onclick="avatarScreen()">👤 Mi avatar</button><button class="btn secondary progress-action" onclick="achievements()">🏆 Logros</button></div>
 <div class="dashboard-grid"><div class="dashboard-main">${dailyHTML()}</div><div class="dashboard-side">${progressSummary()}</div></div>
 <h3 class="section-title">Recompensa de acción</h3>
-${guardianDuelCard()}
+<div class="action-game-grid">${guardianDuelCard()}${planetDefenseCard()}</div>
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
 <button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>10 niveles · 10 ejercicios</small></button>
@@ -533,7 +544,7 @@ function parentDashboard(){
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button><span class="parent-active">🔓 Modo Padres activo</span>${diamond()}</div><h2>Zona de padres</h2><div class="parent-grid">
   <div class="parent-card"><h3>👤 Jugador</h3><label>Nombre</label><input id="nameInput" type="text" maxlength="24" value="${escapeHTML(D.perfil.nombre)}"><button class="btn secondary" onclick="setName()">Guardar nombre</button></div>
   <div class="parent-card"><h3>🧪 Modo de pruebas</h3><p class="muted">Todos los niveles están desbloqueados mientras este modo esté activo.</p><button class="btn secondary" onclick="parentTestLevels()">Probar cualquier nivel</button><button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button></div>
-  <div class="parent-card"><h3>⚡ Duelo de Guardianes</h3><p class="muted">${D.dueloGuardianes.unlocked?'Desbloqueado permanentemente.':'El modo Padres permite probarlo. También puedes dejarlo desbloqueado para el jugador.'}</p>${D.dueloGuardianes.unlocked?'<button class="btn secondary" onclick="startGuardianDuel()">Abrir duelo</button>':'<button class="btn secondary" onclick="unlockGuardianDuelFromParents()">Desbloquear permanentemente</button><button class="btn secondary" onclick="startGuardianDuel()">Probar ahora</button>'}</div>
+  <div class="parent-card"><h3>⚡ Juegos de acción</h3><p class="muted">${D.dueloGuardianes.unlocked?'Duelo y Defensa del planeta están desbloqueados permanentemente.':'El modo Padres permite probar ambos juegos o desbloquearlos permanentemente.'}</p>${D.dueloGuardianes.unlocked?'<button class="btn secondary" onclick="startGuardianDuel()">Abrir duelo</button><button class="btn secondary" onclick="startPlanetDefense()">Defender el planeta</button>':'<button class="btn secondary" onclick="unlockActionGamesFromParents()">Desbloquear ambos</button><button class="btn secondary" onclick="startGuardianDuel()">Probar duelo</button><button class="btn secondary" onclick="startPlanetDefense()">Probar defensa</button>'}</div>
   <div class="parent-card"><h3>⭐ Experiencia y nivel</h3><label>Nivel actual</label><input id="parentLevel" type="number" min="1" max="999" step="1" value="${D.nivelJugador}"><label>XP actual</label><input id="parentXP" type="number" min="0" step="1" value="${D.xp}"><button class="btn secondary" onclick="setParentProgress()">Aplicar nivel y XP</button></div>
   <div class="parent-card"><h3>💎 Diamantes</h3><div class="grid2"><button class="btn secondary" onclick="changeDiamonds(-100)">−100</button><button class="btn secondary" onclick="changeDiamonds(100)">+100</button></div><button class="btn secondary" onclick="changeDiamonds(500)">+500</button><label>Cantidad exacta</label><input id="parentDiamonds" type="number" min="0" step="1" value="${D.diamantes}"><button class="btn secondary" onclick="setDiamondsExact()">Aplicar diamantes</button></div>
   <div class="parent-card"><h3>🛍️ Precios de la tienda</h3><p class="muted">Multiplica a la vez el precio de los 24 objetos. Las compras ya realizadas no cambian.</p><div class="price-presets"><button class="small secondary" onclick="setShopPriceMultiplier(0.5)">×0,5</button><button class="small secondary" onclick="setShopPriceMultiplier(1)">×1</button><button class="small secondary" onclick="setShopPriceMultiplier(1.5)">×1,5</button><button class="small secondary" onclick="setShopPriceMultiplier(2)">×2</button></div><label>Multiplicador global</label><input id="shopPriceMultiplier" type="number" min="0.25" max="3" step="0.25" value="${D.ajustes.multiplicadorPrecios}"><button class="btn secondary" onclick="setShopPriceMultiplier()">Aplicar a toda la tienda</button><small class="muted">Rango actual: ${Math.min(...avatarCatalog().map(avatarItemPrice))}–${Math.max(...avatarCatalog().map(avatarItemPrice))} 💎</small></div>

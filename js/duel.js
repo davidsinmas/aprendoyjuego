@@ -35,6 +35,7 @@ function duelCanPlay(){
 
 function startGuardianDuel(){
   if(!duelCanPlay()){home();return;}
+  if(typeof stopPlanetDefense==='function')stopPlanetDefense();
   stopGuardianDuel();
   document.body.classList.add('guardian-duel-active');
   A.innerHTML=`<main class="guardian-duel-menu">
