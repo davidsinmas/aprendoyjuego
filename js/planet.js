@@ -110,6 +110,7 @@ function planetResetMission(){
   game.status='countdown';game.players=planetPlayers();game.meteors=[];game.bullets=[];game.particles=[];game.pointers.clear();game.shield=PLANET_SHIELD_MAX;game.shieldInvulnerable=0;game.timeLeft=PLANET_MISSION_TIME;game.elapsed=0;game.wave=1;game.score=0;game.destroyed=0;game.spawnTimer=.45;game.countdown=3;game.countdownShown=3;game.last=0;game.displaySecond=PLANET_MISSION_TIME;game.impactFlash=0;
   planetUpdateHud();
   planetOverlay(`<div class="duel-countdown planet-countdown"><b id="planetCountdown">3</b><span>¡PROTEGED EL PLANETA!</span></div>`);
+  window.GameSound?.play('countdown');
 }
 
 function newPlanetDefenseMission(){planetResetMission();}
@@ -189,7 +190,7 @@ function planetLoop(now){
   if(game.status==='countdown'){
     game.countdown-=dt;
     const shown=Math.max(1,Math.ceil(game.countdown));
-    if(shown!==game.countdownShown){game.countdownShown=shown;const el=document.getElementById('planetCountdown');if(el)el.textContent=shown;}
+    if(shown!==game.countdownShown){game.countdownShown=shown;const el=document.getElementById('planetCountdown');if(el)el.textContent=shown;window.GameSound?.play('countdown');}
     if(game.countdown<=0){game.status='playing';planetOverlay('');}
     dt=0;
   }else if(game.status!=='playing')dt=0;
@@ -228,7 +229,7 @@ function planetUpdate(dt){
     for(const meteor of game.meteors){
       if(meteor.dead||Math.hypot(bullet.x-meteor.x,bullet.y-meteor.y)>=meteor.r+bullet.r)continue;
       bullet.life=0;meteor.hp--;planetParticles(bullet.x,bullet.y,'#9df8ff',5);
-      if(meteor.hp<=0){meteor.dead=true;game.destroyed++;game.score+=10+meteor.maxHp*8;planetParticles(meteor.x,meteor.y,meteor.color,18+meteor.maxHp*5);planetUpdateHud();}
+      if(meteor.hp<=0){meteor.dead=true;game.destroyed++;game.score+=10+meteor.maxHp*8;planetParticles(meteor.x,meteor.y,meteor.color,18+meteor.maxHp*5);window.GameSound?.play('meteor');planetUpdateHud();}
       break;
     }
   }
@@ -269,12 +270,14 @@ function planetFire(owner){
   const x=player.x,y=player.y-40,tx=target?target.x:x,ty=target?target.y:-40,dx=tx-x,dy=ty-y,length=Math.max(1,Math.hypot(dx,dy)),speed=650;
   game.bullets.push({x,y,vx:dx/length*speed,vy:dy/length*speed,owner,life:1.8,r:6});
   planetParticles(x,y,owner===0?'#6ff5ff':'#ffe56c',3);
+  window.GameSound?.play('shoot',owner===0?'avatar':'satellite');
 }
 
 function planetTakeShieldHit(){
   const game=planetDefense;
   if(!game||game.status!=='playing'||game.shieldInvulnerable>0)return;
   game.shield=Math.max(0,game.shield-1);game.shieldInvulnerable=.65;game.impactFlash=.32;planetUpdateHud();
+  window.GameSound?.play('shield');
   if(game.shield<=0)planetEndMission(false);
 }
 
@@ -302,6 +305,7 @@ function planetEndMission(won){
   const game=planetDefense;
   if(!game||!['playing','countdown'].includes(game.status))return;
   game.status=won?'missionWon':'missionLost';
+  window.GameSound?.play(won?'win':'lose');
   D.defensaPlaneta=D.defensaPlaneta&&typeof D.defensaPlaneta==='object'?D.defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0};
   if(won)D.defensaPlaneta.missions=(D.defensaPlaneta.missions||0)+1;
   D.defensaPlaneta.bestScore=Math.max(D.defensaPlaneta.bestScore||0,game.score);
@@ -375,4 +379,3 @@ window.PlanetDefense={
   newMission:newPlanetDefenseMission,
   exit:exitPlanetDefense
 };
-

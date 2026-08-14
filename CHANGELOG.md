@@ -1,3 +1,12 @@
+## V3.3.0 — 2026-08-15
+
+- Añadidos sonidos suaves y breves al Duelo de Guardianes y a Defensa del planeta, evitando efectos estridentes.
+- El Duelo enfrenta ahora al avatar contra un monstruo de aspecto propio, dibujado directamente en el juego.
+- El disparo del avatar avanza siempre en horizontal y el del monstruo se dirige hacia la posición del avatar.
+- Aparecen tres bonus en la zona del avatar: **Potencia**, **Cadencia** y **Satélite**. Hay que recogerlos antes de que salgan de la pantalla y todos son temporales.
+- Potencia duplica el daño, Cadencia acelera el disparo y Satélite orbita alrededor del avatar y añade disparos horizontales.
+- Se mantienen las 5 vidas por ronda, los 2 segundos de inmunidad, la partida al mejor de 5 y el pase diario de una sola partida de acción.
+
 ## V3.2.0 — 2026-08-14
 
 - Corregida la palabra **SILLA**: el pictograma de la silla ya no se identifica como «mesa».
