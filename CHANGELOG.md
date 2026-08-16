@@ -1,3 +1,10 @@
+## V3.4.0 — 2026-08-16
+
+- Nueva actividad de prueba **Encuentra las diferencias**, accesible desde el menú principal.
+- Incluye una escena vectorial doble con **6 diferencias** de dificultad media que pueden tocarse en cualquiera de las dos imágenes.
+- Las diferencias encontradas quedan señaladas, se muestra el progreso y la escena puede repetirse al completarla.
+- La ilustración está construida íntegramente con SVG dentro del juego, sin añadir imágenes externas ni modificar avatar, tienda o progreso.
+
 ## V3.3.1 — 2026-08-16
 
 - La explicación hablada completa se reproduce únicamente en la primera pregunta de **Sonido inicial**, **Sonido final**, **Construye la palabra**, **Ordena sílabas** y **Rimas**.

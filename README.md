@@ -14,6 +14,7 @@ Juego educativo web infantil publicado mediante GitHub Pages.
 - Construye la palabra
 - Ordena sílabas
 - Busca la rima
+- Encuentra las diferencias (escena de prueba con 6 cambios)
 
 Cada actividad tiene progresión por niveles, recompensas y registro de progreso.
 
