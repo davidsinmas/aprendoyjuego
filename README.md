@@ -39,6 +39,8 @@ En las actividades habladas de lectoescritura, el enunciado completo se escucha 
 
 Las sumas y las restas se leen automáticamente en voz alta en cada ejercicio, por ejemplo «cuatro más tres» u «ocho menos dos».
 
+Los ejercicios de Palabras conservan siempre la locución y un botón de altavoz: el enunciado completo se añade a la primera palabra y después se pronuncia solo cada palabra. Los retos diarios requieren un mínimo del 50 % de aciertos para marcarse como superados.
+
 Desde la V3.1.1, la entrada a Defensa del planeta utiliza un controlador explícito para asegurar que se abra correctamente tanto desde Inicio como desde el Modo Padres.
 
 ## Guardado del progreso

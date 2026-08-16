@@ -3,6 +3,8 @@
 - La explicación hablada completa se reproduce únicamente en la primera pregunta de **Sonido inicial**, **Sonido final**, **Construye la palabra**, **Ordena sílabas** y **Rimas**.
 - Desde la segunda pregunta se pronuncia solo la palabra correspondiente, también al pulsar de nuevo el botón de audio.
 - Cada ejercicio de **Sumas** y **Restas** enuncia automáticamente la operación completa, utilizando «más» o «menos» entre los números.
+- Los niveles de **Palabras** recuperan la locución automática: enunciado y palabra en la primera pregunta, solo la palabra en las siguientes y un botón de altavoz para repetirla.
+- Un reto diario solo se marca como resuelto al alcanzar al menos el **50 % de aciertos**; si no se consigue, puede repetirse sin quedar completado.
 
 ## V3.3.0 — 2026-08-15
 
