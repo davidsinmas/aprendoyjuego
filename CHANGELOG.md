@@ -2,6 +2,7 @@
 
 - La explicación hablada completa se reproduce únicamente en la primera pregunta de **Sonido inicial**, **Sonido final**, **Construye la palabra**, **Ordena sílabas** y **Rimas**.
 - Desde la segunda pregunta se pronuncia solo la palabra correspondiente, también al pulsar de nuevo el botón de audio.
+- Cada ejercicio de **Sumas** y **Restas** enuncia automáticamente la operación completa, utilizando «más» o «menos» entre los números.
 
 ## V3.3.0 — 2026-08-15
 

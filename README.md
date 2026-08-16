@@ -37,6 +37,8 @@ Todos los juegos utilizan efectos sonoros breves y de volumen moderado para conf
 
 En las actividades habladas de lectoescritura, el enunciado completo se escucha solo en la primera pregunta; las siguientes locuciones pronuncian únicamente la palabra del ejercicio.
 
+Las sumas y las restas se leen automáticamente en voz alta en cada ejercicio, por ejemplo «cuatro más tres» u «ocho menos dos».
+
 Desde la V3.1.1, la entrada a Defensa del planeta utiliza un controlador explícito para asegurar que se abra correctamente tanto desde Inicio como desde el Modo Padres.
 
 ## Guardado del progreso
