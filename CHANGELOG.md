@@ -1,3 +1,8 @@
+## V3.3.1 — 2026-08-16
+
+- La explicación hablada completa se reproduce únicamente en la primera pregunta de **Sonido inicial**, **Sonido final**, **Construye la palabra**, **Ordena sílabas** y **Rimas**.
+- Desde la segunda pregunta se pronuncia solo la palabra correspondiente, también al pulsar de nuevo el botón de audio.
+
 ## V3.3.0 — 2026-08-15
 
 - Añadidos sonidos suaves y breves a los juegos educativos, al Duelo de Guardianes y a Defensa del planeta, evitando efectos estridentes.

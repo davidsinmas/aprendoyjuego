@@ -35,6 +35,8 @@ Los dos juegos de acción comparten el pase diario de una partida. El Modo Padre
 
 Todos los juegos utilizan efectos sonoros breves y de volumen moderado para confirmar aciertos y acompañar disparos, impactos, bonus y resultados sin resultar estridentes.
 
+En las actividades habladas de lectoescritura, el enunciado completo se escucha solo en la primera pregunta; las siguientes locuciones pronuncian únicamente la palabra del ejercicio.
+
 Desde la V3.1.1, la entrada a Defensa del planeta utiliza un controlador explícito para asegurar que se abra correctamente tanto desde Inicio como desde el Modo Padres.
 
 ## Guardado del progreso
