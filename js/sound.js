@@ -1,5 +1,5 @@
 (()=>{
-  let context=null,lastShot=0;
+  let context=null,lastShot=0,lastBounce=0;
   const nowMs=()=>typeof performance!=='undefined'?performance.now():Date.now();
   function audio(){
     try{
@@ -29,8 +29,13 @@
         const stamp=nowMs();if(stamp-lastShot<55)return;lastShot=stamp;
         if(variant==='monster')tone(145,105,.065,.006,'triangle');
         else if(variant==='satellite')tone(520,390,.05,.004,'sine');
+        else if(variant==='laser')tone(720,410,.055,.005,'sine');
         else tone(330,250,.055,.005,'sine');
         break;
+      }
+      case 'bounce':{
+        const stamp=nowMs();if(stamp-lastBounce<90)return;lastBounce=stamp;
+        tone(360,440,.035,.0025,'sine');break;
       }
       case 'hit':tone(150,78,.19,.021,'triangle');break;
       case 'bonusAppear':tone(470,620,.12,.009,'sine');break;
