@@ -1,3 +1,18 @@
+## V3.4.0 — 2026-08-17
+
+- Nueva actividad **Encuentra las diferencias** con **50 escenas numeradas**, sin tratarlas como niveles.
+- Todas las escenas mantienen dificultad intermedia, seis diferencias y diez temáticas ilustradas que se alternan en cinco variantes visuales.
+- Al encontrar las seis diferencias se guarda el avance y se abre automáticamente la escena siguiente; al volver al juego continúa por la última escena alcanzada.
+- El menú principal muestra la escena actual y el número de escenas completadas.
+- Las ilustraciones están construidas íntegramente con SVG dentro del juego, sin depender de imágenes externas.
+- Al completar un nivel de cualquiera de las otras diez actividades aparece un botón **Siguiente nivel**, sin obligar a regresar al selector.
+- El Modo Padres sustituye la antigua clave incluida en el código por un PIN de 4 a 6 cifras que se configura y guarda únicamente en el navegador.
+- Nueva opción parental para permitir o impedir restas con números mayores de 10; queda desactivada por defecto y el ajuste se conserva en el navegador.
+- Nueva sección **Unidades pedagógicas**, visible desde el menú principal y preparada para incorporar más contenidos guiados.
+- Primera unidad **La misión del puente del 10**, pensada para 6 años: cinco misiones con decenas y unidades, llegada a 10, restas en dos saltos, problemas narrados y prueba final.
+- La unidad incluye apoyos visuales, botón de audio, ejercicios con al menos un 50 % de aciertos para avanzar, recompensas moderadas y guardado automático del progreso.
+- Completar la unidad no activa las restas mayores de 10: el control permanece exclusivamente en el Modo Padres y sigue desactivado por defecto.
+
 ## V3.3.1 — 2026-08-16
 
 - La explicación hablada completa se reproduce únicamente en la primera pregunta de **Sonido inicial**, **Sonido final**, **Construye la palabra**, **Ordena sílabas** y **Rimas**.
