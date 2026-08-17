@@ -24,7 +24,7 @@ Encuentra las diferencias mantiene la misma dificultad intermedia en sus 50 esce
 
 La sección **Unidades pedagógicas** enseña conceptos nuevos mediante explicaciones breves, apoyos visuales, narración y práctica guiada antes de pasar a los juegos.
 
-La primera unidad, **La misión del puente del 10**, está pensada para niños de 6 años e introduce las restas con números mayores de 10 en cinco misiones: reconocer decenas y unidades, llegar a 10, dividir la resta en dos saltos, resolver pequeñas historias y superar un reto final. Cada misión se completa con al menos el 50 % de aciertos y el avance queda guardado automáticamente en el navegador.
+La primera unidad, **La misión del puente del 10**, está pensada para niños de 6 años e introduce las restas con números mayores de 10 en cinco misiones: reconocer decenas y unidades, llegar a 10, dividir la resta en dos saltos, resolver pequeñas historias y superar un reto final. La entrada a las decenas se realiza mediante seis pantallas animadas: unidades del 1 al 9, paso de 9 a 10, agrupación de una decena y construcción progresiva de 11, 12, 13 y 14. Cada explicación puede escucharse con la mejor voz española disponible en el dispositivo. Cada misión se completa con al menos el 50 % de aciertos y el avance queda guardado automáticamente en el navegador.
 
 ## Retos diarios
 
