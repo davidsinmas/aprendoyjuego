@@ -2,7 +2,7 @@ const PEDAGOGY_SUBTRACTION_STEPS=[
   {
     title:'Construye una decena',
     icon:'🧱',
-    intro:'Los números mayores de 10 tienen una decena completa y algunas unidades sueltas. El 14 es una decena y cuatro unidades.',
+    intro:'Vamos a descubrir poco a poco cómo diez unidades forman una decena y cómo nacen los números mayores de 10.',
     example:'14 = 10 + 4'
   },
   {
@@ -31,7 +31,41 @@ const PEDAGOGY_SUBTRACTION_STEPS=[
   }
 ];
 
+const PEDAGOGY_TENS_INTRO=[
+  {
+    title:'Empezamos con unidades',
+    text:'Cada pieza suelta es una unidad. Podemos contarlas una a una: una, dos, tres… hasta llegar a nueve.',
+    speech:'Empezamos con unidades. Cada pieza suelta es una unidad. Vamos a contarlas despacio. Una, dos, tres, cuatro, cinco, seis, siete, ocho y nueve. Todavía son unidades sueltas.'
+  },
+  {
+    title:'Llega una pieza más',
+    text:'Tenemos 9 unidades. Cuando llega una más, ya hay 10. Ese paso de 9 a 10 es muy importante.',
+    speech:'Tenemos nueve unidades. Ahora llega una pieza más. Nueve, más una, son diez. Acabamos de pasar del nueve al diez.'
+  },
+  {
+    title:'Formamos un grupo de diez',
+    text:'Para contar mejor, guardamos las 10 unidades juntas. A este grupo completo lo llamamos una decena.',
+    speech:'Como diez piezas sueltas son muchas, las guardamos juntas en una caja. Dentro hay exactamente diez unidades. A este grupo completo lo llamamos una decena. Una decena vale lo mismo que diez unidades.'
+  },
+  {
+    title:'Después del 10 viene el 11',
+    text:'La caja de la decena queda completa. Si aparece 1 unidad nueva fuera de la caja, tenemos 10 y 1: eso es 11.',
+    speech:'La caja de la decena ya está completa. Ahora aparece una unidad nueva y se queda fuera. Tenemos una decena, que vale diez, y una unidad más. Diez más uno son once.'
+  },
+  {
+    title:'Seguimos añadiendo unidades',
+    text:'Cada pieza nueva hace crecer el número: 11, 12, 13 y 14. La decena no cambia; cambian las unidades sueltas.',
+    speech:'Seguimos despacio. Una decena y una unidad son once. Con otra unidad llegamos a doce. Después, trece. Y con cuatro unidades sueltas llegamos a catorce. La decena sigue completa. Solo aumentan las unidades de fuera.'
+  },
+  {
+    title:'Una decena y cuatro unidades',
+    text:'El 14 se puede separar en una decena y 4 unidades. Por eso escribimos 14 = 10 + 4.',
+    speech:'Ya podemos mirar el catorce de otra forma. El uno nos recuerda que hay una decena completa. El cuatro nos dice que hay cuatro unidades sueltas. Por eso, catorce es igual a diez más cuatro. Ahora sí, vamos a practicar.'
+  }
+];
+
 let pedagogyState={step:1,questions:[],index:0,hits:0,locked:false,current:null};
+let pedagogyVoiceCache=null;
 
 function pedagogyUnitProgress(){
   if(!D.unidadesPedagogicas||typeof D.unidadesPedagogicas!=='object')D.unidadesPedagogicas={};
@@ -79,9 +113,9 @@ function subtractionPedagogyUnit(){
 function pedagogyLesson(stepNumber){
   const progress=pedagogyUnitProgress(),step=PEDAGOGY_SUBTRACTION_STEPS[stepNumber-1];
   if(!step||(!progress.pasosCompletados.includes(stepNumber)&&stepNumber>progress.paso)){subtractionPedagogyUnit();return;}
+  if(stepNumber===1){pedagogyTensIntro(0);return;}
   let visual='';
-  if(stepNumber===1)visual=`${pedagogyNumberModel(14)}<div class="pedagogy-equation">14 = <span>10</span> + <span>4</span></div>`;
-  else if(stepNumber===2)visual=`${pedagogyNumberModel(16)}<div class="pedagogy-equation">16 − <span>6</span> = 10</div>`;
+  if(stepNumber===2)visual=`${pedagogyNumberModel(16)}<div class="pedagogy-equation">16 − <span>6</span> = 10</div>`;
   else if(stepNumber===3)visual=`<div class="ten-bridge"><span>14</span><i>− 4</i><span class="bridge-ten">10</span><i>− 2</i><span>8</span></div>`;
   else if(stepNumber===4)visual=`<div class="pedagogy-story-icons">${'✨'.repeat(15)}</div><div class="pedagogy-equation">15 − 7 = 8</div>`;
   else visual='<div class="pedagogy-final-badge">🛡️<span>6 retos</span></div>';
@@ -92,18 +126,70 @@ function pedagogyLesson(stepNumber){
     <button class="btn primary pedagogy-start" onclick="startPedagogyPractice(${stepNumber})">▶️ Practicar</button>`);
 }
 
+function pedagogyIntroDots(count,{highlightLast=false,numbered=false}={}){
+  return Array.from({length:count},(_,index)=>`<i class="${highlightLast&&index===count-1?'new-unit':''}" style="--unit:${index}">${numbered?`<span>${index+1}</span>`:''}</i>`).join('');
+}
+
+function pedagogyTensIntroVisual(page){
+  if(page===0)return `<div class="intro-loose-units numbered-units">${pedagogyIntroDots(9,{numbered:true})}</div><div class="intro-big-number">9 <small>unidades</small></div>`;
+  if(page===1)return `<div class="intro-loose-units reaching-ten">${pedagogyIntroDots(10,{highlightLast:true})}</div><div class="intro-equation"><span>9</span><b>+</b><span class="new-number">1</span><b>=</b><strong>10</strong></div>`;
+  if(page===2)return `<div class="intro-bundle"><div class="ten-box animated-ten-box">${pedagogyIntroDots(10)}</div><div class="bundle-label"><b>1</b><span>DECENA</span></div></div><div class="intro-equation"><span>10 unidades</span><b>=</b><strong>1 decena</strong></div>`;
+  if(page===3)return `<div class="intro-place-value">${pedagogyNumberModel(11)}<div class="place-labels"><span>1 decena</span><span>1 unidad</span></div></div><div class="intro-equation"><span>10</span><b>+</b><span>1</span><b>=</b><strong>11</strong></div>`;
+  if(page===4)return `<div class="growing-tens"><div class="ten-box">${pedagogyIntroDots(10)}</div><div class="growing-units">${pedagogyIntroDots(4)}</div></div><div class="number-growth"><span>10</span><i>→</i><span>11</span><i>→</i><span>12</span><i>→</i><span>13</span><i>→</i><strong>14</strong></div>`;
+  return `<div class="final-place-value">${pedagogyNumberModel(14)}<div class="place-value-cards"><span><b>1</b><small>decena</small><i>vale 10</i></span><span><b>4</b><small>unidades</small><i>valen 4</i></span></div></div><div class="intro-equation final-intro-equation"><strong>14</strong><b>=</b><span>10</span><b>+</b><span>4</span></div>`;
+}
+
+function pedagogyTensIntro(page=0){
+  const max=PEDAGOGY_TENS_INTRO.length-1,current=Math.min(max,Math.max(0,Number(page)||0)),info=PEDAGOGY_TENS_INTRO[current],last=current===max;
+  window.speechSynthesis?.cancel();
+  layout(`<div class="top"><button class="btn secondary back" onclick="${current?`pedagogyTensIntro(${current-1})`:'subtractionPedagogyUnit()'}">← ${current?'Anterior':'Misiones'}</button>${diamond()}</div>
+    <div class="tens-intro-progress"><span>Aprendemos las decenas</span><b>${current+1} de ${PEDAGOGY_TENS_INTRO.length}</b></div>
+    <div class="tens-intro-dots">${PEDAGOGY_TENS_INTRO.map((_,index)=>`<i class="${index===current?'current':index<current?'seen':''}"></i>`).join('')}</div>
+    <div class="tens-intro-card">
+      <div class="tens-intro-title"><span>${current<2?'🟡':current<4?'📦':'🔢'}</span><div><div class="eyebrow">PASO ${current+1}</div><h2>${info.title}</h2></div><button class="pedagogy-audio" onclick="pedagogySpeakTensIntro(${current})" aria-label="Escuchar explicación">🔊</button></div>
+      <div class="tens-intro-visual">${pedagogyTensIntroVisual(current)}</div>
+      <p>${info.text}</p>
+    </div>
+    <div class="tens-intro-actions">${last?'<button class="btn primary" onclick="startPedagogyPractice(1)">▶️ Empezar la práctica</button>':`<button class="btn primary" onclick="pedagogyTensIntro(${current+1})">➡️ Siguiente paso</button>`}</div>`);
+  setTimeout(()=>pedagogySpeakTensIntro(current),500);
+}
+
 function pedagogyNumberModel(number){
   const units=Math.max(0,number-10),ten=Array.from({length:10},()=>'<i></i>').join(''),loose=Array.from({length:units},()=>'<i></i>').join('');
   return `<div class="number-model" aria-label="Una decena y ${units} unidades"><div class="ten-box">${ten}</div><span>+</span><div class="unit-box">${loose}</div></div>`;
+}
+
+function pedagogyVoiceScore(voice){
+  const name=String(voice?.name||''),lang=String(voice?.lang||''),signature=`${name} ${lang}`.toLowerCase();
+  let score=0;
+  if(/^es-es/i.test(lang))score+=50;else if(/^es/i.test(lang))score+=35;
+  if(/natural|premium|enhanced|mejorada|mónica|monica|paulina|luciana|helena|elvira|dalia|alvaro|álvaro|jorge|marisol|google español/i.test(signature))score+=35;
+  if(voice?.localService)score+=6;
+  if(/compact|espeak|basic/i.test(signature))score-=25;
+  return score;
+}
+
+function pedagogyBestSpanishVoice(){
+  const voices=window.speechSynthesis?.getVoices?.()||[];
+  const spanish=voices.filter(voice=>/^es([_-]|$)/i.test(voice.lang||''));
+  if(!spanish.length)return null;
+  const best=[...spanish].sort((a,b)=>pedagogyVoiceScore(b)-pedagogyVoiceScore(a))[0];
+  if(!pedagogyVoiceCache||pedagogyVoiceCache.name!==best.name)pedagogyVoiceCache=best;
+  return pedagogyVoiceCache;
 }
 
 function pedagogySpeak(text){
   try{
     if(!('speechSynthesis' in window))return;
     window.speechSynthesis.cancel();
-    const utterance=new SpeechSynthesisUtterance(text);utterance.lang='es-ES';utterance.rate=.82;utterance.pitch=1.04;
+    const utterance=new SpeechSynthesisUtterance(String(text));utterance.lang='es-ES';utterance.rate=.78;utterance.pitch=1;utterance.volume=.92;
+    const voice=pedagogyBestSpanishVoice();if(voice)utterance.voice=voice;
     window.speechSynthesis.speak(utterance);
   }catch(error){}
+}
+
+function pedagogySpeakTensIntro(page){
+  const info=PEDAGOGY_TENS_INTRO[page];if(info)pedagogySpeak(info.speech);
 }
 
 function pedagogySpeakLesson(stepNumber){
