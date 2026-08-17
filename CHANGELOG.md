@@ -1,3 +1,12 @@
+## V3.4.2 — 2026-08-17
+
+- El monstruo dispara ahora en línea recta horizontal y el avatar dirige sus disparos hacia la posición del monstruo.
+- Aumentada la cadencia base y máxima de disparo del avatar.
+- Los bonus de **Satélite** son acumulables: cada bonus recogido añade un nuevo satélite visible con duración y disparo propios.
+- Cada satélite lanza ráfagas de cinco proyectiles con distintas velocidades y trayectorias; los proyectiles rebotan en los bordes superior e inferior.
+- Nuevo bonus temporal **Láser**, que añade disparos horizontales muy rápidos sin sustituir el ataque dirigido normal del avatar.
+- Actualizados las instrucciones, indicadores y sonidos del duelo para explicar las nuevas mecánicas.
+
 ## V3.4.1 — 2026-08-17
 
 - La primera misión pedagógica introduce ahora las decenas mediante seis explicaciones breves y consecutivas antes de comenzar los ejercicios.
