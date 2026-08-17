@@ -9,7 +9,7 @@ function storedProgressScore(d){
 function readStored(key){try{return JSON.parse(localStorage.getItem(key))}catch{return null;}}
 function blank(){
   return{
-    versionDatos:15,
+    versionDatos:17,
     perfil:{nombre:'Jugador'},
     diamantes:0,
     estadisticas:{},
@@ -21,8 +21,9 @@ function blank(){
     actionAccess:{date:'',available:false,consumed:false},
     dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0},
     defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0},
+    diferencias:{actual:1,completadas:0},
     logros:[],
-    ajustes:{multiplicadorPrecios:1},
+    ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false},
     avatar:{
       owned:[],
       equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}
@@ -65,14 +66,18 @@ function load(){
   d.defensaPlaneta.unlockedBy=null;
   d.defensaPlaneta.missions=Math.max(0,Math.floor(Number(d.defensaPlaneta.missions)||0));
   d.defensaPlaneta.bestScore=Math.max(0,Math.floor(Number(d.defensaPlaneta.bestScore)||0));
+  d.diferencias=d.diferencias&&typeof d.diferencias==='object'?d.diferencias:{};
+  d.diferencias.completadas=Math.min(50,Math.max(0,Math.floor(Number(d.diferencias.completadas)||0)));
+  d.diferencias.actual=Math.min(50,Math.max(1,Math.floor(Number(d.diferencias.actual)||d.diferencias.completadas+1)));
   d.logros=Array.isArray(d.logros)?d.logros:[];
-  d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1};
+  d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false};
   const rawMultiplier=Number(d.ajustes.multiplicadorPrecios);
   d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(0.25,Number.isFinite(rawMultiplier)?Math.round(rawMultiplier*4)/4:1));
+  d.ajustes.restasMayoresDe10=d.ajustes.restasMayoresDe10===true;
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
-  d.versionDatos=15;
+  d.versionDatos=17;
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
@@ -93,4 +98,3 @@ function save(d){
   localStorage.setItem(STORE,serialized);
   localStorage.setItem(STORE_BACKUP,serialized);
 }
-

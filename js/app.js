@@ -1,4 +1,5 @@
 let D=load(),parentMode=false,state={type:null,level:null,mode:null,qs:[],i:0,hits:0,correct:null,locked:false,grid:null,path:[],target:[],daily:false,total:GAME.total};
+const PARENT_PIN_STORE='aprendo_jugando_pin_padres_v1';
 const A=document.getElementById('app');
 const mix=a=>[...a].sort(()=>Math.random()-.5);
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -163,8 +164,7 @@ function finishDailyActivity(type,title='¡Reto diario completado!'){
 }
 function diamond(flash=false){return `<div id="diamond" class="diamond ${flash?'flash':''}">💎 <span>${D.diamantes}</span></div>`;}
 function layout(content){A.innerHTML=`<div class="wrap"><div class="card">${content}</div></div>`;}
-let audioCtx=null;
-function playChime(kind='ok'){try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(kind==='ok'?660:220,now);osc.frequency.exponentialRampToValueAtTime(kind==='ok'?880:180,now+.11);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.055,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+.14);osc.connect(gain).connect(audioCtx.destination);osc.start(now);osc.stop(now+.15);}catch(e){}}
+function playChime(kind='ok'){window.GameSound?.play(kind==='ok'?'correct':'wrong');}
 function home(){ensureDaily();checkAchievements();if(showPendingLevel())return;if(showPendingAchievement())return;layout(`
 <div class="home-head"><div class="brand"><div class="brand-mark">AJ</div><div><h1>Aprendo jugando</h1><div class="muted">V${window.APP_VERSION||'actual'} · ${parentMode?'🔓 Modo Padres activo':'progresión educativa'}</div></div></div>${diamond()}</div>
 ${xpPanel()}
@@ -321,6 +321,20 @@ function unequipAvatarSlot(slot){try{AvatarSystem.unequip(D,slot);save(D);invent
 function levelDone(n){return stats(n.id).partidas>0;}
 function levelUnlocked(t,index){return parentMode||index===0||levelDone(GAME.levels[t][index-1]);}
 function levelDiamonds(n,repeat=false){return repeat?n.level:n.level+4;}
+function nextLevelButton(type,level){
+  const list=GAME.levels[type]||[],index=list.findIndex(item=>item.id===level.id);
+  if(index<0||index>=list.length-1)return'';
+  return `<button class="btn primary" onclick="startNextLevel('${type}','${level.id}')">➡️ Siguiente nivel</button>`;
+}
+function startNextLevel(type,currentId){
+  const list=GAME.levels[type]||[],index=list.findIndex(item=>item.id===currentId),next=list[index+1];
+  if(!next){levels(type);return;}
+  if(type==='suma'||type==='resta')startMath(type,next);
+  else if(type==='comparar')startCompare(next);
+  else if(type==='palabras')startWords(next);
+  else if(type==='sopa')startSoup(next);
+  else if(READING_TYPES.has(type))startReadingGame(type,next);
+}
 function levels(t){
   state.type=t;
   const titles={suma:'Niveles de sumas',resta:'Niveles de restas',comparar:'Mayor o menor',palabras:'Niveles de palabras',sopa:'Sopa de letras',sonidoInicial:'¿Con qué sonido empieza?',sonidoFinal:'¿Con qué sonido termina?',construir:'Construye la palabra',ordenarSilabas:'Ordena las sílabas',rimas:'Busca la rima'};
@@ -328,6 +342,7 @@ function levels(t){
   const rows=GAME.levels[t].map((n,index)=>{
     const s=stats(n.id),done=s.partidas>0,unlocked=levelUnlocked(t,index),p=s.respuestas?Math.round(s.aciertos/s.respuestas*100):0,reward=levelDiamonds(n,done);
     const activity=t==='sopa'?`${n.count} palabras · 1 tablero`:t==='comparar'?'10 comparaciones':'10 ejercicios';
+    const description=t==='resta'&&!D.ajustes.restasMayoresDe10&&n.aMax>10?'🔒 Límite parental activo · números hasta 10':n.desc;
     let action='';
     if(unlocked){
       if(t==='suma'||t==='resta')action=`<button class="small play" onclick='startMath(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
@@ -336,7 +351,7 @@ function levels(t){
       else if(READING_TYPES.has(t))action=`<button class="small play" onclick='startReadingGame(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
       else action=`<button class="small play" onclick='startSoup(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
     }else action='<button class="small locked-button" disabled>Bloqueado</button>';
-    return `<div class="row level-row ${done?'level-done':''} ${unlocked?'':'level-locked'}"><div class="level-main"><div class="level-title"><b>${done?'✅ ':unlocked?'':'🔒 '}${n.name}</b>${done?'<span class="done-badge">HECHO</span>':''}</div><div class="muted">${n.desc}</div><div class="level-meta"><span>${activity}</span><span>💎 ${reward} ${done?'al repetir':'primera vez'}</span>${done?`<span>Aciertos: ${p}%</span>`:''}</div></div><div class="actions">${action}</div></div>`;
+    return `<div class="row level-row ${done?'level-done':''} ${unlocked?'':'level-locked'}"><div class="level-main"><div class="level-title"><b>${done?'✅ ':unlocked?'':'🔒 '}${n.name}</b>${done?'<span class="done-badge">HECHO</span>':''}</div><div class="muted">${description}</div><div class="level-meta"><span>${activity}</span><span>💎 ${reward} ${done?'al repetir':'primera vez'}</span>${done?`<span>Aciertos: ${p}%</span>`:''}</div></div><div class="actions">${action}</div></div>`;
   }).join('');
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div><h2>${title}</h2><p class="muted level-help">${parentMode?'🔓 Modo Padres: todos los niveles disponibles para pruebas.':'Completa un nivel una vez para desbloquear el siguiente. Puedes repetir cualquier nivel desbloqueado.'}</p><div class="levels">${rows}</div>`);
 }
@@ -344,7 +359,8 @@ function resetLevel(id){if(confirm('¿Borrar estadísticas?')){delete D.estadist
 function startMath(t,n,daily=false){
   const total=daily?GAME.dailyMathTotal:GAME.mathTotal;
   state={...state,type:t,level:n,mode:null,qs:[],i:0,hits:0,daily,total};
-  for(let a=1;a<=n.aMax;a++)for(let b=1;b<=n.bMax;b++){
+  const aMax=t==='resta'&&!D.ajustes.restasMayoresDe10?Math.min(10,n.aMax):n.aMax;
+  for(let a=1;a<=aMax;a++)for(let b=1;b<=n.bMax;b++){
     if(t==='suma'&&(!n.resultMax||a+b<=n.resultMax))state.qs.push({a,b,r:a+b});
     if(t==='resta'&&b<a)state.qs.push({a,b,r:a-b});
   }
@@ -360,7 +376,7 @@ function finish(){
   if((state.type==='suma'||state.type==='resta')&&!state.daily){
     const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;
     const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
-    layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick="startMath('${state.type}',${JSON.stringify(state.level)})">Jugar otra vez</button><button class="btn secondary" onclick="levels('${state.type}')">Volver a niveles</button></div>`);return;
+    layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton(state.type,state.level)}<button class="btn secondary" onclick="startMath('${state.type}',${JSON.stringify(state.level)})">🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('${state.type}')">▦ Volver a niveles</button></div>`);return;
   }
   if(state.daily){finishDailyActivity(state.type,'¡Actividad terminada!');return;}
 }
@@ -412,7 +428,7 @@ function finishCompare(){
   if(state.daily){finishDailyActivity('comparar');return;}
   const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;
   const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
-  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startCompare(${JSON.stringify(state.level)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('comparar')">Volver a niveles</button></div>`);
+  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton('comparar',state.level)}<button class="btn secondary" onclick='startCompare(${JSON.stringify(state.level)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('comparar')">▦ Volver a niveles</button></div>`);
 }
 function wordPool(n){return GAME.words.filter(w=>{const len=w.word.length,sy=w.syllables.length;return (!n.minLen||len>=n.minLen)&&(!n.maxLen||len<=n.maxLen)&&(!n.minSyllables||sy>=n.minSyllables)&&(!n.maxSyllables||sy<=n.maxSyllables);});}
 function startWords(n,daily=false){const total=daily?5:GAME.wordTotal;let pool=wordPool(n);if(pool.length<total)pool=GAME.words.filter(w=>(!n.maxLen||w.word.length<=n.maxLen+1));state={...state,type:'palabras',level:n,mode:n.mode,qs:mix(pool).slice(0,total),i:0,hits:0,daily,total};wordQuestion();}
@@ -430,7 +446,7 @@ function wordQuestion(){if(state.i>=state.total)return finishWords();state.locke
   }
   state.correct=correct;layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':"levels('palabras')"}">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${state.i+1} de ${state.total}</div><div class="word-exercise-icon">${q.icon}</div><div class="question letter-word">${prompt}</div><div class="muted center word-instruction">${sub}</div><div class="answers">${opts.map(o=>`<button class="answer word-answer" onclick="answerWord('${o}',this)">${o}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);state.i++;}
 function answerWord(v,b){if(state.locked)return;state.locked=true;if(String(v)===String(state.correct)){state.hits++;rewardProgressCorrect();b.classList.add('correct');document.getElementById('msg').textContent='¡Muy bien!';}else{playChime('bad');b.classList.add('wrong');document.getElementById('msg').textContent='La respuesta era '+state.correct;document.querySelectorAll('.answer').forEach(x=>{if(String(x.textContent).trim()===String(state.correct))x.classList.add('correct');});}setTimeout(wordQuestion,900);}
-function finishWords(){if(state.daily){finishDailyActivity('palabras');return;}const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startWords(${JSON.stringify(state.level)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('palabras')">Volver a niveles</button></div>`);}
+function finishWords(){if(state.daily){finishDailyActivity('palabras');return;}const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton('palabras',state.level)}<button class="btn secondary" onclick='startWords(${JSON.stringify(state.level)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('palabras')">▦ Volver a niveles</button></div>`);}
 function speakWord(text,prefix=''){
   try{
     if(!('speechSynthesis' in window))return;
@@ -549,38 +565,61 @@ function finishReading(){
   if(state.daily){finishDailyActivity(state.type);return;}
   const type=state.type,n=state.level,s=stats(n.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[n.id]=s;
   const reward=levelDiamonds(n,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
-  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startReadingGame(${JSON.stringify(type)},${JSON.stringify(n)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('${type}')">Volver a niveles</button></div>`);
+  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton(type,n)}<button class="btn secondary" onclick='startReadingGame(${JSON.stringify(type)},${JSON.stringify(n)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('${type}')">▦ Volver a niveles</button></div>`);
 }
 function startSoup(n,daily=false){const pool=GAME.words.filter(w=>w.word.length>=(n.minLen||3)&&w.word.length<=(n.maxLen||n.size));const count=daily?Math.min(3,n.count):n.count;const words=mix(pool).slice(0,count);state={...state,type:'sopa',level:n,mode:null,qs:words,i:0,hits:0,daily,total:count,path:[],found:[],locked:false};const built=buildMultiGrid(words.map(w=>w.word),n.size,n.dirs);state.grid=built.grid;state.targets=built.targets;state.found=Array(words.length).fill(false);renderSoup();}
 function renderSoup(){const n=state.level,cols=`repeat(${n.size},1fr)`;layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':"levels('sopa')"}">← Salir</button>${diamond()}</div><div class="muted">Encuentra ${state.qs.length===1?'la palabra':`las ${state.qs.length} palabras`}</div><div class="soup-targets">${state.qs.map((q,i)=>`<div class="soup-target ${state.found[i]?'done':''}" data-target="${i}"><span>${state.found[i]?'✅':q.icon}</span><b>${q.word}</b></div>`).join('')}</div><div class="word-hint center">Toca la primera y la última letra de cada palabra.</div><div id="wordGrid" class="word-grid" style="grid-template-columns:${cols}">${state.grid.flatMap((row,r)=>row.map((letter,c)=>`<button class="word-cell" data-r="${r}" data-c="${c}" onclick="pickSoup(${r},${c})">${letter}</button>`)).join('')}</div><div id="wordStatus" class="word-status"></div>`);paintFoundSoup();}
 function buildMultiGrid(words,size,dirs){for(let restart=0;restart<150;restart++){const grid=Array.from({length:size},()=>Array(size).fill('')),targets=[];let ok=true;for(const word of words){let placed=false;for(let attempt=0;attempt<250&&!placed;attempt++){const dir=dirs[rnd(0,dirs.length-1)];let dr=0,dc=1;if(dir==='v'){dr=1;dc=0;}if(dir==='d'){dr=1;dc=1;}const maxR=size-1-dr*(word.length-1),maxC=size-1-dc*(word.length-1);if(maxR<0||maxC<0)continue;const sr=rnd(0,maxR),sc=rnd(0,maxC),cells=[];let fits=true;for(let i=0;i<word.length;i++){const r=sr+dr*i,c=sc+dc*i;if(grid[r][c]&&grid[r][c]!==word[i]){fits=false;break;}cells.push([r,c]);}if(!fits)continue;[...word].forEach((ch,i)=>{const [r,c]=cells[i];grid[r][c]=ch;});targets.push(cells);placed=true;}if(!placed){ok=false;break;}}if(ok){const abc='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(!grid[r][c])grid[r][c]=abc[rnd(0,abc.length-1)];return{grid,targets};}}throw new Error('No se pudo generar la sopa');}
-function pickSoup(r,c){if(state.locked)return;if(!state.path.length){state.path=[[r,c]];paintPath();document.getElementById('wordStatus').textContent='Ahora toca la última letra.';return;}const line=getLine(state.path[0],[r,c]);state.path=line;paintPath();let idx=-1;for(let i=0;i<state.targets.length;i++){if(!state.found[i]&&samePath(line,state.targets[i])){idx=i;break;}}if(idx>=0){state.found[idx]=true;state.hits++;rewardProgressCorrect();state.path=[];playChime('ok');const status=document.getElementById('wordStatus');if(status)status.textContent='¡Encontrada!';if(state.hits>=state.qs.length){state.locked=true;setTimeout(finishSoup,700);}else setTimeout(renderSoup,450);}else{const status=document.getElementById('wordStatus');if(status)status.textContent='Prueba otra vez.';setTimeout(()=>{state.path=[];paintPath();if(status)status.textContent='';},550);}}
+function pickSoup(r,c){if(state.locked)return;if(!state.path.length){state.path=[[r,c]];paintPath();document.getElementById('wordStatus').textContent='Ahora toca la última letra.';return;}const line=getLine(state.path[0],[r,c]);state.path=line;paintPath();let idx=-1;for(let i=0;i<state.targets.length;i++){if(!state.found[i]&&samePath(line,state.targets[i])){idx=i;break;}}if(idx>=0){state.found[idx]=true;state.hits++;rewardProgressCorrect();state.path=[];const status=document.getElementById('wordStatus');if(status)status.textContent='¡Encontrada!';if(state.hits>=state.qs.length){state.locked=true;setTimeout(finishSoup,700);}else setTimeout(renderSoup,450);}else{const status=document.getElementById('wordStatus');if(status)status.textContent='Prueba otra vez.';setTimeout(()=>{state.path=[];paintPath();if(status)status.textContent='';},550);}}
 function getLine(a,b){const dR=b[0]-a[0],dC=b[1]-a[1];if(!(dR===0||dC===0||Math.abs(dR)===Math.abs(dC)))return[a,b];const dr=Math.sign(dR),dc=Math.sign(dC),len=Math.max(Math.abs(dR),Math.abs(dC))+1;return Array.from({length:len},(_,i)=>[a[0]+dr*i,a[1]+dc*i]);}
 function samePath(a,b){return a.length===b.length&&a.every((p,i)=>p[0]===b[i][0]&&p[1]===b[i][1]);}
 function cellAt(r,c){return document.querySelector(`.word-cell[data-r="${r}"][data-c="${c}"]`);}
 function paintPath(){document.querySelectorAll('.word-cell').forEach(x=>x.classList.remove('selected'));state.path.forEach(([r,c])=>{const x=cellAt(r,c);if(x)x.classList.add('selected');});paintFoundSoup();}
 function paintFoundSoup(){if(!state.targets||!state.found)return;state.targets.forEach((cells,i)=>{if(state.found[i])cells.forEach(([r,c])=>{const x=cellAt(r,c);if(x)x.classList.add('found');});});}
-function finishSoup(){if(state.daily){finishDailyActivity('sopa','¡Sopa completada!');return;}const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.qs.length;D.estadisticas[state.level.id]=s;const reward=levelDiamonds(state.level,wasDone),xp=5+(state.hits===state.qs.length?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);layout(`<div class="top"><h2>¡Sopa completada!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.qs.length}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid"><button class="btn primary" onclick='startSoup(${JSON.stringify(state.level)})'>Jugar otra vez</button><button class="btn secondary" onclick="levels('sopa')">Volver a niveles</button></div>`);}
+function finishSoup(){if(state.daily){finishDailyActivity('sopa','¡Sopa completada!');return;}const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.qs.length;D.estadisticas[state.level.id]=s;const reward=levelDiamonds(state.level,wasDone),xp=5+(state.hits===state.qs.length?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);layout(`<div class="top"><h2>¡Sopa completada!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.qs.length}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton('sopa',state.level)}<button class="btn secondary" onclick='startSoup(${JSON.stringify(state.level)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('sopa')">▦ Volver a niveles</button></div>`);}
 function parents(){
   if(!parentMode){
-    layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div><div class="parent-login"><div class="parent-lock">🔒</div><h2>Zona de padres</h2><p class="muted center">Introduce la contraseña para activar el modo Padres.</p><input id="parentPassword" type="password" autocomplete="current-password" placeholder="Contraseña" onkeydown="if(event.key==='Enter')unlockParents()"><button class="btn primary" onclick="unlockParents()">Entrar</button><div id="parentError" class="parent-error"></div></div>`);
-    setTimeout(()=>document.getElementById('parentPassword')?.focus(),0);return;
+    if(!localStorage.getItem(PARENT_PIN_STORE)){parentPinSetup();return;}
+    layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div><div class="parent-login"><div class="parent-lock">🔒</div><h2>Zona de padres</h2><p class="muted center">Introduce tu PIN para activar el Modo Padres.</p><input id="parentPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" placeholder="PIN" onkeydown="if(event.key==='Enter')unlockParents()"><button class="btn primary" onclick="unlockParents()">🔓 Entrar</button><div id="parentError" class="parent-error"></div></div>`);
+    setTimeout(()=>document.getElementById('parentPin')?.focus(),0);return;
   }
   parentDashboard();
 }
-function unlockParents(){
-  const input=document.getElementById('parentPassword'),error=document.getElementById('parentError');
-  if(input&&input.value==='cali'){parentMode=true;parentDashboard();return;}
-  if(error)error.textContent='Contraseña incorrecta';
+function parentPinSetup(changing=false){
+  layout(`<div class="top"><button class="btn secondary back" onclick="${changing?'parentDashboard()':'home()'}">← Volver</button>${diamond()}</div><div class="parent-login"><div class="parent-lock">🔐</div><h2>${changing?'Cambiar PIN':'Crear PIN de padres'}</h2><p class="muted center">Elige entre 4 y 6 cifras. El PIN se guardará únicamente en este navegador.</p><input id="newParentPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password" placeholder="Nuevo PIN"><input id="confirmParentPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password" placeholder="Repite el PIN" onkeydown="if(event.key==='Enter')saveParentPin()"><button class="btn primary" onclick="saveParentPin()">💾 Guardar PIN</button><div id="parentError" class="parent-error"></div></div>`);
+  setTimeout(()=>document.getElementById('newParentPin')?.focus(),0);
+}
+async function digestParentPin(pin){
+  const source=`aprendo-jugando-padres:${pin}`;
+  if(globalThis.crypto?.subtle&&globalThis.TextEncoder){
+    const bytes=new TextEncoder().encode(source),digest=await crypto.subtle.digest('SHA-256',bytes);
+    return [...new Uint8Array(digest)].map(value=>value.toString(16).padStart(2,'0')).join('');
+  }
+  let hash=2166136261;
+  for(const char of source){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619);}
+  return `local-${(hash>>>0).toString(16).padStart(8,'0')}`;
+}
+async function saveParentPin(){
+  const pin=document.getElementById('newParentPin')?.value||'',confirmation=document.getElementById('confirmParentPin')?.value||'',error=document.getElementById('parentError');
+  if(!/^\d{4,6}$/.test(pin)){if(error)error.textContent='El PIN debe tener entre 4 y 6 cifras.';return;}
+  if(pin!==confirmation){if(error)error.textContent='Los dos PIN no coinciden.';return;}
+  localStorage.setItem(PARENT_PIN_STORE,await digestParentPin(pin));
+  parentMode=true;parentDashboard();
+}
+async function unlockParents(){
+  const input=document.getElementById('parentPin'),error=document.getElementById('parentError'),saved=localStorage.getItem(PARENT_PIN_STORE);
+  if(input&&saved&&await digestParentPin(input.value)===saved){parentMode=true;parentDashboard();return;}
+  if(error)error.textContent='PIN incorrecto';
   if(input){input.value='';input.focus();}
 }
 function parentDashboard(){
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button><span class="parent-active">🔓 Modo Padres activo</span>${diamond()}</div><h2>Zona de padres</h2><div class="parent-grid">
   <div class="parent-card"><h3>👤 Jugador</h3><label>Nombre</label><input id="nameInput" type="text" maxlength="24" value="${escapeHTML(D.perfil.nombre)}"><button class="btn secondary" onclick="setName()">Guardar nombre</button></div>
-  <div class="parent-card"><h3>🧪 Modo de pruebas</h3><p class="muted">Todos los niveles están desbloqueados mientras este modo esté activo.</p><button class="btn secondary" onclick="parentTestLevels()">Probar cualquier nivel</button><button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button></div>
+  <div class="parent-card"><h3>🧪 Modo de pruebas</h3><p class="muted">Todos los niveles están desbloqueados mientras este modo esté activo.</p><button class="btn secondary" onclick="parentTestLevels()">Probar cualquier nivel</button><button class="btn secondary" onclick="parentPinSetup(true)">🔐 Cambiar PIN</button><button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button></div>
   <div class="parent-card"><h3>⚡ Juegos de acción</h3><p class="muted">Duelo y Defensa están disponibles mientras el modo Padres siga activo. Fuera de este modo se desbloquea una sola partida al completar los cinco retos diarios.</p><button class="btn secondary" onclick="startGuardianDuel()">⚡ Probar duelo</button><button class="btn secondary" onclick="openPlanetDefense()">🌍 Probar defensa</button></div>
   <div class="parent-card"><h3>⭐ Experiencia y nivel</h3><label>Nivel actual</label><input id="parentLevel" type="number" min="1" max="999" step="1" value="${D.nivelJugador}"><label>XP actual</label><input id="parentXP" type="number" min="0" step="1" value="${D.xp}"><button class="btn secondary" onclick="setParentProgress()">Aplicar nivel y XP</button></div>
   <div class="parent-card"><h3>💎 Diamantes</h3><div class="grid2"><button class="btn secondary" onclick="changeDiamonds(-100)">−100</button><button class="btn secondary" onclick="changeDiamonds(100)">+100</button></div><button class="btn secondary" onclick="changeDiamonds(500)">+500</button><label>Cantidad exacta</label><input id="parentDiamonds" type="number" min="0" step="1" value="${D.diamantes}"><button class="btn secondary" onclick="setDiamondsExact()">Aplicar diamantes</button></div>
+  <div class="parent-card"><h3>➖ Límite de restas</h3><p class="muted">${D.ajustes.restasMayoresDe10?'Se permiten restas con números mayores de 10.':'Las restas utilizan únicamente números hasta 10.'}</p><button class="btn ${D.ajustes.restasMayoresDe10?'danger':'secondary'}" onclick="toggleLargeSubtractions()">${D.ajustes.restasMayoresDe10?'⛔ Desactivar números mayores de 10':'🔓 Activar números mayores de 10'}</button><small class="muted">Estado actual: ${D.ajustes.restasMayoresDe10?'ACTIVADO':'DESACTIVADO'}</small></div>
   <div class="parent-card"><h3>🛍️ Precios de la tienda</h3><p class="muted">Multiplica a la vez el precio de los 24 objetos. Las compras ya realizadas no cambian.</p><div class="price-presets"><button class="small secondary" onclick="setShopPriceMultiplier(0.5)">×0,5</button><button class="small secondary" onclick="setShopPriceMultiplier(1)">×1</button><button class="small secondary" onclick="setShopPriceMultiplier(1.5)">×1,5</button><button class="small secondary" onclick="setShopPriceMultiplier(2)">×2</button></div><label>Multiplicador global</label><input id="shopPriceMultiplier" type="number" min="0.25" max="3" step="0.25" value="${D.ajustes.multiplicadorPrecios}"><button class="btn secondary" onclick="setShopPriceMultiplier()">Aplicar a toda la tienda</button><small class="muted">Rango actual: ${Math.min(...avatarCatalog().map(avatarItemPrice))}–${Math.max(...avatarCatalog().map(avatarItemPrice))} 💎</small></div>
   <div class="parent-card"><h3>💾 Copia de seguridad</h3><p class="muted">Guarda el progreso en un archivo del dispositivo y recupéralo cuando lo necesites.</p><div class="grid"><button class="btn secondary" onclick="exportData()">💾 Guardar copia</button><label class="btn secondary file-label" for="importFile">📂 Recuperar copia</label><input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)" hidden></div></div>
   <div class="parent-card"><h3>⚠️ Reinicio</h3><button class="btn danger" onclick="resetAll()">Borrar todo el progreso</button></div>
@@ -595,6 +634,7 @@ function setParentProgress(){
 }
 function changeDiamonds(amount){D.diamantes=Math.max(0,D.diamantes+amount);save(D);parentDashboard();}
 function setDiamondsExact(){D.diamantes=Math.max(0,Math.floor(Number(document.getElementById('parentDiamonds')?.value)||0));save(D);parentDashboard();}
+function toggleLargeSubtractions(){D.ajustes.restasMayoresDe10=!D.ajustes.restasMayoresDe10;save(D);parentDashboard();}
 function setShopPriceMultiplier(preset=null){
   const input=document.getElementById('shopPriceMultiplier'),raw=preset??input?.value,value=Number(String(raw).replace(',','.'));
   const min=AVATAR.economy?.minimumPriceMultiplier||0.25,max=AVATAR.economy?.maximumPriceMultiplier||3;

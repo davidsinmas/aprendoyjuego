@@ -1,9 +1,13 @@
-## V3.4.0 — 2026-08-16
+## V3.4.0 — 2026-08-17
 
-- Nueva actividad de prueba **Encuentra las diferencias**, accesible desde el menú principal.
-- Incluye una escena vectorial doble con **6 diferencias** de dificultad media que pueden tocarse en cualquiera de las dos imágenes.
-- Las diferencias encontradas quedan señaladas, se muestra el progreso y la escena puede repetirse al completarla.
-- La ilustración está construida íntegramente con SVG dentro del juego, sin añadir imágenes externas ni modificar avatar, tienda o progreso.
+- Nueva actividad **Encuentra las diferencias** con **50 escenas numeradas**, sin tratarlas como niveles.
+- Todas las escenas mantienen dificultad intermedia, seis diferencias y diez temáticas ilustradas que se alternan en cinco variantes visuales.
+- Al encontrar las seis diferencias se guarda el avance y se abre automáticamente la escena siguiente; al volver al juego continúa por la última escena alcanzada.
+- El menú principal muestra la escena actual y el número de escenas completadas.
+- Las ilustraciones están construidas íntegramente con SVG dentro del juego, sin depender de imágenes externas.
+- Al completar un nivel de cualquiera de las otras diez actividades aparece un botón **Siguiente nivel**, sin obligar a regresar al selector.
+- El Modo Padres sustituye la antigua clave incluida en el código por un PIN de 4 a 6 cifras que se configura y guarda únicamente en el navegador.
+- Nueva opción parental para permitir o impedir restas con números mayores de 10; queda desactivada por defecto y el ajuste se conserva en el navegador.
 
 ## V3.3.1 — 2026-08-16
 
