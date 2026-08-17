@@ -8,9 +8,9 @@ const DUEL_MAX_LIFE=100;
 const DUEL_HIT_DAMAGE=20;
 const DUEL_PLAYER_RADIUS=22;
 const DUEL_EDGE=45;
-const DUEL_BASE_FIRE=0.82;
+const DUEL_BASE_FIRE=0.66;
 const DUEL_MONSTER_BASE_FIRE=0.9;
-const DUEL_MIN_FIRE=0.30;
+const DUEL_MIN_FIRE=0.22;
 const DUEL_PACE_SECONDS=5;
 const DUEL_PACE_REDUCTION=0.10;
 const DUEL_ROUNDS_TO_WIN=3;
@@ -18,7 +18,8 @@ const DUEL_INVULNERABILITY=2;
 const DUEL_BONUS_TYPES=[
   {id:'power',icon:'💥',label:'Potencia',duration:8,color:'#ffb85c'},
   {id:'rapid',icon:'⚡',label:'Cadencia',duration:8,color:'#6ff5ff'},
-  {id:'satellite',icon:'🛰️',label:'Satélite',duration:10,color:'#c69cff'}
+  {id:'satellite',icon:'🛰️',label:'Satélite',duration:11,color:'#c69cff'},
+  {id:'laser',icon:'🔆',label:'Láser',duration:7,color:'#ff668a'}
 ];
 
 const DUEL_STARS=Array.from({length:88},(_,i)=>({
@@ -30,7 +31,7 @@ const DUEL_STARS=Array.from({length:88},(_,i)=>({
 
 function duelFighters(){
   return[
-    {role:'avatar',x:155,y:DUEL_H/2,targetX:155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:DUEL_INVULNERABILITY,fireTimer:.7,flash:0,bonuses:{power:0,rapid:0,satellite:0},satelliteAngle:0,satelliteFire:.35},
+    {role:'avatar',x:155,y:DUEL_H/2,targetX:155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:DUEL_INVULNERABILITY,fireTimer:.55,flash:0,bonuses:{power:0,rapid:0,satellite:0,laser:0},satelliteAngle:0,satelliteSerial:0,satellites:[],laserFire:.1},
     {role:'monster',x:DUEL_W-155,y:DUEL_H/2,targetX:DUEL_W-155,targetY:DUEL_H/2,life:DUEL_MAX_LIFE,invulnerable:DUEL_INVULNERABILITY,fireTimer:.8,flash:0}
   ];
 }
@@ -49,10 +50,10 @@ function startGuardianDuel(){
       <button class="duel-close" onclick="exitGuardianDuel()" aria-label="Volver">×</button>
       <span class="duel-kicker">JUEGO DE ACCIÓN PARA DOS</span>
       <h1>Duelo de Guardianes</h1>
-      <p>El Avatar recoge mejoras temporales mientras combate contra un monstruo que siempre dispara hacia él.</p>
+      <p>El Avatar apunta hacia el monstruo mientras esquiva sus disparos rectos y recoge mejoras temporales.</p>
       <div class="duel-rules">
         <div><span>🧑‍🚀 👾</span><b>Avatar contra monstruo</b><small>Un jugador en cada mitad</small></div>
-        <div><span>💥 ⚡ 🛰️</span><b>Bonus temporales</b><small>Tócalos antes de que desaparezcan</small></div>
+        <div><span>💥 ⚡ 🛰️ 🔆</span><b>Bonus temporales</b><small>Acumula satélites y encuentra el láser</small></div>
         <div><span>🏆</span><b>Mejor de 5</b><small>Gana quien llega a 3 rondas</small></div>
       </div>
       <button class="duel-main-button" onclick="beginGuardianDuelMatch()">EMPEZAR PARTIDA</button>
@@ -93,14 +94,14 @@ function beginGuardianDuelMatch(){
     </header>
     <section class="duel-arena">
       <div class="duel-hud duel-hud-left"><div><b>AVATAR</b><small>RECOGE LOS BONUS</small></div><div class="duel-health"><i><span id="duelLifeBar0"></span></i><b id="duelLife0">5</b></div></div>
-      <div class="duel-hud duel-hud-right"><div><b>MONSTRUO</b><small>DISPARO DIRIGIDO</small></div><div class="duel-health"><i><span id="duelLifeBar1"></span></i><b id="duelLife1">5</b></div></div>
+      <div class="duel-hud duel-hud-right"><div><b>MONSTRUO</b><small>DISPARO RECTO</small></div><div class="duel-health"><i><span id="duelLifeBar1"></span></i><b id="duelLife1">5</b></div></div>
       <button id="duelPause" class="duel-pause" onclick="toggleGuardianDuelPause()" aria-label="Pausa">Ⅱ</button>
       <div id="duelPace" class="duel-pace"><small>RITMO</small><b>NORMAL</b></div>
       <div id="duelBonusHud" class="duel-bonus-hud"><span>💫 Busca bonus</span></div>
       <canvas id="guardianDuelCanvas" width="${DUEL_W}" height="${DUEL_H}" aria-label="Arena para dos jugadores"></canvas>
       <div id="duelOverlay" class="duel-overlay"></div>
     </section>
-    <footer class="duel-footer"><span>Avatar · disparo horizontal</span><b>Bonus temporales · 5 impactos por ronda</b><span>Monstruo · disparo dirigido</span></footer>
+    <footer class="duel-footer"><span>Avatar · apunta al monstruo</span><b>Satélites acumulables · láser horizontal</b><span>Monstruo · disparo recto</span></footer>
   </main>`;
 
   const canvas=document.getElementById('guardianDuelCanvas');
@@ -257,13 +258,16 @@ function duelUpdate(dt){
     fighter.fireTimer-=dt;
   }
 
-  for(const type of DUEL_BONUS_TYPES)p1.bonuses[type.id]=Math.max(0,p1.bonuses[type.id]-dt);
+  for(const type of DUEL_BONUS_TYPES){if(type.id!=='satellite')p1.bonuses[type.id]=Math.max(0,p1.bonuses[type.id]-dt);}
   p1.satelliteAngle=(p1.satelliteAngle+dt*2.6)%(Math.PI*2);
-  p1.satelliteFire-=dt;
-  if(p1.bonuses.satellite>0&&p1.satelliteFire<=0){
-    duelFireSatellite();
-    p1.satelliteFire=.54;
+  for(let index=0;index<p1.satellites.length;index++){
+    const satellite=p1.satellites[index];satellite.life-=dt;satellite.fireTimer-=dt;
+    if(satellite.life>0&&satellite.fireTimer<=0){duelFireSatellite(satellite,index);satellite.fireTimer=.68+Math.random()*.12;}
   }
+  p1.satellites=p1.satellites.filter(satellite=>satellite.life>0);
+  p1.bonuses.satellite=p1.satellites.reduce((remaining,satellite)=>Math.max(remaining,satellite.life),0);
+  p1.laserFire-=dt;
+  if(p1.bonuses.laser>0&&p1.laserFire<=0){duelFireLaser();p1.laserFire=.34;}
 
   for(const owner of [0,1]){
     const fighter=game.fighters[owner];
@@ -290,6 +294,11 @@ function duelUpdate(dt){
 
   for(const bullet of game.bullets){
     bullet.x+=bullet.vx*dt;bullet.y+=bullet.vy*dt;bullet.life-=dt;
+    if(bullet.bounce){
+      const top=18+bullet.r,bottom=DUEL_H-18-bullet.r;
+      if(bullet.y<top&&bullet.vy<0){bullet.y=top;bullet.vy*=-1;window.GameSound?.play('bounce');}
+      if(bullet.y>bottom&&bullet.vy>0){bullet.y=bottom;bullet.vy*=-1;window.GameSound?.play('bounce');}
+    }
     const targetId=bullet.owner===0?1:0,target=game.fighters[targetId];
     if(bullet.life>0&&target.invulnerable<=0&&Math.hypot(bullet.x-target.x,bullet.y-target.y)<DUEL_PLAYER_RADIUS+bullet.r){
       bullet.life=0;
@@ -312,28 +321,33 @@ function duelFire(owner){
   const game=guardianDuel,shooter=game.fighters[owner],direction=owner===0?1:-1;
   const x=shooter.x+direction*40,y=shooter.y-1;
   if(owner===0){
-    const powered=shooter.bonuses.power>0;
-    game.bullets.push({x,y,vx:480,vy:0,owner,life:3.2,r:powered?12:8,damage:powered?40:DUEL_HIT_DAMAGE,kind:powered?'power':'avatar'});
+    const powered=shooter.bonuses.power>0,target=game.fighters[1],dx=target.x-x,dy=target.y-y,length=Math.max(1,Math.hypot(dx,dy)),speed=540;
+    game.bullets.push({x,y,vx:dx/length*speed,vy:dy/length*speed,owner,life:3.2,r:powered?12:8,damage:powered?40:DUEL_HIT_DAMAGE,kind:powered?'power':'avatar'});
     duelParticles(x,y,powered?'#ffb85c':'#75f5ff',powered?7:4);
     window.GameSound?.play('shoot','avatar');
     return;
   }
-  const target=game.fighters[0],dx=target.x-x,dy=target.y-y,length=Math.max(1,Math.hypot(dx,dy)),speed=390;
-  game.bullets.push({x,y,vx:dx/length*speed,vy:dy/length*speed,owner,life:3.2,r:9,damage:DUEL_HIT_DAMAGE,kind:'monster'});
+  game.bullets.push({x,y,vx:-420,vy:0,owner,life:3.2,r:9,damage:DUEL_HIT_DAMAGE,kind:'monster'});
   duelParticles(x,y,'#bd80ff',5);
   window.GameSound?.play('shoot','monster');
 }
 
-function duelSatellitePosition(){
-  const fighter=guardianDuel.fighters[0],radius=48;
-  return{x:fighter.x+Math.cos(fighter.satelliteAngle)*radius,y:fighter.y+Math.sin(fighter.satelliteAngle)*radius};
+function duelSatellitePosition(satellite){
+  const fighter=guardianDuel.fighters[0],radius=48+(satellite.ring||0)*15,angle=fighter.satelliteAngle+satellite.offset;
+  return{x:fighter.x+Math.cos(angle)*radius,y:fighter.y+Math.sin(angle)*radius};
 }
 
-function duelFireSatellite(){
-  const game=guardianDuel,point=duelSatellitePosition();
-  game.bullets.push({x:point.x+13,y:point.y,vx:510,vy:0,owner:0,life:2.8,r:5,damage:10,kind:'satellite'});
-  duelParticles(point.x+10,point.y,'#c69cff',3);
+function duelFireSatellite(satellite,index){
+  const game=guardianDuel,point=duelSatellitePosition(satellite),speeds=[380,455,530,605,680],vertical=[-175,-85,0,85,175],colors=['#9cf6ff','#8dc5ff','#c69cff','#ef9cff','#ff9fd3'];
+  for(let shot=0;shot<speeds.length;shot++)game.bullets.push({x:point.x+13,y:point.y+(shot-2)*3,vx:speeds[shot]+index*12,vy:vertical[shot],owner:0,life:3.4,r:4.5,damage:8,kind:'satellite',bounce:true,color:colors[shot]});
+  duelParticles(point.x+10,point.y,'#c69cff',7);
   window.GameSound?.play('shoot','satellite');
+}
+
+function duelFireLaser(){
+  const game=guardianDuel,shooter=game.fighters[0],x=shooter.x+42,y=shooter.y;
+  game.bullets.push({x,y,vx:1120,vy:0,owner:0,life:1.25,r:7,damage:DUEL_HIT_DAMAGE,kind:'laser'});
+  duelParticles(x,y,'#ff668a',8);window.GameSound?.play('shoot','laser');
 }
 
 function duelSpawnBonus(){
@@ -344,8 +358,14 @@ function duelSpawnBonus(){
 
 function duelCollectBonus(bonus){
   const fighter=guardianDuel.fighters[0];
-  fighter.bonuses[bonus.type.id]=bonus.type.duration;
-  if(bonus.type.id==='satellite')fighter.satelliteFire=.1;
+  if(bonus.type.id==='satellite'){
+    const serial=fighter.satelliteSerial++;
+    fighter.satellites.push({life:bonus.type.duration,fireTimer:.08+fighter.satellites.length*.06,offset:serial*2.399963,ring:serial%2});
+    fighter.bonuses.satellite=Math.max(fighter.bonuses.satellite,bonus.type.duration);
+  }else{
+    fighter.bonuses[bonus.type.id]=bonus.type.duration;
+    if(bonus.type.id==='laser')fighter.laserFire=.04;
+  }
   bonus.life=0;
   duelParticles(bonus.x,bonus.y,bonus.type.color,20);
   window.GameSound?.play('bonus');
@@ -356,10 +376,10 @@ function duelUpdateBonusHud(){
   const game=guardianDuel,element=document.getElementById('duelBonusHud');
   if(!game||!element)return;
   const active=DUEL_BONUS_TYPES.filter(type=>game.fighters[0].bonuses[type.id]>0);
-  const key=active.map(type=>type.id+Math.ceil(game.fighters[0].bonuses[type.id])).join('|');
+  const satellites=game.fighters[0].satellites.length,key=active.map(type=>type.id+Math.ceil(game.fighters[0].bonuses[type.id])+(type.id==='satellite'?`x${satellites}`:'')).join('|');
   if(key===game.bonusHudKey)return;
   game.bonusHudKey=key;
-  element.innerHTML=active.length?active.map(type=>`<span style="--bonus-color:${type.color}">${type.icon} ${type.label} <b>${Math.ceil(game.fighters[0].bonuses[type.id])}s</b></span>`).join(''):'<span>💫 Busca bonus</span>';
+  element.innerHTML=active.length?active.map(type=>`<span style="--bonus-color:${type.color}">${type.icon} ${type.label}${type.id==='satellite'&&satellites>1?` ×${satellites}`:''} <b>${Math.ceil(game.fighters[0].bonuses[type.id])}s</b></span>`).join(''):'<span>💫 Busca bonus</span>';
 }
 
 function duelParticles(x,y,color,amount){
@@ -410,7 +430,7 @@ function duelDraw(time){
   duelDrawArena(ctx,time);
   game.bonuses.forEach(bonus=>duelDrawBonus(ctx,bonus,time));
   game.bullets.forEach(bullet=>duelDrawBullet(ctx,bullet));
-  if(game.fighters[0].bonuses.satellite>0)duelDrawSatellite(ctx,duelSatellitePosition(),time);
+  game.fighters[0].satellites.forEach(satellite=>duelDrawSatellite(ctx,duelSatellitePosition(satellite),time));
   duelDrawFighter(ctx,game.fighters[0],0,time);
   duelDrawFighter(ctx,game.fighters[1],1,time);
   for(const particle of game.particles){ctx.globalAlpha=Math.max(0,particle.life/particle.maxLife);ctx.fillStyle=particle.color;ctx.beginPath();ctx.arc(particle.x,particle.y,particle.r,0,Math.PI*2);ctx.fill();}
@@ -476,7 +496,11 @@ function duelDrawSatellite(ctx,point,time){
 }
 
 function duelDrawBullet(ctx,bullet){
-  const colors={avatar:'#70f5ff',power:'#ffb85c',satellite:'#c69cff',monster:'#a86cff'},color=colors[bullet.kind]||(bullet.owner===0?'#70f5ff':'#a86cff'),glow=ctx.createRadialGradient(bullet.x,bullet.y,1,bullet.x,bullet.y,bullet.r*3);
+  const colors={avatar:'#70f5ff',power:'#ffb85c',satellite:'#c69cff',monster:'#a86cff',laser:'#ff668a'},color=bullet.color||colors[bullet.kind]||(bullet.owner===0?'#70f5ff':'#a86cff');
+  if(bullet.kind==='laser'){
+    ctx.save();ctx.lineCap='round';ctx.shadowColor=color;ctx.shadowBlur=18;ctx.strokeStyle=color;ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(bullet.x-105,bullet.y);ctx.lineTo(bullet.x+12,bullet.y);ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bullet.x-92,bullet.y);ctx.lineTo(bullet.x+14,bullet.y);ctx.stroke();ctx.restore();return;
+  }
+  const glow=ctx.createRadialGradient(bullet.x,bullet.y,1,bullet.x,bullet.y,bullet.r*3);
   glow.addColorStop(0,'#fff');glow.addColorStop(.28,color);glow.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(bullet.x,bullet.y,bullet.r*3,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle=color;ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(bullet.x-bullet.vx*.04,bullet.y-bullet.vy*.04);ctx.lineTo(bullet.x,bullet.y);ctx.stroke();
 }
