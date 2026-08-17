@@ -1,5 +1,6 @@
 ## V3.4.2 — 2026-08-17
 
+- El cargador permite forzar la versión desde `?v=...` y consulta `version.json` con una clave anticaché, para evitar que GitHub Pages mezcle archivos de una publicación anterior.
 - El monstruo dispara ahora en línea recta horizontal y el avatar dirige sus disparos hacia la posición del monstruo.
 - Aumentada la cadencia base y máxima de disparo del avatar.
 - Los bonus de **Satélite** son acumulables: cada bonus recogido añade un nuevo satélite visible con duración y disparo propios.

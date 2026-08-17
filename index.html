@@ -11,10 +11,15 @@
   <main id="app"></main>
   <script>
   (async()=>{
-    let version='actual';
+    const requestedVersion=new URLSearchParams(window.location.search).get('v');
+    let version=requestedVersion||'actual';
     try{
-      const response=await fetch('version.json',{cache:'no-store'});
-      if(response.ok){const info=await response.json(); if(info&&info.version)version=info.version;}
+      const cacheKey=requestedVersion||Date.now().toString();
+      const response=await fetch('version.json?v='+encodeURIComponent(cacheKey),{cache:'no-store'});
+      if(response.ok){
+        const info=await response.json();
+        if(info&&info.version&&!requestedVersion)version=info.version;
+      }
     }catch(e){}
     window.APP_VERSION=version;
     const styles=['css/app.css','css/avatar.css','css/duel.css','css/planet.css','css/differences.css','css/pedagogy.css'];
