@@ -1,3 +1,11 @@
+## V3.4.1 — 2026-08-17
+
+- La primera misión pedagógica introduce ahora las decenas mediante seis explicaciones breves y consecutivas antes de comenzar los ejercicios.
+- Nuevas animaciones muestran las unidades del 1 al 9, la llegada de la décima unidad, la formación de una decena y la construcción progresiva de 11, 12, 13 y 14.
+- La explicación hablada es más extensa, utiliza frases cortas y pausas adecuadas para un niño de 6 años y puede repetirse en cada pantalla.
+- La aplicación selecciona automáticamente la voz española de mayor calidad disponible en el dispositivo, priorizando voces naturales, mejoradas o prémium y evitando voces básicas cuando hay alternativa.
+- Se mantiene una alternativa sin movimiento para dispositivos configurados para reducir animaciones.
+
 ## V3.4.0 — 2026-08-17
 
 - Nueva actividad **Encuentra las diferencias** con **50 escenas numeradas**, sin tratarlas como niveles.
