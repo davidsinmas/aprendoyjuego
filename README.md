@@ -20,6 +20,12 @@ Las actividades educativas tienen progresión por niveles, recompensas y registr
 
 Encuentra las diferencias mantiene la misma dificultad intermedia en sus 50 escenas. Al terminar una se abre la siguiente y el navegador guarda automáticamente la escena alcanzada.
 
+## Unidades pedagógicas
+
+La sección **Unidades pedagógicas** enseña conceptos nuevos mediante explicaciones breves, apoyos visuales, narración y práctica guiada antes de pasar a los juegos.
+
+La primera unidad, **La misión del puente del 10**, está pensada para niños de 6 años e introduce las restas con números mayores de 10 en cinco misiones: reconocer decenas y unidades, llegar a 10, dividir la resta en dos saltos, resolver pequeñas historias y superar un reto final. Cada misión se completa con al menos el 50 % de aciertos y el avance queda guardado automáticamente en el navegador.
+
 ## Retos diarios
 
 Cada día aparecen 5 retos cortos y diferentes. La selección combina actividades de números, palabras, sonidos y sílabas para que el conjunto sea más variado. La dificultad se adapta al progreso de cada actividad y completar un reto diario no desbloquea ni marca como hecho un nivel normal.
@@ -52,7 +58,7 @@ El progreso se conserva en dos copias dentro del navegador. Desde el Modo Padres
 
 La primera vez que se abre el Modo Padres se solicita crear un PIN de 4 a 6 cifras. Su huella se guarda solamente en ese navegador y puede cambiarse desde la propia Zona de padres; no forma parte del código público ni del archivo de progreso.
 
-El Modo Padres también permite activar o desactivar las restas con números mayores de 10. La opción está desactivada inicialmente, por lo que las restas se limitan a números hasta 10 hasta que un adulto la habilite.
+El Modo Padres también permite activar o desactivar las restas con números mayores de 10. La opción está desactivada inicialmente, por lo que las restas se limitan a números hasta 10 hasta que un adulto la habilite. Completar la unidad pedagógica no cambia este ajuste automáticamente.
 
 ## Avatar y tienda
 
