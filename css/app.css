@@ -23,3 +23,123 @@
 @media(max-width:900px){.reading-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.reading-grid{grid-template-columns:1fr 1fr}.listen-card{padding:14px}.listen-button{width:64px;height:64px;font-size:1.8rem}.syllable-slot{min-width:78px;min-height:62px}.syllable-token{min-width:84px;min-height:60px}.rhyme-options{grid-template-columns:1fr}.rhyme-choice{min-height:92px;flex-direction:row}.rhyme-choice>span{font-size:2.6rem}.rhyme-hear{width:60px}}
 @media(max-width:390px){.reading-grid{grid-template-columns:1fr 1fr}.syllable-slots,.syllable-bank{gap:7px}.syllable-slot,.syllable-token{min-width:72px;padding-left:10px;padding-right:10px}}
+
+/* V3.4.3 · Fondo futurista con profundidad, ligero y sin imágenes externas */
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 50% -12%,rgba(80,220,255,.42),transparent 34%),
+    radial-gradient(circle at 9% 38%,rgba(134,103,255,.28),transparent 28%),
+    radial-gradient(circle at 92% 72%,rgba(36,214,198,.22),transparent 30%),
+    linear-gradient(180deg,#07142d 0%,#102d52 50%,#101b36 100%);
+  background-attachment:fixed;
+}
+body::before,body::after{content:"";position:fixed;inset:0;pointer-events:none}
+body::before{
+  z-index:0;
+  opacity:.72;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),
+    radial-gradient(circle,rgba(117,239,255,.82) 0 1.3px,transparent 1.9px),
+    radial-gradient(circle,rgba(202,180,255,.7) 0 1px,transparent 1.7px);
+  background-position:18px 34px,92px 116px,34px 202px;
+  background-size:150px 150px,230px 230px,320px 320px;
+  animation:futuristic-drift 38s linear infinite;
+}
+body::after{
+  z-index:0;
+  inset:auto -24vw -33vh;
+  height:78vh;
+  opacity:.32;
+  background-image:
+    linear-gradient(rgba(92,231,255,.5) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(92,231,255,.42) 1px,transparent 1px);
+  background-size:54px 38px;
+  transform:perspective(480px) rotateX(64deg);
+  transform-origin:50% 100%;
+  -webkit-mask-image:linear-gradient(transparent 4%,#000 72%);
+  mask-image:linear-gradient(transparent 4%,#000 72%);
+}
+@keyframes futuristic-drift{to{transform:translate3d(-34px,28px,0)}}
+#app{position:relative;z-index:1;min-height:100vh}.wrap{position:relative;z-index:1}
+.card{
+  position:relative;
+  z-index:0;
+  isolation:isolate;
+  background:linear-gradient(145deg,rgba(255,253,248,.97),rgba(235,248,255,.94));
+  border-color:rgba(150,224,239,.72);
+  box-shadow:0 26px 70px rgba(1,9,31,.42),inset 0 1px 0 rgba(255,255,255,.94),0 0 0 1px rgba(96,223,255,.08);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.card::before{
+  content:"";
+  position:absolute;
+  z-index:-2;
+  inset:0;
+  border-radius:28px;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 12% 8%,rgba(70,224,255,.2),transparent 31%),
+    radial-gradient(ellipse at 88% 20%,rgba(154,116,255,.15),transparent 28%),
+    radial-gradient(ellipse at 50% 112%,rgba(53,207,194,.2),transparent 43%);
+}
+.card::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-20%;
+  bottom:-29%;
+  width:140%;
+  height:58%;
+  border-radius:28px;
+  pointer-events:none;
+  opacity:.2;
+  background-image:
+    linear-gradient(rgba(39,158,186,.52) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(39,158,186,.44) 1px,transparent 1px);
+  background-size:44px 28px;
+  transform:perspective(420px) rotateX(62deg);
+  transform-origin:50% 100%;
+  -webkit-mask-image:linear-gradient(transparent,#000 78%);
+  mask-image:linear-gradient(transparent,#000 78%);
+}
+.game-card{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  border-color:rgba(91,142,159,.35);
+  box-shadow:0 8px 0 rgba(39,75,91,.2),0 17px 28px rgba(8,27,54,.17),inset 0 1px rgba(255,255,255,.85);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.game-card::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:-45% -20% auto;
+  height:82%;
+  pointer-events:none;
+  background:radial-gradient(ellipse,rgba(255,255,255,.82),transparent 68%);
+  transform:rotate(-9deg);
+}
+.game-card>*{position:relative;z-index:1}.game-icon{filter:drop-shadow(0 7px 8px rgba(25,55,75,.2))}
+@media(hover:hover){.game-card:hover{transform:translateY(-4px);box-shadow:0 11px 0 rgba(39,75,91,.18),0 23px 34px rgba(8,27,54,.23),0 0 22px rgba(80,222,255,.18)}}
+.card>.question{
+  margin:14px 0 18px;
+  padding:12px;
+  border:1px solid rgba(93,178,198,.32);
+  border-radius:26px;
+  background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(225,247,250,.62));
+  box-shadow:inset 0 1px rgba(255,255,255,.92),0 15px 28px rgba(21,64,83,.12);
+  text-shadow:0 4px 12px rgba(42,103,126,.14);
+}
+.answer{box-shadow:0 7px 0 #bca35f,0 15px 24px rgba(38,72,85,.15)}
+.answer.correct{box-shadow:0 7px 0 #688b72,0 15px 24px rgba(52,105,74,.15)}
+.answer.wrong{box-shadow:0 7px 0 #b67c7c,0 15px 24px rgba(123,62,62,.13)}
+.levels .row,.listen-card,.rhyme-prompt,.differences-board figure{
+  box-shadow:0 12px 24px rgba(27,68,86,.11),inset 0 1px rgba(255,255,255,.82);
+}
+.word-cell,.syllable-token,.rhyme-choice,.compare-number{filter:drop-shadow(0 8px 8px rgba(32,65,80,.11))}
+@media(max-width:480px){body::after{inset:auto -70vw -36vh;background-size:42px 34px}.card{box-shadow:0 18px 42px rgba(1,9,31,.34)}.card::after{opacity:.14}.card>.question{border-radius:21px}}
+@media(prefers-reduced-motion:reduce){body::before{animation:none}.game-card{transition:none}}
