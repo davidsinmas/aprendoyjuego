@@ -1,3 +1,10 @@
+## V3.4.3 — 2026-08-18
+
+- Nuevo fondo futurista común con cielo profundo, estrellas y rejilla en perspectiva, construido íntegramente con CSS.
+- Los paneles mantienen un acabado claro y translúcido para que números, palabras y botones continúen siendo fáciles de leer a los 6 años.
+- Tarjetas, preguntas y respuestas incorporan sombras suaves y capas luminosas que refuerzan la sensación de profundidad sin añadir imágenes pesadas.
+- El movimiento ambiental es lento y se desactiva automáticamente cuando el dispositivo tiene activada la reducción de movimiento.
+
 ## V3.4.2 — 2026-08-17
 
 - El cargador permite forzar la versión desde `?v=...` y consulta `version.json` con una clave anticaché, para evitar que GitHub Pages mezcle archivos de una publicación anterior.
