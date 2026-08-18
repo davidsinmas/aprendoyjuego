@@ -1,8 +1,9 @@
-/* V3.5.0 · Selección pedagógica adaptativa de retos diarios */
+/* V3.5.1 · Selección pedagógica adaptativa de siete retos diarios */
 (function(){
   'use strict';
 
-  const ADAPTIVE_VERSION=1;
+  const ADAPTIVE_VERSION=2;
+  const TARGET_DAILY_COUNT=7;
   const RECENT_LIMIT=80;
   const RECENT_SKILL_WINDOW=6;
   const DAILY_HISTORY_LIMIT=14;
@@ -95,8 +96,11 @@
       if(candidates[0])chosen.push(candidates[0]);
     }
     const remaining=DAILY_TYPES.filter(type=>!chosen.includes(type)).sort((a,b)=>skillPriority(b,date)-skillPriority(a,date));
-    if(remaining[0])chosen.push(remaining[0]);
-    return chosen.slice(0,DAILY_COUNT);
+    for(const type of remaining){
+      if(chosen.length>=TARGET_DAILY_COUNT)break;
+      chosen.push(type);
+    }
+    return chosen.slice(0,TARGET_DAILY_COUNT);
   };
 
   function levelEvidence(level){
@@ -151,17 +155,57 @@
     save(D);
   }
 
-  const baseEnsureDaily=ensureDaily;
+  function syncDailySelection(date,types){
+    const profile=ensureLearningProfile();
+    const clean=[...new Set(types.filter(type=>DAILY_TYPES.includes(type)))].slice(0,TARGET_DAILY_COUNT);
+    const index=profile.dailySelections.findIndex(entry=>entry.date===date);
+    if(index>=0)profile.dailySelections[index]={date,types:clean};
+    else profile.dailySelections.push({date,types:clean});
+    profile.dailySelections=profile.dailySelections.slice(-DAILY_HISTORY_LIMIT);
+  }
+
   ensureDaily=function(){
-    baseEnsureDaily();
-    const profile=ensureLearningProfile(),date=D.retosDiarios&&D.retosDiarios.fecha;
-    const types=Array.isArray(D.retosDiarios&&D.retosDiarios.retos)?D.retosDiarios.retos.map(reto=>reto.type).filter(type=>DAILY_TYPES.includes(type)):[];
-    if(date&&types.length===DAILY_COUNT&&!profile.dailySelections.some(entry=>entry.date===date)){
-      profile.dailySelections.push({date,types:[...types]});
-      profile.dailySelections=profile.dailySelections.slice(-DAILY_HISTORY_LIMIT);
-      save(D);
+    const date=today(),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
+    if(!sameDay){
+      D.retosDiarios={fecha:date,retos:dailyTypesForDate(date).map(type=>({type,done:false})),premio:false};
+      D.actionAccess={date,available:false,consumed:false};
+    }else if(D.retosDiarios.retos.length!==TARGET_DAILY_COUNT){
+      const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
+      for(const type of dailyTypesForDate(date)){if(types.length>=TARGET_DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
+      for(const type of DAILY_TYPES){if(types.length>=TARGET_DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
+      const completed=new Set(previous.filter(reto=>reto.done).map(reto=>reto.type)),rewarded=!!D.retosDiarios.premio;
+      D.retosDiarios.retos=types.slice(0,TARGET_DAILY_COUNT).map(type=>({type,done:rewarded||completed.has(type)}));
     }
+    ensureActionAccess();
+    if(D.retosDiarios.premio&&!D.actionAccess.available&&!D.actionAccess.consumed)unlockActionGames('daily');
+    syncDailySelection(date,D.retosDiarios.retos.map(reto=>reto.type));
+    save(D);
   };
+
+  dailyHTML=function(){
+    ensureDaily();
+    const r=D.retosDiarios,done=r.retos.filter(x=>x.done).length;
+    const row=challenge=>{
+      const info=DAILY_INFO[challenge.type]||{icon:'🎯',label:challenge.type,time:'2 min'},ok=challenge.done;
+      return `<button class="daily-row ${ok?'done locked':''}" ${ok?'disabled aria-disabled="true"':`onclick="startDaily('${challenge.type}')"`}><span>${ok?'🔒 ✅':info.icon} ${info.label}</span><small>${ok?'Completado':info.time}</small></button>`;
+    };
+    return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/${TARGET_DAILY_COUNT}</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':`🎁 Completa los ${TARGET_DAILY_COUNT}: +10 💎 y +10 XP`}</div></div>`;
+  };
+
+  guardianDuelCard=function(){
+    const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
+    const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${TARGET_DAILY_COUNT} retos de hoy para desbloquear una partida`;
+    return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
+  };
+
+  planetDefenseCard=function(){
+    const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
+    const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${TARGET_DAILY_COUNT} retos de hoy para desbloquear una partida`;
+    return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="openPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
+  };
+
+  const dailyAchievement=ACHIEVEMENTS.find(item=>item.id==='daily_complete');
+  if(dailyAchievement)dailyAchievement.desc='Completa los siete retos diarios';
 
   const baseFinishDailyActivity=finishDailyActivity;
   finishDailyActivity=function(type,title){
@@ -199,13 +243,8 @@
     return baseFinishSoup();
   };
 
-  const profile=ensureLearningProfile(),date=today();
-  const current=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos)?D.retosDiarios.retos:[];
-  const hasProgress=current.some(reto=>reto.done)||!!(D.retosDiarios&&D.retosDiarios.premio);
-  const alreadyRegistered=profile.dailySelections.some(entry=>entry.date===date);
-  if(current.length===DAILY_COUNT&&!hasProgress&&!alreadyRegistered)D.retosDiarios.fecha='';
   ensureDaily();
   home();
 
-  window.AdaptiveDaily={version:ADAPTIVE_VERSION,skillPriority,dailyLevel};
+  window.AdaptiveDaily={version:ADAPTIVE_VERSION,targetDailyCount:TARGET_DAILY_COUNT,skillPriority,dailyLevel};
 })();
