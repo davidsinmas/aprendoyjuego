@@ -28,13 +28,13 @@ La primera unidad, **La misión del puente del 10**, está pensada para niños d
 
 ## Retos diarios
 
-Cada día aparecen 5 retos cortos y diferentes. La selección combina actividades de números, palabras, sonidos y sílabas para que el conjunto sea más variado. La dificultad se adapta al progreso de cada actividad y completar un reto diario no desbloquea ni marca como hecho un nivel normal.
+Cada día aparecen 7 retos cortos y diferentes. La selección adaptativa mantiene variedad entre números, palabras, sonidos y sílabas, pero da más prioridad a las habilidades con más errores recientes y a las que llevan más tiempo sin practicarse. La dificultad se ajusta al dominio real de cada actividad y completar un reto diario no desbloquea ni marca como hecho un nivel normal.
 
 ## Duelo de Guardianes
 
 Juego de acción para dos jugadores en el mismo dispositivo: uno controla el avatar y el otro un monstruo de aspecto propio. El avatar dirige automáticamente sus disparos hacia la posición del monstruo, mientras que el monstruo dispara en línea recta horizontal. En la mitad del avatar aparecen mejoras temporales que debe recoger antes de que salgan de la pantalla: disparos más potentes, mayor cadencia, satélites y láser. Los satélites son acumulables, orbitan simultáneamente y disparan ráfagas de proyectiles con diferentes velocidades que rebotan arriba y abajo. El láser añade disparos horizontales muy rápidos. El ritmo general aumenta si nadie recibe impactos y vuelve al ritmo normal cuando alguien es alcanzado. Al comenzar una ronda y después de recibir un disparo, cada personaje parpadea y permanece inmune durante 2 segundos. Cada ronda requiere 5 impactos y la partida completa la gana quien consigue primero 3 rondas, al mejor de 5.
 
-Al completar los 5 retos diarios se desbloquea una sola partida de acción. Al terminarla, los juegos vuelven a bloquearse. El Modo Padres permite probar el duelo sin consumir la recompensa diaria.
+Al completar los 7 retos diarios se desbloquea una sola partida de acción. Al terminarla, los juegos vuelven a bloquearse. El Modo Padres permite probar el duelo sin consumir la recompensa diaria.
 
 ## Defensa del planeta
 
