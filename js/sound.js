@@ -23,8 +23,16 @@
   function play(name,variant=0){
     switch(name){
       case 'correct':
-        tone(430,610,.14,.022,'sine');tone(610,760,.11,.016,'sine',.08);break;
-      case 'wrong':tone(230,185,.18,.014,'triangle');break;
+        /* Campanilla ascendente clara: DO5 · MI5 · SOL5 */
+        tone(523,523,.11,.024,'sine');
+        tone(659,659,.12,.021,'sine',.075);
+        tone(784,784,.16,.019,'sine',.15);
+        break;
+      case 'wrong':
+        /* Doble tono grave descendente, reconocible pero no estridente */
+        tone(220,165,.15,.019,'triangle');
+        tone(165,120,.19,.016,'triangle',.12);
+        break;
       case 'shoot':{
         const stamp=nowMs();if(stamp-lastShot<55)return;lastShot=stamp;
         if(variant==='monster')tone(145,105,.065,.006,'triangle');
