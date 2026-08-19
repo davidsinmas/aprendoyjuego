@@ -1,0 +1,138 @@
+/* V3.5.3 · Más detalle visual y dificultad suave en Encuentra las diferencias */
+(()=>{
+  'use strict';
+  if(typeof differenceScene!=='function')return;
+
+  const baseDifferenceScene=differenceScene;
+
+  function commonDepth(theme){
+    const horizon=theme===1?260:theme===3?250:theme===9?244:230;
+    return `<g class="difference-polish-depth" pointer-events="none" opacity=".9">
+      <path d="M0 ${horizon} Q90 ${horizon-15} 180 ${horizon+2} T360 ${horizon-3} T520 ${horizon+5}" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3"/>
+      <path d="M12 343 Q125 330 244 345 T494 338" fill="none" stroke="rgba(20,45,55,.10)" stroke-width="5" stroke-linecap="round"/>
+    </g>`;
+  }
+
+  function valleyDetails(v){
+    return `<g pointer-events="none">
+      <g stroke="#4f8550" stroke-width="2" stroke-linecap="round" opacity=".8"><path d="M18 329l5-13 4 13M35 337l4-15 5 15M184 344l6-17 5 17M468 338l4-14 5 14"/></g>
+      <g fill="#fff3b0" stroke="#d7a84a" stroke-width="1"><circle cx="31" cy="301" r="3"/><circle cx="180" cy="326" r="3"/><circle cx="466" cy="306" r="3"/></g>
+      <g stroke="#8a6549" stroke-width="3" opacity=".75"><path d="M350 302v34M375 299v36M337 314h52"/></g>
+      <g fill="#8a99a5" opacity=".45"><ellipse cx="151" cy="338" rx="11" ry="4"/><ellipse cx="401" cy="326" rx="9" ry="3"/></g>
+      <path d="M286 209h92M286 219h92" stroke="#c79e6a" stroke-width="2" opacity=".45"/>
+    </g>`;
+  }
+
+  function spaceDetails(v){
+    const shift=(v%3)*5;
+    return `<g pointer-events="none">
+      <g fill="#fff" opacity=".65"><circle cx="22" cy="44" r="1.5"/><circle cx="176" cy="76" r="1.2"/><circle cx="248" cy="141" r="1.4"/><circle cx="385" cy="142" r="1.2"/><circle cx="472" cy="151" r="1.5"/><circle cx="${130+shift}" cy="35" r="1"/></g>
+      <g fill="none" stroke="#8f96a4" stroke-width="2" opacity=".55"><ellipse cx="47" cy="310" rx="27" ry="9"/><ellipse cx="229" cy="288" rx="34" ry="11"/><ellipse cx="461" cy="320" rx="26" ry="8"/></g>
+      <g stroke="#677986" stroke-width="2" opacity=".7"><path d="M68 156h68M68 165h68M199 241h47M199 248h47"/></g>
+      <g fill="#55d7e8" opacity=".6"><circle cx="193" cy="269" r="2.5"/><circle cx="245" cy="269" r="2.5"/></g>
+      <path d="M403 285q14 8 29 0" fill="none" stroke="#9aa9b5" stroke-width="2" opacity=".8"/>
+    </g>`;
+  }
+
+  function farmDetails(){
+    return `<g pointer-events="none">
+      <g stroke="#54854b" stroke-width="2" stroke-linecap="round"><path d="M14 334l5-15 5 15M204 340l5-17 5 17M459 341l6-18 5 18M286 335l4-13 5 13"/></g>
+      <g fill="#eecb54"><circle cx="23" cy="309" r="3"/><circle cx="212" cy="321" r="3"/><circle cx="468" cy="314" r="3"/></g>
+      <g stroke="#774d37" stroke-width="2" opacity=".7"><path d="M281 151h151M281 164h151M286 114v65M312 114v65M403 114v65M429 114v65"/></g>
+      <g fill="#e8c36a" opacity=".9"><path d="M18 248h33l8 22H10z"/><path d="M197 273h28l7 19h-42z"/></g>
+      <g stroke="#f0d48a" stroke-width="2"><path d="M16 250l38 17M22 245l31 20M194 278l33 9"/></g>
+    </g>`;
+  }
+
+  function oceanDetails(v){
+    return `<g pointer-events="none">
+      <g fill="none" stroke="#d8f6ff" stroke-width="2" opacity=".65"><circle cx="39" cy="82" r="4"/><circle cx="51" cy="66" r="2.5"/><circle cx="214" cy="115" r="3"/><circle cx="450" cy="92" r="4"/><circle cx="462" cy="72" r="2"/></g>
+      <g stroke="#3c8d77" stroke-width="5" stroke-linecap="round" opacity=".75"><path d="M28 342q4-25 12-38M46 349q-3-28 8-46M432 350q4-29 18-44M455 350q-2-23 8-38"/></g>
+      <g fill="#e6b06b" opacity=".8"><ellipse cx="172" cy="335" rx="12" ry="5"/><ellipse cx="347" cy="326" rx="10" ry="4"/></g>
+      <path d="M100 302q22-11 45 0M274 337q20-10 39 0" fill="none" stroke="#8ecfd1" stroke-width="2" opacity=".8"/>
+    </g>`;
+  }
+
+  function castleDetails(){
+    return `<g pointer-events="none">
+      <g stroke="#8f877b" stroke-width="2" opacity=".45"><path d="M286 170h146M286 188h146M305 150v58M344 150v58M384 150v58M421 150v58"/></g>
+      <g fill="#6da05b"><ellipse cx="36" cy="327" rx="24" ry="8"/><ellipse cx="463" cy="329" rx="25" ry="8"/></g>
+      <g fill="#f3d66a" stroke="#bc9843" stroke-width="1"><circle cx="61" cy="307" r="3"/><circle cx="448" cy="305" r="3"/></g>
+      <g stroke="#6f583e" stroke-width="3" opacity=".75"><path d="M165 318v24M187 316v26M148 327h55"/></g>
+      <path d="M317 233h88" stroke="#e7d6b5" stroke-width="3" opacity=".5"/>
+    </g>`;
+  }
+
+  function jungleDetails(){
+    return `<g pointer-events="none">
+      <g fill="none" stroke="#3f7750" stroke-width="4" stroke-linecap="round"><path d="M10 17q30 25 20 65M487 12q-33 28-20 73M143 2q11 21 3 49"/></g>
+      <g fill="#5f9f5a" opacity=".8"><ellipse cx="24" cy="65" rx="13" ry="6" transform="rotate(-35 24 65)"/><ellipse cx="471" cy="61" rx="13" ry="6" transform="rotate(35 471 61)"/><ellipse cx="146" cy="45" rx="11" ry="5"/></g>
+      <g fill="#efcf5f"><circle cx="79" cy="324" r="3"/><circle cx="222" cy="338" r="3"/><circle cx="410" cy="326" r="3"/></g>
+      <g stroke="#30674a" stroke-width="2" opacity=".7"><path d="M60 345q5-23 16-32M72 346q-3-22 8-36M430 346q3-21 15-34"/></g>
+    </g>`;
+  }
+
+  function cityDetails(v){
+    return `<g pointer-events="none">
+      <g fill="#d6edf2" opacity=".75"><rect x="24" y="83" width="11" height="15" rx="1"/><rect x="42" y="83" width="11" height="15" rx="1"/><rect x="24" y="108" width="11" height="15" rx="1"/><rect x="42" y="108" width="11" height="15" rx="1"/><rect x="455" y="95" width="12" height="16" rx="1"/></g>
+      <g stroke="#f6df70" stroke-width="5" stroke-dasharray="22 18" opacity=".8"><path d="M0 315H500"/></g>
+      <g fill="#8497a3" opacity=".7"><rect x="92" y="264" width="4" height="31"/><rect x="388" y="261" width="4" height="34"/></g>
+      <g stroke="#6e7b83" stroke-width="2" opacity=".6"><path d="M106 276h26M367 275h19"/></g>
+      <circle cx="${270+(v%2)*8}" cy="70" r="3" fill="#f5e28a" opacity=".65"/>
+    </g>`;
+  }
+
+  function dinosaurDetails(){
+    return `<g pointer-events="none">
+      <g fill="#71855f" opacity=".7"><ellipse cx="31" cy="337" rx="16" ry="6"/><ellipse cx="182" cy="342" rx="13" ry="5"/><ellipse cx="453" cy="335" rx="18" ry="6"/></g>
+      <g stroke="#47714d" stroke-width="3" stroke-linecap="round"><path d="M46 345q2-25 15-40M58 345q-5-22 3-38M425 345q5-25 17-39"/></g>
+      <g fill="#5c7d54"><path d="M59 307l-13 7 12 5-11 8 19-3z"/><path d="M438 304l-12 8 12 4-9 9 17-5z"/></g>
+      <g fill="#9c8870" opacity=".75"><ellipse cx="246" cy="334" rx="14" ry="5"/><ellipse cx="353" cy="320" rx="9" ry="4"/></g>
+      <path d="M309 52q20 12 39 0" fill="none" stroke="#d8e3df" stroke-width="3" opacity=".55"/>
+    </g>`;
+  }
+
+  function pirateDetails(){
+    return `<g pointer-events="none">
+      <g fill="none" stroke="#e5f2f4" stroke-width="2" opacity=".6"><path d="M13 294q24-14 49 0t49 0M340 310q26-14 52 0t52 0"/></g>
+      <g stroke="#6f4a32" stroke-width="2" opacity=".8"><path d="M119 206q36 16 72 0M124 213q31 12 61 0"/></g>
+      <g fill="#d9b153" stroke="#a77f32" stroke-width="1"><circle cx="421" cy="324" r="5"/><circle cx="435" cy="329" r="4"/><circle cx="409" cy="332" r="4"/></g>
+      <g fill="#c4b093" opacity=".7"><ellipse cx="71" cy="334" rx="11" ry="4"/><ellipse cx="285" cy="342" rx="9" ry="3"/></g>
+      <path d="M221 158l12 13m-12 0 12-13" stroke="#f0e1c5" stroke-width="2" opacity=".8"/>
+    </g>`;
+  }
+
+  function winterDetails(v){
+    const dx=(v%2)*5;
+    return `<g pointer-events="none">
+      <g fill="#fff" opacity=".8"><circle cx="24" cy="52" r="2"/><circle cx="89" cy="79" r="2.5"/><circle cx="178" cy="48" r="2"/><circle cx="326" cy="73" r="2.5"/><circle cx="470" cy="51" r="2"/><circle cx="${243+dx}" cy="105" r="2"/></g>
+      <g stroke="#b5cad4" stroke-width="2" opacity=".7"><path d="M11 335q28-8 56 0M180 342q30-9 61 0M388 337q36-9 72 0"/></g>
+      <g fill="#8aa9b7" opacity=".6"><ellipse cx="69" cy="342" rx="12" ry="4"/><ellipse cx="298" cy="337" rx="10" ry="4"/></g>
+      <g stroke="#7e684f" stroke-width="3" opacity=".7"><path d="M398 307v33M421 306v34M387 319h45"/></g>
+      <path d="M401 93h44M404 102h38" stroke="#d7e6eb" stroke-width="2" opacity=".8"/>
+    </g>`;
+  }
+
+  const decorators=[valleyDetails,spaceDetails,farmDetails,oceanDetails,castleDetails,jungleDetails,cityDetails,dinosaurDetails,pirateDetails,winterDetails];
+
+  function decorationFor(sceneNumber){
+    const theme=(sceneNumber-1)%10,variant=Math.floor((sceneNumber-1)/10);
+    return commonDepth(theme)+(decorators[theme]?.(variant)||'');
+  }
+
+  differenceScene=function(side,sceneNumber){
+    let svg=baseDifferenceScene(side,sceneNumber);
+    const detail=decorationFor(sceneNumber);
+    svg=svg.replace('<g class="difference-targets">',`${detail}<g class="difference-targets">`);
+    return svg;
+  };
+
+  const style=document.createElement('style');
+  style.textContent=`
+    .difference-scene{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.025));}
+    .difference-scene .difference-polish-depth{mix-blend-mode:multiply;}
+    .differences-board figure{background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(228,244,248,.94));}
+    .differences-board figcaption{font-weight:800;letter-spacing:.02em;}
+  `;
+  document.head.appendChild(style);
+})();
