@@ -85,6 +85,7 @@
     const board=document.getElementById('differencesBoard');
     if(board){
       board.addEventListener('click',event=>{
+        if(!event.target.closest('.difference-scene'))return;
         if(event.target.closest('[data-diff]'))return;
         registerWrongClick(event);
       });
