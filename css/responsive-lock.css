@@ -1,26 +1,26 @@
-/* V3.5.5 · Encaje lateral estable sin bloquear el zoom */
-html{
+/* V3.5.6 · Encaje lateral opcional sin bloquear el zoom */
+html.aj-screen-fit{
   width:100%;
   max-width:100%;
   overflow-x:hidden;
   -webkit-text-size-adjust:100%;
 }
 
-body{
+html.aj-screen-fit body{
   width:100%;
   max-width:100%;
   overflow-x:hidden;
   overscroll-behavior-x:none;
 }
 
-#app{
+html.aj-screen-fit #app{
   width:100%;
   max-width:100%;
   min-width:0;
   overflow-x:hidden;
 }
 
-.wrap{
+html.aj-screen-fit .wrap{
   width:100%;
   max-width:960px;
   min-width:0;
@@ -28,69 +28,69 @@ body{
   margin-right:auto;
 }
 
-.card,
-.top,
-.home-head,
-.dashboard-grid,
-.game-grid,
-.parent-grid,
-.grid,
-.grid2,
-.answers,
-.levels,
-.row,
-.actions,
-.word-grid,
-.compare-numbers,
-.listen-card,
-.syllable-bank,
-.differences-board,
-.differences-board figure{
+html.aj-screen-fit .card,
+html.aj-screen-fit .top,
+html.aj-screen-fit .home-head,
+html.aj-screen-fit .dashboard-grid,
+html.aj-screen-fit .game-grid,
+html.aj-screen-fit .parent-grid,
+html.aj-screen-fit .grid,
+html.aj-screen-fit .grid2,
+html.aj-screen-fit .answers,
+html.aj-screen-fit .levels,
+html.aj-screen-fit .row,
+html.aj-screen-fit .actions,
+html.aj-screen-fit .word-grid,
+html.aj-screen-fit .compare-numbers,
+html.aj-screen-fit .listen-card,
+html.aj-screen-fit .syllable-bank,
+html.aj-screen-fit .differences-board,
+html.aj-screen-fit .differences-board figure{
   min-width:0;
   max-width:100%;
 }
 
-.card{
+html.aj-screen-fit .card{
   width:100%;
   overflow-wrap:anywhere;
 }
 
-img,
-svg,
-canvas,
-video{
+html.aj-screen-fit img,
+html.aj-screen-fit svg,
+html.aj-screen-fit canvas,
+html.aj-screen-fit video{
   max-width:100%;
 }
 
-img,
-video{
+html.aj-screen-fit img,
+html.aj-screen-fit video{
   height:auto;
 }
 
-canvas,
-.difference-scene{
+html.aj-screen-fit canvas,
+html.aj-screen-fit .difference-scene{
   display:block;
   width:100%;
 }
 
-.differences-board{
+html.aj-screen-fit .differences-board{
   width:100%;
   overflow:hidden;
 }
 
-.differences-board figure{
+html.aj-screen-fit .differences-board figure{
   width:100%;
 }
 
-button,
-input,
-select,
-textarea{
+html.aj-screen-fit button,
+html.aj-screen-fit input,
+html.aj-screen-fit select,
+html.aj-screen-fit textarea{
   max-width:100%;
 }
 
 @media(max-width:760px){
-  .wrap{
+  html.aj-screen-fit .wrap{
     width:100%;
     padding-left:max(10px,env(safe-area-inset-left));
     padding-right:max(10px,env(safe-area-inset-right));
