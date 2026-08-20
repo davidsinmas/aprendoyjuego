@@ -1,0 +1,43 @@
+/* V3.5.9 · Seguridad de scroll vertical */
+html,
+body{
+  overscroll-behavior-y:auto;
+}
+
+body{
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+html.aj-soup-fit,
+html.aj-soup-fit body{
+  height:auto !important;
+  min-height:100%;
+  max-height:none !important;
+  overflow-x:hidden;
+  overflow-y:auto !important;
+  touch-action:pan-y pinch-zoom;
+}
+
+html.aj-soup-fit #app{
+  height:auto !important;
+  min-height:var(--aj-exercise-vh,100dvh);
+  max-height:none !important;
+  overflow:visible !important;
+}
+
+html.aj-soup-fit .wrap,
+html.aj-soup-fit .card{
+  height:auto !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+
+html.aj-soup-fit .word-grid{
+  flex:0 0 auto;
+}
+
+html:not(.aj-soup-fit) body,
+html:not(.aj-soup-fit) #app{
+  overflow-y:visible;
+}
