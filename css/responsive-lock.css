@@ -1,0 +1,98 @@
+/* V3.5.5 · Encaje lateral estable sin bloquear el zoom */
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overscroll-behavior-x:none;
+}
+
+#app{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:hidden;
+}
+
+.wrap{
+  width:100%;
+  max-width:960px;
+  min-width:0;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.card,
+.top,
+.home-head,
+.dashboard-grid,
+.game-grid,
+.parent-grid,
+.grid,
+.grid2,
+.answers,
+.levels,
+.row,
+.actions,
+.word-grid,
+.compare-numbers,
+.listen-card,
+.syllable-bank,
+.differences-board,
+.differences-board figure{
+  min-width:0;
+  max-width:100%;
+}
+
+.card{
+  width:100%;
+  overflow-wrap:anywhere;
+}
+
+img,
+svg,
+canvas,
+video{
+  max-width:100%;
+}
+
+img,
+video{
+  height:auto;
+}
+
+canvas,
+.difference-scene{
+  display:block;
+  width:100%;
+}
+
+.differences-board{
+  width:100%;
+  overflow:hidden;
+}
+
+.differences-board figure{
+  width:100%;
+}
+
+button,
+input,
+select,
+textarea{
+  max-width:100%;
+}
+
+@media(max-width:760px){
+  .wrap{
+    width:100%;
+    padding-left:max(10px,env(safe-area-inset-left));
+    padding-right:max(10px,env(safe-area-inset-right));
+  }
+}
