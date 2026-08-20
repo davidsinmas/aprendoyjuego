@@ -1,11 +1,16 @@
-/* V3.5.8 · Estados visuales de niveles */
-.level-row.level-done .small.play{
-  background:#7c78c9;
-  color:#fff;
-  box-shadow:0 4px 0 #5d59a3;
+/* V3.5.9 · Estados visuales de niveles */
+.level-row.level-done button.small.play{
+  background:#d9773f !important;
+  color:#fff !important;
+  border:2px solid #b85c2d !important;
+  box-shadow:0 4px 0 #9f4d28 !important;
 }
 
-.level-row.level-done .small.play:active{
+.level-row.level-done button.small.play::before{
+  content:'↻ ';
+}
+
+.level-row.level-done button.small.play:active{
   transform:translateY(2px);
-  box-shadow:0 2px 0 #5d59a3;
+  box-shadow:0 2px 0 #9f4d28 !important;
 }
