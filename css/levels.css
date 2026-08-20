@@ -1,0 +1,11 @@
+/* V3.5.8 · Estados visuales de niveles */
+.level-row.level-done .small.play{
+  background:#7c78c9;
+  color:#fff;
+  box-shadow:0 4px 0 #5d59a3;
+}
+
+.level-row.level-done .small.play:active{
+  transform:translateY(2px);
+  box-shadow:0 2px 0 #5d59a3;
+}
