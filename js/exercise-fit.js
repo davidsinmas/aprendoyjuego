@@ -9,11 +9,9 @@
   let frame=0;
 
   function viewport(){
-    const vv=window.visualViewport;
     return{
-      width:Math.max(1,vv?.width||window.innerWidth||document.documentElement.clientWidth||1),
-      height:Math.max(1,vv?.height||window.innerHeight||document.documentElement.clientHeight||1),
-      top:Math.max(0,vv?.offsetTop||0)
+      width:Math.max(1,window.innerWidth||document.documentElement.clientWidth||1),
+      height:Math.max(1,window.innerHeight||document.documentElement.clientHeight||1)
     };
   }
 
@@ -44,11 +42,10 @@
     if(!card)return;
 
     const gridTop=grid.getBoundingClientRect().top;
-    const viewportBottom=view.top+view.height;
     const statusHeight=status?status.getBoundingClientRect().height:22;
     const cardStyle=getComputedStyle(card);
     const bottomPadding=parseFloat(cardStyle.paddingBottom)||0;
-    const availableHeight=Math.max(120,Math.floor(viewportBottom-gridTop-statusHeight-bottomPadding-6));
+    const availableHeight=Math.max(120,Math.floor(view.height-gridTop-statusHeight-bottomPadding-6));
     const availableWidth=Math.max(120,Math.floor(card.clientWidth));
     const size=Math.max(120,Math.min(580,availableWidth,availableHeight));
 
@@ -96,8 +93,6 @@
 
   window.addEventListener('resize',queueFit,{passive:true});
   window.addEventListener('orientationchange',()=>setTimeout(queueFit,60),{passive:true});
-  window.visualViewport?.addEventListener('resize',queueFit,{passive:true});
-  window.visualViewport?.addEventListener('scroll',queueFit,{passive:true});
 
   queueFit();
 })();
