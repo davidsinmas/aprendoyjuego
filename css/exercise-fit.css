@@ -1,0 +1,224 @@
+/* V3.5.7 · Pantallas de ejercicio adaptadas al viewport */
+
+html.aj-exercise-fit,
+html.aj-exercise-fit body,
+html.aj-exercise-fit #app{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+
+html.aj-exercise-fit .wrap{
+  width:100%;
+  max-width:960px;
+  min-width:0;
+  margin:0 auto;
+  padding-top:clamp(6px,1.8vh,18px);
+  padding-bottom:clamp(6px,1.8vh,18px);
+}
+
+html.aj-exercise-fit .card{
+  width:100%;
+  min-width:0;
+  padding:clamp(10px,2.2vh,22px);
+}
+
+html.aj-exercise-fit .top{
+  min-width:0;
+  margin-bottom:clamp(2px,1vh,10px);
+}
+
+html.aj-exercise-fit h2{
+  margin-top:clamp(6px,1.4vh,18px);
+  margin-bottom:clamp(6px,1.4vh,18px);
+}
+
+html.aj-exercise-fit .question{
+  min-height:clamp(74px,18vh,120px);
+  font-size:clamp(2.7rem,10vh,6rem);
+}
+
+html.aj-exercise-fit .answers{
+  gap:clamp(7px,1.5vh,12px);
+}
+
+html.aj-exercise-fit .answer{
+  min-height:clamp(62px,12vh,88px);
+  font-size:clamp(1.8rem,6.5vh,3.2rem);
+}
+
+html.aj-exercise-fit .msg,
+html.aj-exercise-fit .word-status{
+  margin-top:clamp(5px,1vh,14px);
+  min-height:24px;
+}
+
+html.aj-exercise-fit .compare-instruction{
+  margin:clamp(6px,1.5vh,20px) 0 clamp(5px,1vh,12px);
+}
+
+html.aj-exercise-fit .compare-numbers{
+  margin:clamp(8px,1.8vh,20px) auto 6px;
+}
+
+html.aj-exercise-fit .compare-number{
+  min-height:clamp(92px,24vh,170px);
+}
+
+html.aj-exercise-fit .listen-card{
+  margin:clamp(6px,1.5vh,18px) auto clamp(8px,1.8vh,22px);
+  padding:clamp(10px,1.8vh,18px);
+}
+
+html.aj-exercise-fit .reading-picture{
+  font-size:clamp(3.4rem,12vh,7rem);
+}
+
+html.aj-exercise-fit .listen-button{
+  width:clamp(58px,9vh,76px);
+  height:clamp(58px,9vh,76px);
+}
+
+html.aj-exercise-fit .syllable-slots{
+  margin:clamp(7px,1.5vh,18px) 0;
+  gap:clamp(6px,1vh,10px);
+}
+
+html.aj-exercise-fit .syllable-slot{
+  min-height:clamp(52px,9vh,72px);
+}
+
+html.aj-exercise-fit .syllable-bank{
+  margin:clamp(6px,1vh,12px) auto;
+  gap:clamp(6px,1vh,10px);
+}
+
+html.aj-exercise-fit .syllable-token{
+  min-height:clamp(50px,8vh,68px);
+  padding:clamp(8px,1.5vh,12px) clamp(12px,2vw,18px);
+}
+
+/* La sopa usa el espacio vertical real disponible, calculado desde JS. */
+html.aj-soup-fit,
+html.aj-soup-fit body{
+  width:100%;
+  max-width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+html.aj-soup-fit #app{
+  height:var(--aj-exercise-vh,100dvh);
+  max-height:var(--aj-exercise-vh,100dvh);
+  overflow:hidden;
+}
+
+html.aj-soup-fit .wrap{
+  height:100%;
+  max-height:100%;
+  padding:clamp(5px,1vh,10px);
+}
+
+html.aj-soup-fit .card{
+  height:100%;
+  max-height:100%;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:clamp(8px,1.5vh,14px);
+}
+
+html.aj-soup-fit .top{
+  flex:0 0 auto;
+  margin:0 0 clamp(2px,.7vh,6px);
+}
+
+html.aj-soup-fit .card>.muted{
+  flex:0 0 auto;
+  font-size:clamp(.78rem,2.7vw,.95rem);
+  line-height:1.15;
+  text-align:center;
+}
+
+html.aj-soup-fit .soup-targets{
+  flex:0 0 auto;
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(76px,1fr));
+  gap:clamp(2px,.55vh,5px);
+  margin:clamp(3px,.7vh,7px) 0;
+}
+
+html.aj-soup-fit .soup-target{
+  min-width:0;
+  padding:clamp(3px,.55vh,6px) clamp(4px,1vw,8px);
+  border-width:1px;
+  border-radius:9px;
+  font-size:clamp(.68rem,2.5vw,.88rem);
+  line-height:1.05;
+  justify-content:center;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+html.aj-soup-fit .soup-target span{
+  flex:0 0 auto;
+  font-size:clamp(.85rem,3vw,1.1rem);
+}
+
+html.aj-soup-fit .soup-target b{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+html.aj-soup-fit .word-hint{
+  flex:0 0 auto;
+  margin:0 0 clamp(2px,.5vh,5px);
+  font-size:clamp(.68rem,2.4vw,.88rem);
+  line-height:1.1;
+}
+
+html.aj-soup-fit .word-grid{
+  flex:0 0 auto;
+  width:var(--aj-soup-size, min(100%,580px));
+  height:var(--aj-soup-size, auto);
+  max-width:100%;
+  max-height:100%;
+  margin:0 auto;
+  gap:var(--aj-soup-gap,4px);
+}
+
+html.aj-soup-fit .word-cell{
+  min-width:0;
+  min-height:0;
+  width:100%;
+  height:100%;
+  padding:0;
+  border-radius:clamp(5px,1.2vw,10px);
+  font-size:var(--aj-soup-font,clamp(1rem,4vw,1.7rem));
+  line-height:1;
+}
+
+html.aj-soup-fit .word-status{
+  flex:0 0 auto;
+  min-height:clamp(18px,3vh,26px);
+  margin:clamp(2px,.5vh,5px) 0 0;
+  font-size:clamp(.72rem,2.5vw,.9rem);
+  line-height:1.1;
+}
+
+@media(max-height:700px){
+  html.aj-exercise-fit .diamond{padding:7px 10px;font-size:1rem}
+  html.aj-exercise-fit .back{padding:8px 11px}
+  html.aj-exercise-fit .word-exercise-icon{font-size:3rem;margin:6px 0 2px}
+}
+
+@media(max-height:610px){
+  html.aj-exercise-fit .wrap{padding-top:4px;padding-bottom:4px}
+  html.aj-exercise-fit .card{padding:8px}
+  html.aj-exercise-fit .question{min-height:62px}
+  html.aj-exercise-fit .listen-card{margin:4px auto 6px}
+  html.aj-soup-fit .soup-targets{grid-template-columns:repeat(auto-fit,minmax(68px,1fr))}
+  html.aj-soup-fit .word-hint{font-size:.66rem}
+}
