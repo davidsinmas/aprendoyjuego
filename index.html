@@ -22,14 +22,14 @@
       }
     }catch(e){}
     window.APP_VERSION=version;
-    const styles=['css/app.css','css/avatar.css','css/duel.css','css/planet.css','css/differences.css','css/pedagogy.css','css/responsive-lock.css'];
+    const styles=['css/app.css','css/avatar.css','css/duel.css','css/planet.css','css/differences.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css'];
     for(const href of styles){
       const link=document.createElement('link');
       link.rel='stylesheet';
       link.href=href+'?v='+encodeURIComponent(version);
       document.head.appendChild(link);
     }
-    const scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/duel.js','js/planet.js','js/pedagogy.js','js/app.js','js/screen-fit.js','js/math-tuning.js','js/sound.js','js/speech-fix.js','js/adaptive-daily.js','js/differences.js','js/differences-polish.js','js/differences-errors.js'];
+    const scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/duel.js','js/planet.js','js/pedagogy.js','js/app.js','js/screen-fit.js','js/exercise-fit.js','js/math-tuning.js','js/sound.js','js/speech-fix.js','js/adaptive-daily.js','js/differences.js','js/differences-polish.js','js/differences-errors.js'];
     for(const src of scripts){
       await new Promise((resolve,reject)=>{
         const script=document.createElement('script');
