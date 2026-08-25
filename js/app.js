@@ -5,7 +5,7 @@ const mix=a=>[...a].sort(()=>Math.random()-.5);
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const READING_TYPES=new Set(['sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas']);
 const DAILY_TYPES=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
-const DAILY_COUNT=5;
+const DAILY_COUNT=7;
 const DAILY_GROUPS=[
   ['suma','resta','comparar'],
   ['palabras','sopa'],
@@ -24,14 +24,48 @@ const DAILY_INFO={
   ordenarSilabas:{icon:'🔀',label:'5 palabras para ordenar',time:'3 min'},
   rimas:{icon:'🎵',label:'5 rimas',time:'3 min'}
 };
+const GAME_CONTROLS=[
+  {type:'suma',icon:'＋',label:'Sumas'},
+  {type:'resta',icon:'−',label:'Restas'},
+  {type:'comparar',icon:'↕',label:'Mayor o menor'},
+  {type:'palabras',icon:'Aa',label:'Palabras'},
+  {type:'sopa',icon:'▦',label:'Sopa de letras'},
+  {type:'sonidoInicial',icon:'🔊',label:'Sonido inicial'},
+  {type:'sonidoFinal',icon:'👂',label:'Sonido final'},
+  {type:'construir',icon:'🧩',label:'Construye la palabra'},
+  {type:'ordenarSilabas',icon:'🔀',label:'Ordena sílabas'},
+  {type:'rimas',icon:'🎵',label:'Rimas'}
+];
+function ensureGameSettings(){
+  D.ajustes=D.ajustes&&typeof D.ajustes==='object'?D.ajustes:{};
+  const current=D.ajustes.juegosActivos&&typeof D.ajustes.juegosActivos==='object'?D.ajustes.juegosActivos:{};
+  for(const game of GAME_CONTROLS)if(typeof current[game.type]!=='boolean')current[game.type]=true;
+  if(!GAME_CONTROLS.some(game=>current[game.type]))current.suma=true;
+  D.ajustes.juegosActivos=current;
+  return current;
+}
+function gameEnabled(type){return ensureGameSettings()[type]!==false;}
+function enabledDailyTypes(){return DAILY_TYPES.filter(gameEnabled);}
+function dailyTargetCount(max=DAILY_COUNT){return Math.min(max,enabledDailyTypes().length);}
+function parentGameSettingsHTML(){
+  const settings=ensureGameSettings();
+  return `<div class="parent-game-list">${GAME_CONTROLS.map(game=>{const active=settings[game.type]!==false;return `<button type="button" class="parent-game-toggle ${active?'on':'off'}" onclick="toggleGame('${game.type}')" aria-pressed="${active}"><span>${game.icon} ${game.label}</span><b>${active?'ACTIVO':'DESACTIVADO'}</b></button>`;}).join('')}</div>`;
+}
+function toggleGame(type){
+  const game=GAME_CONTROLS.find(item=>item.type===type);if(!game)return;
+  const settings=ensureGameSettings(),active=GAME_CONTROLS.filter(item=>settings[item.type]!==false);
+  if(settings[type]!==false&&active.length===1){alert('Debe quedar al menos un juego activo.');return;}
+  settings[type]=settings[type]===false;
+  save(D);ensureDaily();parentDashboard();
+}
 const stats=id=>D.estadisticas[id]||{partidas:0,aciertos:0,respuestas:0};
 const today=()=>new Date().toLocaleDateString('sv-SE');
 function dailyTypesForDate(date){
-  const stamp=Math.floor(new Date(`${date}T12:00:00`).getTime()/86400000);
-  const chosen=DAILY_GROUPS.map((group,index)=>group[Math.abs(stamp*(index*2+3)+index*7)%group.length]);
-  const remaining=DAILY_TYPES.filter(type=>!chosen.includes(type));
-  chosen.push(remaining[Math.abs(stamp*11+5)%remaining.length]);
-  return chosen;
+  const available=enabledDailyTypes(),target=dailyTargetCount(),stamp=Math.floor(new Date(`${date}T12:00:00`).getTime()/86400000),chosen=[];
+  DAILY_GROUPS.forEach((group,index)=>{const candidates=group.filter(type=>available.includes(type)&&!chosen.includes(type));if(candidates.length)chosen.push(candidates[Math.abs(stamp*(index*2+3)+index*7)%candidates.length]);});
+  const remaining=available.filter(type=>!chosen.includes(type));
+  while(chosen.length<target&&remaining.length)chosen.push(remaining.splice(Math.abs(stamp*11+chosen.length*5)%remaining.length,1)[0]);
+  return chosen.slice(0,target);
 }
 function ensureActionAccess(){
   const date=today();
@@ -40,16 +74,16 @@ function ensureActionAccess(){
   D.actionAccess.available=!!D.actionAccess.available&&!D.actionAccess.consumed;
 }
 function ensureDaily(){
-  const date=today(),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
+  const date=today(),target=dailyTargetCount(),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
   if(!sameDay){
     D.retosDiarios={fecha:date,retos:dailyTypesForDate(date).map(type=>({type,done:false})),premio:false};
     D.actionAccess={date,available:false,consumed:false};
-  }else if(D.retosDiarios.retos.length!==DAILY_COUNT){
-    const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
-    for(const type of dailyTypesForDate(date)){if(types.length>=DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
-    for(const type of DAILY_TYPES){if(types.length>=DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
+  }else if(D.retosDiarios.retos.length!==target||D.retosDiarios.retos.some(reto=>!gameEnabled(reto.type))){
+    const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)&&gameEnabled(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
+    for(const type of dailyTypesForDate(date)){if(types.length>=target)break;if(!types.includes(type))types.push(type);}
+    for(const type of enabledDailyTypes()){if(types.length>=target)break;if(!types.includes(type))types.push(type);}
     const completed=new Set(previous.filter(reto=>reto.done).map(reto=>reto.type)),rewarded=!!D.retosDiarios.premio;
-    D.retosDiarios.retos=types.slice(0,DAILY_COUNT).map(type=>({type,done:rewarded||completed.has(type)}));
+    D.retosDiarios.retos=types.slice(0,target).map(type=>({type,done:rewarded||completed.has(type)}));
   }
   ensureActionAccess();
   if(D.retosDiarios.premio&&!D.actionAccess.available&&!D.actionAccess.consumed)unlockActionGames('daily');
@@ -80,12 +114,12 @@ function unlockGuardianDuel(source='daily'){unlockActionGames(source);}
 function unlockActionGamesFromParents(){parentDashboard();}
 function guardianDuelCard(){
   const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
-  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los 5 retos de hoy para desbloquear una partida';
+  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los ${dailyTargetCount()} retos de hoy para desbloquear una partida';
   return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function planetDefenseCard(){
   const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
-  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los 5 retos de hoy para desbloquear una partida';
+  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los ${dailyTargetCount()} retos de hoy para desbloquear una partida';
   return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="openPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function xpNeeded(level){return 260+(level-1)*85;}
@@ -94,7 +128,7 @@ const ACHIEVEMENTS=[
   {id:'first_game',icon:'🎮',name:'Primera partida',desc:'Termina una actividad',test:()=>totalGames()>=1,reward:5},
   {id:'ten_correct',icon:'⭐',name:'Buen comienzo',desc:'Consigue 10 respuestas correctas',test:()=>D.totalAciertos>=10,reward:8},
   {id:'fifty_correct',icon:'🏅',name:'Aprendiz constante',desc:'Consigue 50 respuestas correctas',test:()=>D.totalAciertos>=50,reward:15},
-  {id:'daily_complete',icon:'☀️',name:'Día completo',desc:'Completa los cinco retos diarios',test:()=>D.retosDiarios.premio,reward:10},
+  {id:'daily_complete',icon:'☀️',name:'Día completo',desc:'Completa los retos diarios',test:()=>D.retosDiarios.premio,reward:10},
   {id:'level_3',icon:'🚀',name:'Nivel 3',desc:'Alcanza el nivel 3',test:()=>D.nivelJugador>=3,reward:12}
 ];
 let pendingAchievements=[],pendingLevelRewards=[];
@@ -124,15 +158,16 @@ function dailyLevel(type){
 }
 function dailyHTML(){
   ensureDaily();
-  const r=D.retosDiarios,done=r.retos.filter(x=>x.done).length;
+  const r=D.retosDiarios,done=r.retos.filter(x=>x.done).length,target=dailyTargetCount();
   const row=challenge=>{
     const info=DAILY_INFO[challenge.type]||{icon:'🎯',label:challenge.type,time:'2 min'},ok=challenge.done;
     return `<button class="daily-row ${ok?'done locked':''}" ${ok?'disabled aria-disabled="true"':`onclick="startDaily('${challenge.type}')"`}><span>${ok?'🔒 ✅':info.icon} ${info.label}</span><small>${ok?'Completado':info.time}</small></button>`;
   };
-  return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/${DAILY_COUNT}</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':'🎁 Completa los 5: +10 💎 y +10 XP'}</div></div>`;
+  return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/${target}</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':`🎁 Completa los ${target}: +10 💎 y +10 XP`}</div></div>`;
 }
 function startDaily(type){
   ensureDaily();
+  if(!gameEnabled(type))return;
   const challenge=D.retosDiarios.retos.find(r=>r.type===type);
   if(!challenge||challenge.done)return;
   const n=dailyLevel(type);
@@ -176,19 +211,19 @@ ${xpPanel()}
 ${pedagogyHomeCard()}
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
-<button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>${menuLevelStatus('suma')}</small><small>10 ejercicios por nivel</small></button>
-<button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b><small>${menuLevelStatus('resta')}</small><small>10 ejercicios por nivel</small></button>
-<button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b><small>${menuLevelStatus('comparar')}</small><small>10 comparaciones por nivel</small></button>
-<button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>${menuLevelStatus('palabras')}</small><small>10 ejercicios por nivel</small></button>
-<button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>${menuLevelStatus('sopa')}</small><small>Tableros progresivos</small></button>
+${gameEnabled('suma')?`<button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>${menuLevelStatus('suma')}</small><small>10 ejercicios por nivel</small></button>`:''}
+${gameEnabled('resta')?`<button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b><small>${menuLevelStatus('resta')}</small><small>10 ejercicios por nivel</small></button>`:''}
+${gameEnabled('comparar')?`<button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b><small>${menuLevelStatus('comparar')}</small><small>10 comparaciones por nivel</small></button>`:''}
+${gameEnabled('palabras')?`<button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>${menuLevelStatus('palabras')}</small><small>10 ejercicios por nivel</small></button>`:''}
+${gameEnabled('sopa')?`<button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>${menuLevelStatus('sopa')}</small><small>Tableros progresivos</small></button>`:''}
 </div>
 <h3 class="section-title">Aprender a leer</h3>
 <div class="game-grid reading-grid">
-<button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b><small>${menuLevelStatus('sonidoInicial')}</small><small>Escucha · elige la primera letra</small></button>
-<button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b><small>${menuLevelStatus('sonidoFinal')}</small><small>Escucha · elige la última letra</small></button>
-<button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye la palabra</b><small>${menuLevelStatus('construir')}</small><small>Une sílabas con ayuda de audio</small></button>
-<button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b><small>${menuLevelStatus('ordenarSilabas')}</small><small>Coloca las sílabas en orden</small></button>
-<button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>${menuLevelStatus('rimas')}</small><small>Escucha y encuentra cuál rima</small></button>
+${gameEnabled('sonidoInicial')?`<button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b><small>${menuLevelStatus('sonidoInicial')}</small><small>Escucha · elige la primera letra</small></button>`:''}
+${gameEnabled('sonidoFinal')?`<button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b><small>${menuLevelStatus('sonidoFinal')}</small><small>Escucha · elige la última letra</small></button>`:''}
+${gameEnabled('construir')?`<button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye la palabra</b><small>${menuLevelStatus('construir')}</small><small>Une sílabas con ayuda de audio</small></button>`:''}
+${gameEnabled('ordenarSilabas')?`<button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b><small>${menuLevelStatus('ordenarSilabas')}</small><small>Coloca las sílabas en orden</small></button>`:''}
+${gameEnabled('rimas')?`<button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>${menuLevelStatus('rimas')}</small><small>Escucha y encuentra cuál rima</small></button>`:''}
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
 let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopCategoryFilter='all',shopRarityFilter='all',shopCollectionFilter='all';
@@ -338,6 +373,7 @@ function startNextLevel(type,currentId){
   else if(READING_TYPES.has(type))startReadingGame(type,next);
 }
 function levels(t){
+  if(!gameEnabled(t)&&!parentMode){home();return;}
   state.type=t;
   const titles={suma:'Niveles de sumas',resta:'Niveles de restas',comparar:'Mayor o menor',palabras:'Niveles de palabras',sopa:'Sopa de letras',sonidoInicial:'¿Con qué sonido empieza?',sonidoFinal:'¿Con qué sonido termina?',construir:'Construye la palabra',ordenarSilabas:'Ordena las sílabas',rimas:'Busca la rima'};
   const title=titles[t]||'Niveles';
@@ -519,23 +555,36 @@ function shuffledSyllableTokens(q,distractors=0){
 }
 function syllableQuestion(){
   state.locked=false;const q=state.qs[state.i],build=state.type==='construir',num=state.i+1;
-  state.currentWord=q;state.picked=[];state.tokens=shuffledSyllableTokens(q,build?(state.level.distractors||0):0);state.i++;
+  state.currentWord=q;state.picked=[];state.questionHadError=false;state.tokens=shuffledSyllableTokens(q,build?(state.level.distractors||0):0);state.i++;
   renderSyllableQuestion(num);
   setTimeout(()=>speakWord(q.word,build?'Construye esta palabra':'Ordena las sílabas para formar esta palabra'),140);
 }
 function renderSyllableQuestion(num=state.i){
   const q=state.currentWord,build=state.type==='construir',need=q.syllables.length,chosen=state.picked.map(i=>state.tokens[i]?.text).filter(Boolean);
-  const slots=Array.from({length:need},(_,i)=>`<div class="syllable-slot ${chosen[i]?'filled':''}">${chosen[i]||'•'}</div>`).join('');
+  const slots=Array.from({length:need},(_,i)=>chosen[i]?`<button type="button" class="syllable-slot filled" onclick="removePicked(${i})" aria-label="Quitar ${chosen[i]}">${chosen[i]}</button>`:'<div class="syllable-slot">•</div>').join('');
   layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':`levels('${state.type}')`}">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${num} de ${state.total}</div><div class="listen-card compact"><div class="reading-picture">${q.icon}</div><button class="listen-button" onclick="speakWord('${q.word}')">🔊</button><b>${build?'CONSTRUYE':'ORDENA'}</b></div><div class="syllable-slots">${slots}</div><div class="syllable-bank">${state.tokens.map((tok,i)=>`<button class="syllable-token ${state.picked.includes(i)?'used':''}" ${state.picked.includes(i)?'disabled':''} onclick="pickSyllable(${i})">${tok.text}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);
 }
+function removePicked(position){
+  if(state.locked||position<0||position>=state.picked.length)return;
+  state.picked.splice(position,1);renderSyllableQuestion();
+  const msg=document.getElementById('msg');if(msg)msg.textContent='Elige otra letra o sílaba.';
+}
 function pickSyllable(index){
-  if(state.locked||state.picked.includes(index))return;state.picked.push(index);const q=state.currentWord,need=q.syllables.length;
-  renderSyllableQuestion();
+  const q=state.currentWord,need=q.syllables.length;
+  if(state.locked||state.picked.includes(index)||state.picked.length>=need)return;
+  state.picked.push(index);renderSyllableQuestion();
   if(state.picked.length<need)return;
-  state.locked=true;const attempt=state.picked.map(i=>state.tokens[i].text),ok=attempt.join('|')===q.syllables.join('|'),msg=document.getElementById('msg');
-  if(ok){state.hits++;rewardProgressCorrect();if(msg)msg.textContent='¡Muy bien!';document.querySelectorAll('.syllable-slot').forEach(x=>x.classList.add('correct-slot'));}
-  else{playChime('bad');if(msg)msg.textContent=`Era ${q.syllables.join(' · ')}`;document.querySelectorAll('.syllable-slot').forEach(x=>x.classList.add('wrong-slot'));}
-  setTimeout(readingQuestion,1050);
+  const attempt=state.picked.map(i=>state.tokens[i].text),ok=attempt.join('|')===q.syllables.join('|'),msg=document.getElementById('msg');
+  if(ok){
+    state.locked=true;
+    if(!state.questionHadError){state.hits++;rewardProgressCorrect();}else playChime('ok');
+    if(msg)msg.textContent=state.questionHadError?'¡Muy bien corregido!':'¡Muy bien!';
+    document.querySelectorAll('.syllable-slot').forEach(x=>x.classList.add('correct-slot'));
+    setTimeout(readingQuestion,1050);return;
+  }
+  state.questionHadError=true;playChime('bad');
+  if(msg)msg.textContent='Toca la letra o sílaba equivocada para cambiarla.';
+  document.querySelectorAll('.syllable-slot.filled').forEach(x=>x.classList.add('wrong-slot'));
 }
 function rhymeExercisePool(n){
   const groups=GAME.rhymes.slice(0,Math.min(n.groups||GAME.rhymes.length,GAME.rhymes.length)),exercises=[];
@@ -618,10 +667,11 @@ function parentDashboard(){
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button><span class="parent-active">🔓 Modo Padres activo</span>${diamond()}</div><h2>Zona de padres</h2><div class="parent-grid">
   <div class="parent-card"><h3>👤 Jugador</h3><label>Nombre</label><input id="nameInput" type="text" maxlength="24" value="${escapeHTML(D.perfil.nombre)}"><button class="btn secondary" onclick="setName()">Guardar nombre</button></div>
   <div class="parent-card"><h3>🧪 Modo de pruebas</h3><p class="muted">Todos los niveles están desbloqueados mientras este modo esté activo.</p><button class="btn secondary" onclick="parentTestLevels()">Probar cualquier nivel</button><button class="btn secondary" onclick="parentPinSetup(true)">🔐 Cambiar PIN</button><button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button></div>
-  <div class="parent-card"><h3>⚡ Juegos de acción</h3><p class="muted">Duelo y Defensa están disponibles mientras el modo Padres siga activo. Fuera de este modo se desbloquea una sola partida al completar los cinco retos diarios.</p><button class="btn secondary" onclick="startGuardianDuel()">⚡ Probar duelo</button><button class="btn secondary" onclick="openPlanetDefense()">🌍 Probar defensa</button></div>
+  <div class="parent-card"><h3>⚡ Juegos de acción</h3><p class="muted">Duelo y Defensa están disponibles mientras el modo Padres siga activo. Fuera de este modo se desbloquea una sola partida al completar los retos diarios.</p><button class="btn secondary" onclick="startGuardianDuel()">⚡ Probar duelo</button><button class="btn secondary" onclick="openPlanetDefense()">🌍 Probar defensa</button></div>
   <div class="parent-card"><h3>⭐ Experiencia y nivel</h3><label>Nivel actual</label><input id="parentLevel" type="number" min="1" max="999" step="1" value="${D.nivelJugador}"><label>XP actual</label><input id="parentXP" type="number" min="0" step="1" value="${D.xp}"><button class="btn secondary" onclick="setParentProgress()">Aplicar nivel y XP</button></div>
   <div class="parent-card"><h3>💎 Diamantes</h3><div class="grid2"><button class="btn secondary" onclick="changeDiamonds(-100)">−100</button><button class="btn secondary" onclick="changeDiamonds(100)">+100</button></div><button class="btn secondary" onclick="changeDiamonds(500)">+500</button><label>Cantidad exacta</label><input id="parentDiamonds" type="number" min="0" step="1" value="${D.diamantes}"><button class="btn secondary" onclick="setDiamondsExact()">Aplicar diamantes</button></div>
   <div class="parent-card"><h3>➖ Límite de restas</h3><p class="muted">${D.ajustes.restasMayoresDe10?'Se permiten restas con números mayores de 10.':'Las restas utilizan únicamente números hasta 10.'}</p><button class="btn ${D.ajustes.restasMayoresDe10?'danger':'secondary'}" onclick="toggleLargeSubtractions()">${D.ajustes.restasMayoresDe10?'⛔ Desactivar números mayores de 10':'🔓 Activar números mayores de 10'}</button><small class="muted">Estado actual: ${D.ajustes.restasMayoresDe10?'ACTIVADO':'DESACTIVADO'}</small><small class="muted">Recomendación: completar primero «La misión del puente del 10».</small></div>
+  <div class="parent-card"><h3>🎮 Juegos educativos</h3><p class="muted">Desactiva los juegos que no quieras mostrar. Tampoco aparecerán en los retos diarios.</p>${parentGameSettingsHTML()}</div>
   <div class="parent-card"><h3>🛍️ Precios de la tienda</h3><p class="muted">Multiplica a la vez el precio de los 24 objetos. Las compras ya realizadas no cambian.</p><div class="price-presets"><button class="small secondary" onclick="setShopPriceMultiplier(0.5)">×0,5</button><button class="small secondary" onclick="setShopPriceMultiplier(1)">×1</button><button class="small secondary" onclick="setShopPriceMultiplier(1.5)">×1,5</button><button class="small secondary" onclick="setShopPriceMultiplier(2)">×2</button></div><label>Multiplicador global</label><input id="shopPriceMultiplier" type="number" min="0.25" max="3" step="0.25" value="${D.ajustes.multiplicadorPrecios}"><button class="btn secondary" onclick="setShopPriceMultiplier()">Aplicar a toda la tienda</button><small class="muted">Rango actual: ${Math.min(...avatarCatalog().map(avatarItemPrice))}–${Math.max(...avatarCatalog().map(avatarItemPrice))} 💎</small></div>
   <div class="parent-card"><h3>💾 Copia de seguridad</h3><p class="muted">Guarda el progreso en un archivo del dispositivo y recupéralo cuando lo necesites.</p><div class="grid"><button class="btn secondary" onclick="exportData()">💾 Guardar copia</button><label class="btn secondary file-label" for="importFile">📂 Recuperar copia</label><input id="importFile" type="file" accept=".json,application/json" onchange="importData(event)" hidden></div></div>
   <div class="parent-card"><h3>⚠️ Reinicio</h3><button class="btn danger" onclick="resetAll()">Borrar todo el progreso</button></div>

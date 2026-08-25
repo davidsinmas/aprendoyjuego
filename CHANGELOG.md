@@ -1,3 +1,10 @@
+## V3.6.0 — 2026-08-25
+
+- Nueva opción en **Zona de padres** para activar o desactivar individualmente los diez juegos educativos.
+- Los juegos desactivados se ocultan del menú infantil y se excluyen de los retos diarios; el número de retos se ajusta automáticamente a los juegos disponibles.
+- En **Construye la palabra** y **Ordena sílabas**, una letra o sílaba colocada puede retirarse tocándola.
+- Las combinaciones incorrectas permanecen abiertas hasta poder corregirlas, sin cambiar automáticamente a la palabra siguiente.
+
 ## V3.4.3 — 2026-08-18
 
 - Nuevo fondo futurista común con cielo profundo, estrellas y rejilla en perspectiva, construido íntegramente con CSS.

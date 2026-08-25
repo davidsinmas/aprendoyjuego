@@ -90,19 +90,15 @@
 
   dailyTypesForDate=function(date){
     ensureLearningProfile();
-    const chosen=[];
+    const available=enabledDailyTypes(),target=dailyTargetCount(TARGET_DAILY_COUNT),chosen=[];
     for(const group of DAILY_GROUPS){
-      const candidates=group.filter(type=>!chosen.includes(type)).sort((a,b)=>skillPriority(b,date)-skillPriority(a,date));
+      const candidates=group.filter(type=>available.includes(type)&&!chosen.includes(type)).sort((a,b)=>skillPriority(b,date)-skillPriority(a,date));
       if(candidates[0])chosen.push(candidates[0]);
     }
-    const remaining=DAILY_TYPES.filter(type=>!chosen.includes(type)).sort((a,b)=>skillPriority(b,date)-skillPriority(a,date));
-    for(const type of remaining){
-      if(chosen.length>=TARGET_DAILY_COUNT)break;
-      chosen.push(type);
-    }
-    return chosen.slice(0,TARGET_DAILY_COUNT);
+    const remaining=available.filter(type=>!chosen.includes(type)).sort((a,b)=>skillPriority(b,date)-skillPriority(a,date));
+    for(const type of remaining){if(chosen.length>=target)break;chosen.push(type);}
+    return chosen.slice(0,target);
   };
-
   function levelEvidence(level){
     const s=stats(level.id);
     if((Number(s.partidas)||0)>0)return true;
@@ -157,7 +153,7 @@
 
   function syncDailySelection(date,types){
     const profile=ensureLearningProfile();
-    const clean=[...new Set(types.filter(type=>DAILY_TYPES.includes(type)))].slice(0,TARGET_DAILY_COUNT);
+    const clean=[...new Set(types.filter(type=>DAILY_TYPES.includes(type)&&gameEnabled(type)))].slice(0,TARGET_DAILY_COUNT);
     const index=profile.dailySelections.findIndex(entry=>entry.date===date);
     if(index>=0)profile.dailySelections[index]={date,types:clean};
     else profile.dailySelections.push({date,types:clean});
@@ -165,47 +161,45 @@
   }
 
   ensureDaily=function(){
-    const date=today(),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
+    const date=today(),target=dailyTargetCount(TARGET_DAILY_COUNT),sameDay=D.retosDiarios&&D.retosDiarios.fecha===date&&Array.isArray(D.retosDiarios.retos);
     if(!sameDay){
       D.retosDiarios={fecha:date,retos:dailyTypesForDate(date).map(type=>({type,done:false})),premio:false};
       D.actionAccess={date,available:false,consumed:false};
-    }else if(D.retosDiarios.retos.length!==TARGET_DAILY_COUNT){
-      const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
-      for(const type of dailyTypesForDate(date)){if(types.length>=TARGET_DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
-      for(const type of DAILY_TYPES){if(types.length>=TARGET_DAILY_COUNT)break;if(!types.includes(type))types.push(type);}
+    }else if(D.retosDiarios.retos.length!==target||D.retosDiarios.retos.some(reto=>!gameEnabled(reto.type))){
+      const previous=D.retosDiarios.retos.filter(reto=>DAILY_TYPES.includes(reto.type)&&gameEnabled(reto.type)),types=[...new Set(previous.map(reto=>reto.type))];
+      for(const type of dailyTypesForDate(date)){if(types.length>=target)break;if(!types.includes(type))types.push(type);}
+      for(const type of enabledDailyTypes()){if(types.length>=target)break;if(!types.includes(type))types.push(type);}
       const completed=new Set(previous.filter(reto=>reto.done).map(reto=>reto.type)),rewarded=!!D.retosDiarios.premio;
-      D.retosDiarios.retos=types.slice(0,TARGET_DAILY_COUNT).map(type=>({type,done:rewarded||completed.has(type)}));
+      D.retosDiarios.retos=types.slice(0,target).map(type=>({type,done:rewarded||completed.has(type)}));
     }
     ensureActionAccess();
     if(D.retosDiarios.premio&&!D.actionAccess.available&&!D.actionAccess.consumed)unlockActionGames('daily');
     syncDailySelection(date,D.retosDiarios.retos.map(reto=>reto.type));
     save(D);
   };
-
   dailyHTML=function(){
     ensureDaily();
-    const r=D.retosDiarios,done=r.retos.filter(x=>x.done).length;
+    const r=D.retosDiarios,done=r.retos.filter(x=>x.done).length,target=dailyTargetCount(TARGET_DAILY_COUNT);
     const row=challenge=>{
       const info=DAILY_INFO[challenge.type]||{icon:'🎯',label:challenge.type,time:'2 min'},ok=challenge.done;
       return `<button class="daily-row ${ok?'done locked':''}" ${ok?'disabled aria-disabled="true"':`onclick="startDaily('${challenge.type}')"`}><span>${ok?'🔒 ✅':info.icon} ${info.label}</span><small>${ok?'Completado':info.time}</small></button>`;
     };
-    return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/${TARGET_DAILY_COUNT}</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':`🎁 Completa los ${TARGET_DAILY_COUNT}: +10 💎 y +10 XP`}</div></div>`;
+    return `<div class="daily-card"><div class="daily-title"><b>🎯 Retos de hoy</b><span>${done}/${target}</span></div>${r.retos.map(row).join('')}<div class="daily-prize">${r.premio?'🎁 Premio diario conseguido · vuelve mañana':`🎁 Completa los ${target}: +10 💎 y +10 XP`}</div></div>`;
   };
-
   guardianDuelCard=function(){
     const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
-    const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${TARGET_DAILY_COUNT} retos de hoy para desbloquear una partida`;
+    const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${dailyTargetCount(TARGET_DAILY_COUNT)} retos de hoy para desbloquear una partida`;
     return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
   planetDefenseCard=function(){
     const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
-    const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${TARGET_DAILY_COUNT} retos de hoy para desbloquear una partida`;
+    const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${dailyTargetCount(TARGET_DAILY_COUNT)} retos de hoy para desbloquear una partida`;
     return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="openPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
   const dailyAchievement=ACHIEVEMENTS.find(item=>item.id==='daily_complete');
-  if(dailyAchievement)dailyAchievement.desc='Completa los siete retos diarios';
+  if(dailyAchievement)dailyAchievement.desc='Completa los retos diarios';
 
   const baseFinishDailyActivity=finishDailyActivity;
   finishDailyActivity=function(type,title){
@@ -246,5 +240,5 @@
   ensureDaily();
   home();
 
-  window.AdaptiveDaily={version:ADAPTIVE_VERSION,targetDailyCount:TARGET_DAILY_COUNT,skillPriority,dailyLevel};
+  window.AdaptiveDaily={version:ADAPTIVE_VERSION,targetDailyCount:dailyTargetCount(TARGET_DAILY_COUNT),skillPriority,dailyLevel};
 })();
