@@ -1,3 +1,11 @@
+## V3.7.0 — 2026-08-25
+
+- Al superar una misión de **Defensa del planeta** se puede continuar inmediatamente con el nivel siguiente, aunque ya se haya consumido la partida desbloqueada.
+- Cada nivel aumenta gradualmente la cantidad de meteoritos, con un límite de dificultad y de meteoritos simultáneos para mantener todas las misiones superables.
+- Aparecen bonus garantizados durante la partida: reparación de escudo, disparo rápido y ralentización de meteoritos.
+- Con el escudo en estado crítico se adelanta un bonus de reparación y se reduce temporalmente el máximo de meteoritos simultáneos.
+- El HUD muestra el nivel, la oleada y la duración de los bonus activos.
+
 ## V3.6.1 — 2026-08-25
 
 - Corregidos los textos dinámicos del número de retos cuando hay juegos desactivados.
