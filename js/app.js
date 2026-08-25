@@ -56,7 +56,11 @@ function toggleGame(type){
   const settings=ensureGameSettings(),active=GAME_CONTROLS.filter(item=>settings[item.type]!==false);
   if(settings[type]!==false&&active.length===1){alert('Debe quedar al menos un juego activo.');return;}
   settings[type]=settings[type]===false;
-  save(D);ensureDaily();parentDashboard();
+  save(D);ensureDaily();
+  if(D.retosDiarios.retos.length&&D.retosDiarios.retos.every(reto=>reto.done)&&!D.retosDiarios.premio){
+    D.retosDiarios.premio=true;unlockActionGames('daily');D.diamantes+=10;giveXP(10);save(D);
+  }
+  parentDashboard();
 }
 const stats=id=>D.estadisticas[id]||{partidas:0,aciertos:0,respuestas:0};
 const today=()=>new Date().toLocaleDateString('sv-SE');
@@ -114,12 +118,12 @@ function unlockGuardianDuel(source='daily'){unlockActionGames(source);}
 function unlockActionGamesFromParents(){parentDashboard();}
 function guardianDuelCard(){
   const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
-  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los ${dailyTargetCount()} retos de hoy para desbloquear una partida';
+  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${dailyTargetCount()} retos de hoy para desbloquear una partida`;
   return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function planetDefenseCard(){
   const unlocked=actionGamesAvailable(),reward=!!D.actionAccess.available;
-  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':'Completa los ${dailyTargetCount()} retos de hoy para desbloquear una partida';
+  const note=parentMode?'Disponible mientras el modo Padres esté activo':reward?'Premio de hoy · una partida disponible':`Completa los ${dailyTargetCount()} retos de hoy para desbloquear una partida`;
   return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="openPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
 }
 function xpNeeded(level){return 260+(level-1)*85;}

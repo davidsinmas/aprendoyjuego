@@ -1,3 +1,8 @@
+## V3.6.1 — 2026-08-25
+
+- Corregidos los textos dinámicos del número de retos cuando hay juegos desactivados.
+- Si al desactivar un juego quedan completados todos los retos activos del día, el premio diario se procesa correctamente.
+
 ## V3.6.0 — 2026-08-25
 
 - Nueva opción en **Zona de padres** para activar o desactivar individualmente los diez juegos educativos.
