@@ -1,12 +1,30 @@
-/* V3.5.9 · Seguridad de scroll vertical */
-html,
-body{
+/* V3.8.0 · Scroll vertical nativo y estable */
+html{
+  width:100%;
+  max-width:100%;
+  min-height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
   overscroll-behavior-y:auto;
+  -webkit-text-size-adjust:100%;
+  touch-action:pan-y;
 }
 
 body{
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
+  width:100%;
+  max-width:100%;
+  min-height:100%;
+  overflow-x:hidden;
+  overflow-y:visible;
+  overscroll-behavior-y:auto;
+}
+
+#app{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  min-height:100dvh;
+  overflow:visible;
 }
 
 html.aj-soup-fit,
@@ -16,7 +34,6 @@ html.aj-soup-fit body{
   max-height:none !important;
   overflow-x:hidden;
   overflow-y:auto !important;
-  touch-action:pan-y pinch-zoom;
 }
 
 html.aj-soup-fit #app{
@@ -33,11 +50,8 @@ html.aj-soup-fit .card{
   overflow:visible !important;
 }
 
-html.aj-soup-fit .word-grid{
-  flex:0 0 auto;
-}
+html.aj-soup-fit .word-grid{flex:0 0 auto}
 
-html:not(.aj-soup-fit) body,
-html:not(.aj-soup-fit) #app{
-  overflow-y:visible;
+@media(max-width:760px){
+  input,select,textarea{font-size:16px !important}
 }

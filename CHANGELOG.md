@@ -1,3 +1,11 @@
+## V3.8.0 — 2026-08-25
+
+- Rehecho el desplazamiento vertical para utilizar un único scroll nativo, sin alternar entre `html`, `body` y `#app`.
+- En dispositivos táctiles se desactivan el fondo fijo animado y el desenfoque continuo que provocaban tirones durante el desplazamiento.
+- La interfaz queda fijada al ancho del dispositivo y el zoom accidental se bloquea desde el viewport; los campos evitan también el autozoom de iPhone.
+- En **Duelo de Guardianes**, el láser es ahora un modo exclusivo: retira los perdigones existentes y pausa los disparos normales y de satélite hasta que termine.
+- Los bonus de potencia, cadencia y satélite conservan su tiempo restante mientras el láser está activo.
+
 ## V3.7.0 — 2026-08-25
 
 - Al superar una misión de **Defensa del planeta** se puede continuar inmediatamente con el nivel siguiente, aunque ya se haya consumido la partida desbloqueada.
