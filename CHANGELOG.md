@@ -1,3 +1,9 @@
+## V3.8.1 — 2026-08-25
+
+- Las palabras de la sopa se validan al marcarlas en cualquiera de los dos sentidos: de principio a fin o de fin a principio.
+- Si las letras de relleno forman por casualidad otra aparición completa de una palabra objetivo, ese recorrido también se acepta.
+- El resaltado verde se aplica sobre la aparición exacta que haya marcado el jugador.
+
 ## V3.8.0 — 2026-08-25
 
 - Rehecho el desplazamiento vertical para utilizar un único scroll nativo, sin alternar entre `html`, `body` y `#app`.

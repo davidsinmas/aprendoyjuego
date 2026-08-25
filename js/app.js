@@ -625,9 +625,34 @@ function finishReading(){
 function startSoup(n,daily=false){const pool=GAME.words.filter(w=>w.word.length>=(n.minLen||3)&&w.word.length<=(n.maxLen||n.size));const count=daily?Math.min(3,n.count):n.count;const words=mix(pool).slice(0,count);state={...state,type:'sopa',level:n,mode:null,qs:words,i:0,hits:0,daily,total:count,path:[],found:[],locked:false};const built=buildMultiGrid(words.map(w=>w.word),n.size,n.dirs);state.grid=built.grid;state.targets=built.targets;state.found=Array(words.length).fill(false);renderSoup();}
 function renderSoup(){const n=state.level,cols=`repeat(${n.size},1fr)`;layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':"levels('sopa')"}">← Salir</button>${diamond()}</div><div class="muted">Encuentra ${state.qs.length===1?'la palabra':`las ${state.qs.length} palabras`}</div><div class="soup-targets">${state.qs.map((q,i)=>`<div class="soup-target ${state.found[i]?'done':''}" data-target="${i}"><span>${state.found[i]?'✅':q.icon}</span><b>${q.word}</b></div>`).join('')}</div><div class="word-hint center">Toca la primera y la última letra de cada palabra.</div><div id="wordGrid" class="word-grid" style="grid-template-columns:${cols}">${state.grid.flatMap((row,r)=>row.map((letter,c)=>`<button class="word-cell" data-r="${r}" data-c="${c}" onclick="pickSoup(${r},${c})">${letter}</button>`)).join('')}</div><div id="wordStatus" class="word-status"></div>`);paintFoundSoup();}
 function buildMultiGrid(words,size,dirs){for(let restart=0;restart<150;restart++){const grid=Array.from({length:size},()=>Array(size).fill('')),targets=[];let ok=true;for(const word of words){let placed=false;for(let attempt=0;attempt<250&&!placed;attempt++){const dir=dirs[rnd(0,dirs.length-1)];let dr=0,dc=1;if(dir==='v'){dr=1;dc=0;}if(dir==='d'){dr=1;dc=1;}const maxR=size-1-dr*(word.length-1),maxC=size-1-dc*(word.length-1);if(maxR<0||maxC<0)continue;const sr=rnd(0,maxR),sc=rnd(0,maxC),cells=[];let fits=true;for(let i=0;i<word.length;i++){const r=sr+dr*i,c=sc+dc*i;if(grid[r][c]&&grid[r][c]!==word[i]){fits=false;break;}cells.push([r,c]);}if(!fits)continue;[...word].forEach((ch,i)=>{const [r,c]=cells[i];grid[r][c]=ch;});targets.push(cells);placed=true;}if(!placed){ok=false;break;}}if(ok){const abc='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(!grid[r][c])grid[r][c]=abc[rnd(0,abc.length-1)];return{grid,targets};}}throw new Error('No se pudo generar la sopa');}
-function pickSoup(r,c){if(state.locked)return;if(!state.path.length){state.path=[[r,c]];paintPath();document.getElementById('wordStatus').textContent='Ahora toca la última letra.';return;}const line=getLine(state.path[0],[r,c]);state.path=line;paintPath();let idx=-1;for(let i=0;i<state.targets.length;i++){if(!state.found[i]&&samePath(line,state.targets[i])){idx=i;break;}}if(idx>=0){state.found[idx]=true;state.hits++;rewardProgressCorrect();state.path=[];const status=document.getElementById('wordStatus');if(status)status.textContent='¡Encontrada!';if(state.hits>=state.qs.length){state.locked=true;setTimeout(finishSoup,700);}else setTimeout(renderSoup,450);}else{const status=document.getElementById('wordStatus');if(status)status.textContent='Prueba otra vez.';setTimeout(()=>{state.path=[];paintPath();if(status)status.textContent='';},550);}}
+function pickSoup(r,c){
+  if(state.locked)return;
+  if(!state.path.length){state.path=[[r,c]];paintPath();document.getElementById('wordStatus').textContent='Ahora toca la última letra.';return;}
+  const line=getLine(state.path[0],[r,c]);state.path=line;paintPath();let idx=-1;
+  for(let i=0;i<state.targets.length;i++){
+    if(state.found[i])continue;
+    if(samePath(line,state.targets[i])||pathSpellsWord(line,state.qs[i].word)){idx=i;break;}
+  }
+  if(idx>=0){
+    state.targets[idx]=line;state.found[idx]=true;state.hits++;rewardProgressCorrect();state.path=[];
+    const status=document.getElementById('wordStatus');if(status)status.textContent='¡Encontrada!';
+    if(state.hits>=state.qs.length){state.locked=true;setTimeout(finishSoup,700);}else setTimeout(renderSoup,450);
+  }else{
+    const status=document.getElementById('wordStatus');if(status)status.textContent='Prueba otra vez.';
+    setTimeout(()=>{state.path=[];paintPath();if(status)status.textContent='';},550);
+  }
+}
 function getLine(a,b){const dR=b[0]-a[0],dC=b[1]-a[1];if(!(dR===0||dC===0||Math.abs(dR)===Math.abs(dC)))return[a,b];const dr=Math.sign(dR),dc=Math.sign(dC),len=Math.max(Math.abs(dR),Math.abs(dC))+1;return Array.from({length:len},(_,i)=>[a[0]+dr*i,a[1]+dc*i]);}
-function samePath(a,b){return a.length===b.length&&a.every((p,i)=>p[0]===b[i][0]&&p[1]===b[i][1]);}
+function samePath(a,b){
+  if(a.length!==b.length)return false;
+  const direct=a.every((p,i)=>p[0]===b[i][0]&&p[1]===b[i][1]);
+  const reverse=a.every((p,i)=>p[0]===b[b.length-1-i][0]&&p[1]===b[b.length-1-i][1]);
+  return direct||reverse;
+}
+function pathSpellsWord(path,word){
+  const letters=path.map(([r,c])=>state.grid?.[r]?.[c]||'').join('');
+  return letters===word||[...letters].reverse().join('')===word;
+}
 function cellAt(r,c){return document.querySelector(`.word-cell[data-r="${r}"][data-c="${c}"]`);}
 function paintPath(){document.querySelectorAll('.word-cell').forEach(x=>x.classList.remove('selected'));state.path.forEach(([r,c])=>{const x=cellAt(r,c);if(x)x.classList.add('selected');});paintFoundSoup();}
 function paintFoundSoup(){if(!state.targets||!state.found)return;state.targets.forEach((cells,i)=>{if(state.found[i])cells.forEach(([r,c])=>{const x=cellAt(r,c);if(x)x.classList.add('found');});});}
