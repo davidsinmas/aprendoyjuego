@@ -1,22 +1,22 @@
-/* V3.8.0 · Scroll vertical nativo y estable */
+/* V3.8.3 · Scroll vertical nativo y recorte lateral sin contenedores anidados */
 html{
   width:100%;
   max-width:100%;
   min-height:100%;
-  overflow-x:hidden;
+  overflow-x:clip;
   overflow-y:auto;
-  overscroll-behavior-y:auto;
+  overscroll-behavior-x:none;
   -webkit-text-size-adjust:100%;
-  touch-action:pan-y;
 }
 
 body{
   width:100%;
   max-width:100%;
   min-height:100%;
-  overflow-x:hidden;
+  overflow-x:clip;
   overflow-y:visible;
-  overscroll-behavior-y:auto;
+  overscroll-behavior-x:none;
+  position:relative;
 }
 
 #app{
@@ -24,34 +24,70 @@ body{
   max-width:100%;
   min-width:0;
   min-height:100dvh;
-  overflow:visible;
+  overflow-x:clip;
+  overflow-y:visible;
 }
 
-html.aj-soup-fit,
+.wrap,
+.card{
+  min-width:0;
+  max-width:100%;
+}
+
+.card{
+  overflow:clip;
+}
+
+/* La sopa mantiene el scroll del documento; no crea otro scroll en body ni en #app. */
+html.aj-soup-fit{
+  height:auto !important;
+  min-height:100%;
+  max-height:none !important;
+  overflow-x:clip;
+  overflow-y:auto !important;
+}
+
 html.aj-soup-fit body{
   height:auto !important;
   min-height:100%;
   max-height:none !important;
-  overflow-x:hidden;
-  overflow-y:auto !important;
+  overflow-x:clip;
+  overflow-y:visible !important;
 }
 
 html.aj-soup-fit #app{
   height:auto !important;
   min-height:var(--aj-exercise-vh,100dvh);
   max-height:none !important;
-  overflow:visible !important;
+  overflow-x:clip !important;
+  overflow-y:visible !important;
 }
 
 html.aj-soup-fit .wrap,
 html.aj-soup-fit .card{
   height:auto !important;
   max-height:none !important;
-  overflow:visible !important;
 }
 
-html.aj-soup-fit .word-grid{flex:0 0 auto}
+html.aj-soup-fit .word-grid{
+  flex:0 0 auto;
+}
 
-@media(max-width:760px){
-  input,select,textarea{font-size:16px !important}
+/* En móvil se eliminan las capas decorativas que obligaban a repintar toda la página. */
+@media (hover:none), (pointer:coarse), (max-width:760px){
+  body{
+    background-attachment:scroll !important;
+  }
+
+  body::before,
+  body::after,
+  .card::after{
+    display:none !important;
+  }
+
+  input,
+  select,
+  textarea{
+    font-size:16px !important;
+  }
 }

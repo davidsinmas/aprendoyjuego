@@ -1,3 +1,10 @@
+## V3.8.3 — 2026-08-26
+
+- Se restaura un único **scroll vertical nativo** y se eliminan los contenedores de desplazamiento superpuestos que lo volvían lento e irregular en móvil.
+- La página queda recortada al ancho real de la pantalla con `overflow-x: clip`, sin desplazamiento lateral y sin perjudicar el scroll vertical.
+- En pantallas táctiles se desactivan las capas decorativas que obligaban a repintar una superficie mayor que la pantalla durante el desplazamiento.
+- Los juegos de pantalla completa conservan su bloqueo de scroll mientras están activos.
+
 ## V3.8.2 — 2026-08-26
 
 - En **Duelo de Guardianes**, el disparo normal del avatar ya no se interrumpe nunca, tampoco durante el bonus de láser.
