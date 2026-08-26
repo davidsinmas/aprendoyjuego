@@ -53,7 +53,7 @@ function startGuardianDuel(){
       <p>El Avatar apunta hacia el monstruo mientras esquiva sus disparos rectos y recoge mejoras temporales.</p>
       <div class="duel-rules">
         <div><span>🧑‍🚀 👾</span><b>Avatar contra monstruo</b><small>Un jugador en cada mitad</small></div>
-        <div><span>💥 ⚡ 🛰️ 🔆</span><b>Bonus temporales</b><small>El láser sustituye los demás disparos mientras está activo</small></div>
+        <div><span>💥 ⚡ 🛰️ 🔆</span><b>Bonus temporales</b><small>El disparo normal continúa; el láser pausa solo los perdigones</small></div>
         <div><span>🏆</span><b>Mejor de 5</b><small>Gana quien llega a 3 rondas</small></div>
       </div>
       <button class="duel-main-button" onclick="beginGuardianDuelMatch()">EMPEZAR PARTIDA</button>
@@ -259,11 +259,7 @@ function duelUpdate(dt){
   }
 
   const laserWasActive=p1.bonuses.laser>0;
-  for(const type of DUEL_BONUS_TYPES){
-    if(type.id==='satellite')continue;
-    if(type.id==='laser')p1.bonuses.laser=Math.max(0,p1.bonuses.laser-dt);
-    else if(!laserWasActive)p1.bonuses[type.id]=Math.max(0,p1.bonuses[type.id]-dt);
-  }
+  for(const type of DUEL_BONUS_TYPES){if(type.id!=='satellite')p1.bonuses[type.id]=Math.max(0,p1.bonuses[type.id]-dt);}
   const laserActive=p1.bonuses.laser>0;
   if(laserWasActive&&!laserActive)game.bullets=game.bullets.filter(bullet=>bullet.kind!=='laser');
   p1.satelliteAngle=(p1.satelliteAngle+dt*2.6)%(Math.PI*2);
@@ -281,7 +277,6 @@ function duelUpdate(dt){
 
   for(const owner of [0,1]){
     const fighter=game.fighters[owner];
-    if(owner===0&&laserActive){fighter.fireTimer=Math.max(fighter.fireTimer,.08);continue;}
     if(fighter.fireTimer<=0){
       duelFire(owner);
       let interval=Math.max(DUEL_MIN_FIRE,(owner===0?DUEL_BASE_FIRE:DUEL_MONSTER_BASE_FIRE)-game.pace*DUEL_PACE_REDUCTION);
@@ -374,7 +369,7 @@ function duelCollectBonus(bonus){
     fighter.bonuses.satellite=Math.max(fighter.bonuses.satellite,bonus.type.duration);
   }else{
     fighter.bonuses[bonus.type.id]=bonus.type.duration;
-    if(bonus.type.id==='laser'){fighter.laserFire=.04;guardianDuel.bullets=guardianDuel.bullets.filter(bullet=>bullet.owner!==0||bullet.kind==='laser');}
+    if(bonus.type.id==='laser'){fighter.laserFire=.04;guardianDuel.bullets=guardianDuel.bullets.filter(bullet=>bullet.kind!=='satellite');}
   }
   bonus.life=0;
   duelParticles(bonus.x,bonus.y,bonus.type.color,20);
@@ -389,7 +384,7 @@ function duelUpdateBonusHud(){
   const satellites=game.fighters[0].satellites.length,key=active.map(type=>type.id+Math.ceil(game.fighters[0].bonuses[type.id])+(type.id==='satellite'?`x${satellites}`:'')).join('|');
   if(key===game.bonusHudKey)return;
   game.bonusHudKey=key;
-  element.innerHTML=active.length?active.map(type=>{const paused=game.fighters[0].bonuses.laser>0&&type.id!=='laser';return `<span style="--bonus-color:${type.color}">${paused?'⏸ ':''}${type.icon} ${type.label}${type.id==='satellite'&&satellites>1?` ×${satellites}`:''} <b>${paused?'PAUSA':Math.ceil(game.fighters[0].bonuses[type.id])+'s'}</b></span>`;}).join(''):'<span>💫 Busca bonus</span>';
+  element.innerHTML=active.length?active.map(type=>{const paused=game.fighters[0].bonuses.laser>0&&type.id==='satellite';return `<span style="--bonus-color:${type.color}">${paused?'⏸ ':''}${type.icon} ${type.label}${type.id==='satellite'&&satellites>1?` ×${satellites}`:''} <b>${paused?'PAUSA':Math.ceil(game.fighters[0].bonuses[type.id])+'s'}</b></span>`;}).join(''):'<span>💫 Busca bonus</span>';
 }
 
 function duelParticles(x,y,color,amount){

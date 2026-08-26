@@ -1,3 +1,9 @@
+## V3.8.2 — 2026-08-26
+
+- En **Duelo de Guardianes**, el disparo normal del avatar ya no se interrumpe nunca, tampoco durante el bonus de láser.
+- El láser pausa exclusivamente los perdigones de los satélites y elimina solo los que ya estaban en pantalla.
+- Los bonus de potencia y cadencia siguen funcionando con el disparo normal mientras el láser está activo.
+
 ## V3.8.1 — 2026-08-25
 
 - Las palabras de la sopa se validan al marcarlas en cualquiera de los dos sentidos: de principio a fin o de fin a principio.
