@@ -1,3 +1,11 @@
+## V3.8.4 — 2026-08-29
+
+- En **Duelo de Guardianes**, la cadencia del monstruo aumenta por etapas mientras no consiga alcanzar al avatar y vuelve al ritmo normal cuando acierta.
+- Nuevo bonus poco frecuente para el monstruo: durante ocho segundos sus bolas aumentan de tamaño, sin aumentar el daño.
+- Cualquier jugador pierde todas sus mejoras activas al recibir un impacto.
+- Los bonus del avatar aparecen un poco menos a menudo y los del monstruo usan un temporizador independiente mucho más espaciado.
+- El indicador de ritmo muestra ahora la cadencia específica del monstruo.
+
 ## V3.8.3 — 2026-08-26
 
 - Se restaura un único **scroll vertical nativo** y se eliminan los contenedores de desplazamiento superpuestos que lo volvían lento e irregular en móvil.
