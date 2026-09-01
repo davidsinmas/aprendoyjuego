@@ -1,94 +1,20 @@
-/* Tank Pixel — módulo independiente para Aprendo Jugando */
-(() => {
-  const STYLE_ID='tank-pixel-style';
-  const CARD_CLASS='tank-pixel-home-card';
-  let originalHome=null;
-
-  function injectStyle(){
-    if(document.getElementById(STYLE_ID)) return;
-    const link=document.createElement('link');
-    link.id=STYLE_ID; link.rel='stylesheet';
-    link.href='css/tank-pixel.css?v='+(window.APP_VERSION||Date.now());
-    document.head.appendChild(link);
-  }
-
-  function addHomeCard(){
-    const grid=document.querySelector('.action-game-grid');
-    if(!grid || grid.querySelector('.'+CARD_CLASS)) return;
-    const b=document.createElement('button');
-    b.className='guardian-home-card planet-home-card '+CARD_CLASS+' unlocked';
-    b.type='button';
-    b.innerHTML='<span class="guardian-home-icon">🛡️</span><span><b>Tank Pixel</b><small>Tanques, rebotes y obstáculos destructibles</small></span><strong>JUGAR →</strong>';
-    b.onclick=()=>window.openTankPixel();
-    grid.appendChild(b);
-  }
-
-  function hookHome(){
-    injectStyle();
-    if(typeof window.home!=='function') return;
-    if(!window.home.__tankPixelHooked){
-      originalHome=window.home;
-      const wrapped=function(){
-        const result=originalHome.apply(this,arguments);
-        requestAnimationFrame(addHomeCard);
-        return result;
-      };
-      wrapped.__tankPixelHooked=true;
-      window.home=wrapped;
-    }
-    // app.js llama a home() antes de cargar este módulo; por eso hay que
-    // insertar también la tarjeta inmediatamente en la pantalla ya renderizada.
-    requestAnimationFrame(addHomeCard);
-  }
-
-  function openTankPixel(){
-    injectStyle();
-    const A=document.getElementById('app');
-    if(!A) return;
-    A.innerHTML='<div class="tank-screen"><div class="tank-shell"><div class="tank-head"><button class="tank-back" type="button">← Volver</button><div><b>Tank Pixel</b><small>Destruye las coberturas</small></div><span class="tank-score">💥 0</span></div><div class="tank-stage-wrap"><canvas id="tankCanvas" class="tank-canvas" width="960" height="600"></canvas><div class="tank-help">Mover: ◀ ▶ · Disparar: 🔥 · En móvil usa los controles</div><div class="tank-controls"><button data-key="left">◀</button><button data-action="fire">🔥</button><button data-key="right">▶</button></div></div></div></div>';
-    A.querySelector('.tank-back').onclick=()=>window.home();
-    startTank();
-  }
-  window.openTankPixel=openTankPixel;
-
-  function startTank(){
-    const canvas=document.getElementById('tankCanvas'); if(!canvas) return;
-    const ctx=canvas.getContext('2d'); ctx.imageSmoothingEnabled=false;
-    const W=canvas.width,H=canvas.height;
-    const keys={left:false,right:false};
-    const player={x:W/2,y:H-72,w:58,h:42,speed:330,cool:0};
-    const enemy={x:W/2,y:58,w:58,h:42,cool:1.3,alive:true};
-    const bullets=[],sparks=[];
-    const obstacles=[
-      {x:95,y:125,w:135,h:42,hp:5,max:5},{x:330,y:175,w:105,h:52,hp:4,max:4},{x:545,y:110,w:155,h:42,hp:6,max:6},{x:760,y:205,w:105,h:54,hp:4,max:4},
-      {x:160,y:310,w:155,h:48,hp:6,max:6},{x:410,y:345,w:120,h:58,hp:5,max:5},{x:640,y:305,w:170,h:48,hp:6,max:6},
-      {x:55,y:445,w:120,h:44,hp:4,max:4},{x:275,y:475,w:150,h:42,hp:5,max:5},{x:555,y:455,w:135,h:48,hp:5,max:5},{x:785,y:420,w:120,h:44,hp:4,max:4}
-    ];
-    let score=0,running=true,last=performance.now(),enemyHit=0;
-    function rectHitCircle(r,c){const nx=Math.max(r.x,Math.min(c.x,r.x+r.w)),ny=Math.max(r.y,Math.min(c.y,r.y+r.h));return (c.x-nx)**2+(c.y-ny)**2<=c.r*c.r;}
-    function tankHitCircle(t,c){return rectHitCircle({x:t.x-t.w/2,y:t.y-t.h/2,w:t.w,h:t.h},c);}
-    function spawnSpark(x,y,n=5){for(let i=0;i<n;i++)sparks.push({x,y,vx:(Math.random()-.5)*180,vy:(Math.random()-.5)*180,life:.35});}
-    function fire(fromPlayer=true){const t=fromPlayer?player:enemy,dir=fromPlayer?-1:1;bullets.push({x:t.x,y:t.y+dir*22,r:7,vx:0,vy:dir*430,owner:fromPlayer?'p':'e'});}
-    function damageObstacle(o,b){o.hp--;spawnSpark(b.x,b.y,8);score+=10;if(o.hp<=0){o.dead=true;score+=30;spawnSpark(o.x+o.w/2,o.y+o.h/2,20);}b.dead=true;}
-    function reset(){bullets.length=0;sparks.length=0;obstacles.forEach(o=>{o.dead=false;o.hp=o.max});enemy.alive=true;enemyHit=0;score=0;player.x=W/2;running=true;}
-    function updateBullet(b,dt){
-      b.x+=b.vx*dt;b.y+=b.vy*dt;
-      if(b.x-b.r<=0){b.x=b.r;b.vx=Math.abs(b.vx);}
-      if(b.x+b.r>=W){b.x=W-b.r;b.vx=-Math.abs(b.vx);}
-      if(b.y-b.r<=0){b.y=b.r;b.vy=Math.abs(b.vy);}
-      if(b.y-b.r>H){b.dead=true;return;}
-      for(const o of obstacles)if(!o.dead&&rectHitCircle(o,b)){damageObstacle(o,b);return;}
-      if(b.owner==='p'&&enemy.alive&&tankHitCircle(enemy,b)){b.dead=true;enemyHit++;score+=50;spawnSpark(b.x,b.y,14);if(enemyHit>=8){enemy.alive=false;score+=300;running=false;}}
-      if(b.owner==='e'&&tankHitCircle(player,b)){b.dead=true;score=Math.max(0,score-25);spawnSpark(b.x,b.y,10);player.x=W/2;}
-    }
-    function drawPixelTank(t,playerTank=true){ctx.save();ctx.translate(Math.round(t.x),Math.round(t.y));ctx.fillStyle=playerTank?'#36d67b':'#ef5b67';ctx.fillRect(-t.w/2,-t.h/2,t.w,t.h);ctx.fillStyle='#18212b';ctx.fillRect(-t.w/2-7,-t.h/2+4,8,12);ctx.fillRect(t.w/2-1,-t.h/2+4,8,12);ctx.fillRect(-t.w/2-7,t.h/2-16,8,12);ctx.fillRect(t.w/2-1,t.h/2-16,8,12);ctx.fillStyle=playerTank?'#7affad':'#ff9b9b';ctx.fillRect(-18,-14,36,28);ctx.fillStyle='#202b38';ctx.fillRect(-5,-27,10,32);ctx.fillRect(-5,-32,10,8);ctx.fillStyle='#c8f7ff';ctx.fillRect(-2,-25,4,8);ctx.restore();}
-    function drawObstacle(o){const ratio=o.hp/o.max;ctx.fillStyle='#3b4652';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.fillStyle='#687482';ctx.fillRect(o.x+4,o.y+4,o.w-8,o.h-8);ctx.fillStyle='#8997a5';for(let x=o.x+8;x<o.x+o.w-8;x+=18)ctx.fillRect(x,o.y+8,10,5);ctx.fillStyle='#222b34';ctx.fillRect(o.x,o.y+o.h-6,o.w,6);ctx.fillStyle='#f6c84c';ctx.fillRect(o.x,o.y-5,o.w*ratio,3);}
-    function draw(){ctx.fillStyle='#0c1320';ctx.fillRect(0,0,W,H);ctx.fillStyle='#111d2b';for(let x=0;x<W;x+=32)for(let y=0;y<H;y+=32)if((x/32+y/32)%2===0)ctx.fillRect(x,y,1,1);ctx.strokeStyle='#26384a';ctx.lineWidth=4;ctx.strokeRect(2,2,W-4,H-4);obstacles.forEach(o=>{if(!o.dead)drawObstacle(o);});if(enemy.alive)drawPixelTank(enemy,false);drawPixelTank(player,true);for(const b of bullets){ctx.fillStyle=b.owner==='p'?'#ffe16b':'#ff7070';ctx.fillRect(Math.round(b.x-b.r),Math.round(b.y-b.r),b.r*2,b.r*2);ctx.fillStyle='#fff7c2';ctx.fillRect(Math.round(b.x-2),Math.round(b.y-2),4,4);}for(const s of sparks){ctx.fillStyle='#ffd65c';ctx.fillRect(s.x-2,s.y-2,4,4);}const scoreEl=document.querySelector('.tank-score');if(scoreEl)scoreEl.textContent='💥 '+score;if(!running){ctx.fillStyle='rgba(6,10,16,.82)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 42px monospace';ctx.fillText(enemy.alive?'¡Fin de la partida!':'¡Tanque enemigo destruido!',W/2,H/2-20);ctx.font='bold 24px monospace';ctx.fillText('Puntuación: '+score,W/2,H/2+28);}}
-    function loop(now){if(!document.getElementById('tankCanvas'))return;const dt=Math.min(.033,(now-last)/1000);last=now;if(running){if(keys.left)player.x-=player.speed*dt;if(keys.right)player.x+=player.speed*dt;player.x=Math.max(38,Math.min(W-38,player.x));player.cool-=dt;if(player.cool<=0){fire(true);player.cool=.72;}enemy.cool-=dt;if(enemy.alive&&enemy.cool<=0){fire(false);enemy.cool=1.9;}bullets.forEach(b=>updateBullet(b,dt));for(let i=bullets.length-1;i>=0;i--)if(bullets[i].dead)bullets.splice(i,1);for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(s.life<=0)sparks.splice(i,1);}}draw();requestAnimationFrame(loop);}
-    function bindHold(btn,key){const on=()=>keys[key]=true,off=()=>keys[key]=false;btn.addEventListener('pointerdown',on);btn.addEventListener('pointerup',off);btn.addEventListener('pointercancel',off);btn.addEventListener('pointerleave',off);}
-    bindHold(document.querySelector('[data-key="left"]'),'left');bindHold(document.querySelector('[data-key="right"]'),'right');document.querySelector('[data-action="fire"]').addEventListener('click',()=>{if(running&&player.cool<=0){fire(true);player.cool=.12;}});
-    const keydown=e=>{if(e.key==='ArrowLeft')keys.left=true;if(e.key==='ArrowRight')keys.right=true;if(e.code==='Space'&&running){e.preventDefault();if(player.cool<=0){fire(true);player.cool=.12;}}};const keyup=e=>{if(e.key==='ArrowLeft')keys.left=false;if(e.key==='ArrowRight')keys.right=false};window.addEventListener('keydown',keydown);window.addEventListener('keyup',keyup);
-    const back=document.querySelector('.tank-back'),restart=document.createElement('button');restart.className='tank-restart';restart.textContent='🔄';restart.title='Repetir';restart.onclick=()=>{reset();last=performance.now();};back.parentElement.appendChild(restart);requestAnimationFrame(loop);
-  }
-  injectStyle();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hookHome,{once:true});else hookHome();
+/* Tank Pixel · duelo 2 jugadores */
+(()=>{
+const SID='tank-pixel-style',CARD='tank-pixel-home-card';let home0=null;
+const css=()=>{if(document.getElementById(SID))return;const l=document.createElement('link');l.id=SID;l.rel='stylesheet';l.href='css/tank-pixel.css?v='+(window.APP_VERSION||Date.now());document.head.appendChild(l)};
+const unlocked=()=>typeof window.actionGamesAvailable==='function'&&window.actionGamesAvailable();
+function card(){const g=document.querySelector('.action-game-grid');if(!g||g.querySelector('.'+CARD))return;const ok=unlocked(),b=document.createElement('button');b.type='button';b.className='guardian-home-card planet-home-card '+CARD+' '+(ok?'unlocked':'locked');b.disabled=!ok;b.setAttribute('aria-disabled',String(!ok));b.innerHTML=`<span class="guardian-home-icon">${ok?'🎯':'🔒'}</span><span><b>Tank Pixel</b><small>${ok?'Duelo de tanques para dos jugadores':'Completa los retos de hoy para desbloquear una partida'}</small></span><strong>${ok?'JUGAR →':'BLOQUEADO'}</strong>`;if(ok)b.onclick=open;g.appendChild(b)}
+function hook(){css();if(typeof window.home==='function'&&!window.home.__tankPixelHooked){home0=window.home;const w=function(){const r=home0.apply(this,arguments);requestAnimationFrame(card);return r};w.__tankPixelHooked=true;window.home=w}requestAnimationFrame(card)}
+function open(){if(!unlocked()){home();return}const A=document.getElementById('app');if(!A)return;document.body.classList.add('tank-pixel-active');A.innerHTML='<main class="tank2-screen"><div class="tank2-hud"><button id="tankBack">← SALIR</button><b>TANK PIXEL · 2 JUGADORES</b><span id="tankInfo">💥 0 — 0</span><button id="tankReset">↻</button></div><div class="tank2-arena-wrap"><canvas id="tankCanvas" width="1600" height="900"></canvas><div class="tank2-help"><span>🟢 JUGADOR 1 · joystick izquierdo</span><span>🔴 JUGADOR 2 · joystick derecho</span></div><div id="joy1" class="tank-joy"><i></i></div><div id="joy2" class="tank-joy"><i></i></div></div></main>';document.getElementById('tankBack').onclick=()=>window.home();start()}
+function start(){const c=document.getElementById('tankCanvas');if(!c)return;const x=c.getContext('2d');x.imageSmoothingEnabled=false;const W=c.width,H=c.height;let raf,last=performance.now(),over=false,scores=[0,0];const ps=[{x:180,y:H/2,ang:0,hp:5,cd:0,joy:{x:0,y:0}},{x:W-180,y:H/2,ang:Math.PI,hp:5,cd:0,joy:{x:0,y:0}}],bul=[],parts=[],bon=[];
+const obs=[{x:420,y:100,w:170,h:50,hp:5,max:5},{x:700,y:80,w:190,h:60,hp:7,max:7},{x:1010,y:110,w:170,h:50,hp:5,max:5},{x:350,y:290,w:170,h:60,hp:6,max:6},{x:630,y:250,w:120,h:85,hp:5,max:5},{x:850,y:300,w:190,h:60,hp:7,max:7},{x:1140,y:270,w:150,h:75,hp:5,max:5},{x:430,y:500,w:150,h:60,hp:5,max:5},{x:690,y:470,w:200,h:65,hp:7,max:7},{x:1030,y:500,w:150,h:60,hp:5,max:5},{x:230,y:700,w:190,h:55,hp:6,max:6},{x:590,y:680,w:150,h:65,hp:5,max:5},{x:900,y:710,w:180,h:55,hp:6,max:6},{x:1190,y:670,w:180,h:65,hp:7,max:7}];let spawn=2;
+function rect(r,b){const nx=Math.max(r.x,Math.min(b.x,r.x+r.w)),ny=Math.max(r.y,Math.min(b.y,r.y+r.h));return(b.x-nx)**2+(b.y-ny)**2<=b.r*b.r}function tankHit(p,b){return Math.hypot(p.x-b.x,p.y-b.y)<b.r+30}function fx(a,b,n=8){for(let i=0;i<n;i++)parts.push({x:a,y:b,vx:(Math.random()-.5)*180,vy:(Math.random()-.5)*180,t:.45})}
+function fire(i){const p=ps[i];if(over||p.cd>0||p.hp<=0)return;p.cd=.3;bul.push({x:p.x+Math.cos(p.ang)*38,y:p.y+Math.sin(p.ang)*38,vx:Math.cos(p.ang)*640,vy:Math.sin(p.ang)*640,r:7,owner:i})}
+function joy(el,i){let id=null;const mv=e=>{if(id!==e.pointerId)return;const r=el.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=Math.min(1,Math.hypot(dx,dy)/(r.width*.35));if(m>.12)ps[i].ang=Math.atan2(dy,dx);ps[i].joy={x:Math.cos(Math.atan2(dy,dx))*m,y:Math.sin(Math.atan2(dy,dx))*m};const k=el.querySelector('i');k.style.transform=`translate(${ps[i].joy.x*38}px,${ps[i].joy.y*38}px)`};const end=e=>{if(id===e.pointerId){id=null;ps[i].joy={x:0,y:0};el.classList.remove('active');el.querySelector('i').style.transform='translate(0,0)'}};el.onpointerdown=e=>{id=e.pointerId;el.setPointerCapture(id);el.classList.add('active');mv(e)};el.onpointermove=mv;el.onpointerup=end;el.onpointercancel=end}joy(document.getElementById('joy1'),0);joy(document.getElementById('joy2'),1);
+function spawnBonus(){const ts=[['⚡','rapid'],['🛡️','shield'],['💥','power'],['🚀','speed']];const q=ts[Math.floor(Math.random()*ts.length)],b={x:270+Math.random()*1060,y:80+Math.random()*740,r:23,life:8,icon:q[0],type:q[1]};if(!bon.some(z=>Math.hypot(z.x-b.x,z.y-b.y)<90))bon.push(b)}
+function updateBullet(b,dt){b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.x-b.r<=0){b.x=b.r;b.vx=Math.abs(b.vx)}if(b.x+b.r>=W){b.x=W-b.r;b.vx=-Math.abs(b.vx)}if(b.y-b.r<=0){b.y=b.r;b.vy=Math.abs(b.vy)}if(b.y-b.r>H){b.dead=true;return}for(const o of obs)if(o.hp>0&&rect(o,b)){o.hp--;b.dead=true;fx(b.x,b.y);if(o.hp===0)fx(o.x+o.w/2,o.y+o.h/2,22);return}for(let i=0;i<2;i++)if(i!==b.owner&&ps[i].hp>0&&tankHit(ps[i],b)){b.dead=true;ps[i].hp--;scores[b.owner]++;fx(b.x,b.y,16);if(ps[i].hp<=0)over=true;return}}
+function drawTank(p,i){x.save();x.translate(p.x,p.y);x.rotate(p.ang);x.fillStyle=i?'#e65363':'#36d67b';x.fillRect(-34,-25,68,50);x.fillStyle='#19232d';x.fillRect(-40,-20,10,14);x.fillRect(30,-20,10,14);x.fillRect(-40,6,10,14);x.fillRect(30,6,10,14);x.fillStyle=i?'#ff9ba1':'#9affbd';x.fillRect(-18,-18,36,36);x.fillStyle='#17242f';x.fillRect(0,-7,48,14);x.fillStyle='#d9fbff';x.fillRect(31,-3,12,6);x.restore()}
+function draw(){x.fillStyle='#08111b';x.fillRect(0,0,W,H);x.fillStyle='#0d1d29';for(let y=0;y<H;y+=45)for(let z=0;z<W;z+=45)x.fillRect(z,y,1,1);x.strokeStyle='#294157';x.lineWidth=5;x.strokeRect(3,3,W-6,H-6);x.strokeStyle='#172d3e';x.lineWidth=2;x.beginPath();x.moveTo(W/2,0);x.lineTo(W/2,H);x.stroke();obs.forEach(o=>{if(o.hp<=0)return;x.fillStyle='#414f5b';x.fillRect(o.x,o.y,o.w,o.h);x.fillStyle='#71808d';x.fillRect(o.x+5,o.y+5,o.w-10,o.h-10);x.fillStyle='#202a33';x.fillRect(o.x,o.y+o.h-7,o.w,7);x.fillStyle='#f1c64c';x.fillRect(o.x,o.y-6,o.w*o.hp/o.max,4)});bon.forEach(b=>{x.strokeStyle='#f4d04d';x.lineWidth=4;x.beginPath();x.arc(b.x,b.y,b.r+5,0,Math.PI*2);x.stroke();x.font='30px sans-serif';x.textAlign='center';x.fillText(b.icon,b.x,b.y+10)});ps.forEach((p,i)=>{if(p.hp>0)drawTank(p,i)});bul.forEach(b=>{x.fillStyle=b.owner?'#ff6b76':'#ffe06b';x.fillRect(b.x-6,b.y-6,12,12)});parts.forEach(s=>{x.fillStyle='#ffd45a';x.fillRect(s.x-2,s.y-2,4,4)});document.getElementById('tankInfo').textContent=`💥 ${scores[0]} — ${scores[1]}   ❤️ ${ps[0].hp} : ${ps[1].hp}`;if(over){x.fillStyle='rgba(0,0,0,.72)';x.fillRect(0,0,W,H);x.textAlign='center';x.fillStyle='#fff';x.font='bold 48px monospace';x.fillText(ps[0].hp<=0?'¡GANA JUGADOR 2!':'¡GANA JUGADOR 1!',W/2,H/2)}}
+function loop(now){const dt=Math.min(.032,(now-last)/1000);last=now;if(!over){ps.forEach((p,i)=>{p.cd=Math.max(0,p.cd-dt);p.x+=p.joy.x*250*dt;p.y+=p.joy.y*250*dt;p.x=Math.max(45,Math.min(W-45,p.x));p.y=Math.max(45,Math.min(H-45,p.y));if(Math.hypot(p.joy.x,p.joy.y)>.15)fire(i)});bul.forEach(b=>updateBullet(b,dt));for(let i=bul.length-1;i>=0;i--)if(bul[i].dead)bul.splice(i,1);bon.forEach(b=>b.life-=dt);for(let i=bon.length-1;i>=0;i--){if(bon[i].life<=0){bon.splice(i,1);continue}for(const p of ps)if(p.hp>0&&Math.hypot(p.x-bon[i].x,p.y-bon[i].y)<48){p.cd=Math.min(p.cd,.08);p.bonus=bon[i].type;bon.splice(i,1);break}}spawn-=dt;if(spawn<=0){spawnBonus();spawn=5+Math.random()*4}parts.forEach(s=>{s.x+=s.vx*dt;s.y+=s.vy*dt;s.t-=dt});for(let i=parts.length-1;i>=0;i--)if(parts[i].t<=0)parts.splice(i,1)}draw();raf=requestAnimationFrame(loop)}requestAnimationFrame(loop);document.getElementById('tankReset').onclick=()=>{cancelAnimationFrame(raf);open()}}
+css();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
 })();
