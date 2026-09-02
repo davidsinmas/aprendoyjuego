@@ -27,6 +27,6 @@
 - **Defensa planetaria** pasa a un ritmo más táctico: los meteoritos tardan más en caer y los resistentes requieren más impactos para destruirse.
 - La velocidad aumenta de forma **sutil por oleadas y nivel**, evitando un salto brusco de dificultad.
 - Se incorporan **enemigos de fuego**: algunas naves enemigas descienden lentamente y disparan proyectiles hacia los guardianes.
-- Nuevos bonus ofensivos: **MULTI**, que añade disparos simultáneos, y **BOMBA**, que elimina todos los meteoritos y proyectiles enemigos y proyectiles enemigos presentes en pantalla.
+- Nuevos bonus ofensivos: **MULTI**, que añade disparos simultáneos, y **BOMBA**, que elimina todos los meteoritos y proyectiles enemigos presentes en pantalla.
 - Se mantienen los bonus existentes de **disparo rápido, escudo y tiempo lento**.
 - Los bonus nuevos se muestran en el HUD y las bombas acumuladas pueden activarse con la tecla **B** en ordenador.
