@@ -63,7 +63,7 @@
   }
 
   function dailyModeCard(){
-    const settings=ensureSettings(),mode=levelProgressMode(),target=levelProgressTarget();
+    const mode=levelProgressMode(),target=levelProgressTarget();
     return `<div class="parent-card daily-mode-settings"><h3>📅 Progreso diario</h3><p class="muted">Elige cómo se desbloquean los juegos de acción. Los <b>Retos diarios</b> originales se conservan y no se borran.</p><div class="daily-mode-options"><label class="daily-mode-option ${mode===MODE_LEVELS?'selected':''}"><input type="radio" name="dailyProgressMode" value="levels" ${mode===MODE_LEVELS?'checked':''} onchange="setDailyProgressMode('levels')"><span><b>🎮 Niveles</b><small>Contar niveles completados cada día.</small></span></label><label class="daily-mode-option ${mode===MODE_CHALLENGES?'selected':''}"><input type="radio" name="dailyProgressMode" value="challenges" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode('challenges')"><span><b>🎯 Retos</b><small>Usar el sistema de retos diarios original.</small></span></label></div><div class="daily-level-config"><label>Niveles necesarios para desbloquear</label><input id="dailyLevelsRequired" type="number" min="10" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar número de niveles</button><small class="muted">Mínimo 10 · máximo ${MAX_REQUIRED}. El cambio se aplica al próximo progreso diario.</small></div></div>`;
   }
 
@@ -86,11 +86,13 @@
     save(D);parentDashboard();
   }
 
-  /* Sustituye visualmente el panel diario solo cuando está activo el modo niveles. */
+  /* Exponer estos dos controles porque los botones se generan con onclick HTML. */
+  window.setDailyProgressMode=setDailyProgressMode;
+  window.setDailyLevelsRequired=setDailyLevelsRequired;
+
   const originalDailyHTML=dailyHTML;
   dailyHTML=function(){return levelProgressMode()===MODE_LEVELS?dailyLevelsHTML():originalDailyHTML();};
 
-  /* En modo niveles, la disponibilidad de los dos juegos de acción depende del contador. */
   const originalActionGamesAvailable=actionGamesAvailable;
   actionGamesAvailable=function(){
     if(parentMode)return true;
@@ -107,7 +109,6 @@
     return originalActionGamesAvailable();
   };
 
-  /* Las tarjetas dejan de hablar de retos cuando el modo niveles está activo. */
   const originalGuardianCard=guardianDuelCard;
   guardianDuelCard=function(){
     if(levelProgressMode()!==MODE_LEVELS)return originalGuardianCard();
@@ -123,7 +124,6 @@
     return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="openPlanetDefense()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
-  /* Cuenta el nivel justo cuando termina, sin alterar el sistema de estadísticas existente. */
   function wrapFinish(name,levelGetter){
     const original=window[name];
     if(typeof original!=='function')return;
@@ -140,7 +140,6 @@
   wrapFinish('finishReading',()=>state.level?.id);
   wrapFinish('finishSoup',()=>state.level?.id);
 
-  /* Ajusta el logro existente para que siga teniendo sentido con el nuevo modo. */
   if(Array.isArray(ACHIEVEMENTS)){
     const dailyAchievement=ACHIEVEMENTS.find(item=>item.id==='daily_complete');
     if(dailyAchievement){
@@ -150,7 +149,6 @@
     }
   }
 
-  /* Añade la sección de configuración al panel Padres existente, sin eliminar ninguna opción. */
   const originalParentDashboard=parentDashboard;
   parentDashboard=function(){
     ensureSettings();ensureLevelProgress();
@@ -162,7 +160,6 @@
     grid.insertAdjacentHTML('afterbegin',dailyModeCard());
   };
 
-  /* Arranque: conserva los retos diarios en almacenamiento y activa niveles como opción inicial. */
   ensureSettings();
   ensureLevelProgress();
   if(levelProgressMode()===MODE_LEVELS)unlockFromLevels();
