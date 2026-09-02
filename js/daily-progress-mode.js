@@ -71,7 +71,15 @@
     if(mode!==MODE_LEVELS&&mode!==MODE_CHALLENGES)return;
     ensureSettings().progresoDiario=mode;
     ensureLevelProgress();
-    if(mode===MODE_LEVELS)unlockFromLevels();
+    if(mode===MODE_LEVELS){
+      const p=ensureLevelProgress();
+      if(p.niveles.length>=levelProgressTarget())unlockFromLevels();
+      else D.actionAccess={date:todayKey(),available:false,consumed:false};
+    }else{
+      ensureDaily();
+      const complete=!!D.retosDiarios?.premio;
+      D.actionAccess={date:todayKey(),available:complete,consumed:false};
+    }
     save(D);parentDashboard();
   }
 
@@ -83,10 +91,10 @@
     const p=ensureLevelProgress();
     p.desbloqueado=p.niveles.length>=ensureSettings().nivelesDiarios;
     if(p.desbloqueado&&!parentMode)D.actionAccess={date:todayKey(),available:true,consumed:false};
+    else if(!parentMode)D.actionAccess={date:todayKey(),available:false,consumed:false};
     save(D);parentDashboard();
   }
 
-  /* Exponer estos dos controles porque los botones se generan con onclick HTML. */
   window.setDailyProgressMode=setDailyProgressMode;
   window.setDailyLevelsRequired=setDailyLevelsRequired;
 
