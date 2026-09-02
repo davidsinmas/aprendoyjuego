@@ -1,3 +1,14 @@
+## V3.8.11 — 2026-09-02
+
+- Los **Retos diarios no se eliminan**: quedan conservados y se pueden volver a activar desde la Zona de padres.
+- Nuevo modo diario por defecto: **contador de niveles**.
+- El objetivo inicial es completar **10 niveles diferentes al día** para desbloquear los juegos de acción.
+- Cada nivel cuenta **una sola vez por día**; repetir un nivel no incrementa el contador.
+- En la Zona de padres se añade **Progreso diario**, con selector entre **Niveles** y **Retos**.
+- El número de niveles necesarios es configurable desde Padres, con un mínimo de 10 y máximo de 100.
+- El contador se reinicia automáticamente cada día.
+- El desbloqueo de los juegos de acción mantiene el pase diario existente: completar el objetivo permite una partida compartida entre los juegos de acción.
+
 ## V3.8.8 — 2026-08-31
 
 - Los bonus ofensivos pasan a ser **temporales**: disparo rápido, MULTI, tiempo lento y BOMBA pierden su efecto cuando se agota su tiempo.
@@ -16,6 +27,6 @@
 - **Defensa planetaria** pasa a un ritmo más táctico: los meteoritos tardan más en caer y los resistentes requieren más impactos para destruirse.
 - La velocidad aumenta de forma **sutil por oleadas y nivel**, evitando un salto brusco de dificultad.
 - Se incorporan **enemigos de fuego**: algunas naves enemigas descienden lentamente y disparan proyectiles hacia los guardianes.
-- Nuevos bonus ofensivos: **MULTI**, que añade disparos simultáneos, y **BOMBA**, que elimina todos los meteoritos y proyectiles enemigos presentes en pantalla.
+- Nuevos bonus ofensivos: **MULTI**, que añade disparos simultáneos, y **BOMBA**, que elimina todos los meteoritos y proyectiles enemigos y proyectiles enemigos presentes en pantalla.
 - Se mantienen los bonus existentes de **disparo rápido, escudo y tiempo lento**.
 - Los bonus nuevos se muestran en el HUD y las bombas acumuladas pueden activarse con la tecla **B** en ordenador.
