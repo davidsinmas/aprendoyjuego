@@ -56,8 +56,9 @@
 
   function playTankFromAccess(){
     if(!actionAvailable())return;
-    if(!consumeForActionGame())return;
-    if(typeof window.tankPixelOpen==='function')window.tankPixelOpen();
+    if(typeof window.tankPixelOpen!=='function')return;
+    window.tankPixelOpen();
+    consumeForActionGame();
   }
 
   window.parentUnlockActionGames=parentUnlockActionGames;
