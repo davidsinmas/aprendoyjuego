@@ -1,3 +1,11 @@
+## V3.8.16 — 2026-09-02
+
+- **Tank Pixel** pasa a formato **mejor de 3**: gana la partida el jugador que consiga 2 rondas.
+- Los tanques aumentan su vida de **5 a 7 puntos** por ronda.
+- Se reduce la frecuencia de disparo normal y del bonus de **CADENCIA** para dar un ritmo más táctico.
+- Al terminar una ronda se hace una pausa breve y se reinicia el escenario para la siguiente; el marcador de rondas se conserva.
+- El desbloqueo desde **Zona de padres** queda unificado para los **tres juegos de acción**: el botón concede **una sola partida compartida** y el acceso se consume al iniciar cualquiera de ellos.
+
 ## V3.8.11 — 2026-09-02
 
 - Los **Retos diarios no se eliminan**: quedan conservados y se pueden volver a activar desde la Zona de padres.
