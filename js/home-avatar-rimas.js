@@ -6,10 +6,12 @@
     if(typeof D==='undefined')return;
     D.ajustes=D.ajustes&&typeof D.ajustes==='object'?D.ajustes:{};
     const settings=D.ajustes.juegosActivos&&typeof D.ajustes.juegosActivos==='object'?D.ajustes.juegosActivos:{};
-    /* Solo fija el valor inicial. Si Padres lo activa, se conserva entre sesiones. */
-    if(typeof settings.rimas!=='boolean'){
+    const migrationKey='rimasDefaultDisabledV3818';
+    /* Migración única: corrige instalaciones existentes sin impedir que Padres lo reactive después. */
+    if(!D.ajustes[migrationKey]){
       settings.rimas=false;
       D.ajustes.juegosActivos=settings;
+      D.ajustes[migrationKey]=true;
       if(typeof save==='function')save(D);
     }
   }
