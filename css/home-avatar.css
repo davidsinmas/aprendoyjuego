@@ -1,0 +1,15 @@
+/* V3.8.18 · Avatar equipado en la cabecera de la pantalla principal. */
+.home-head .brand{min-width:0}
+.home-avatar{position:relative;flex:0 0 76px;width:76px;height:76px;overflow:hidden;border:1px solid rgba(82,151,181,.28);border-radius:22px;background:var(--avatar-backdrop);box-shadow:0 8px 20px rgba(20,63,83,.16)}
+.home-avatar .avatar-stage{width:100%;height:100%;aspect-ratio:1/1}
+.home-avatar .avatar-layer{width:100%;height:100%}
+.home-avatar-error{display:grid;place-items:center;color:var(--muted);font-size:.7rem;text-align:center}
+@media(max-width:600px){
+  .home-avatar{flex-basis:64px;width:64px;height:64px;border-radius:18px}
+  .home-head{gap:8px}
+  .brand{gap:9px}
+}
+@media(max-width:390px){
+  .home-avatar{flex-basis:56px;width:56px;height:56px;border-radius:16px}
+  .brand h1{font-size:1.55rem}
+}
