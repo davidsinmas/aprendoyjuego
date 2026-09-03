@@ -1,3 +1,9 @@
+## V3.8.17 — 2026-09-03
+
+- El juego **Palabras** exige ahora que todas las palabras objetivo tengan **mínimo 3 sílabas**.
+- Se corrigen también los niveles que estaban definidos para 2 sílabas: el filtro efectivo pasa a ser de 3 o más.
+- Se evita el fallback que podía volver a introducir palabras de menos de 3 sílabas cuando no había suficientes coincidencias con las restricciones del nivel.
+
 ## V3.8.16 — 2026-09-02
 
 - **Tank Pixel** pasa a formato **mejor de 3**: gana la partida el jugador que consiga 2 rondas.
