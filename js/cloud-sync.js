@@ -1,20 +1,33 @@
-/* V3.9.6 — registro con retorno explícito a GitHub Pages. */
+/* V3.10.0 — sincronización cloud robusta entre dispositivos y recuperación tras desconexión. */
 (function(){
   'use strict';
   const SUPABASE_URL='https://wqyvbsnmrpomxoqfxozb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY='sb_publishable_cbA-5xXZH-VdJGiCxLB-PQ_M6loQAhs';
   const AUTH_REDIRECT_URL='https://davidsinmas.github.io/aprendoyjuego/';
   const CLOUD_TABLE='game_states',LOAD_MARKER='ludeiko_cloud_last_loaded_at_v2',DIRTY_MARKER='ludeiko_cloud_local_changed_at_v1';
-  const GAME_VERSION='3.9.1',DATA_VERSION=20;
+  const GAME_VERSION='3.10.0',DATA_VERSION=20;
   const client=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   if(!client){console.warn('[Ludeiko] Supabase no disponible.');return;}
-  let syncing=false,timer=null,initialized=false,reloading=false,lastSessionId='';
+  let syncing=false,timer=null,initialized=false,reloading=false,lastSessionId='',retryTimer=null;
   const originalSave=window.save,originalParentDashboard=window.parentDashboard;
   const state=()=>{try{return typeof D!=='undefined'&&D&&typeof D==='object'?D:null;}catch{return null;}};
   const now=()=>new Date().toISOString();
   const localSave=d=>{if(typeof originalSave==='function')originalSave(d);};
   function markDirty(){if(initialized&&!syncing)localStorage.setItem(DIRTY_MARKER,now());}
-  async function upload(force=false){const {data}=await client.auth.getSession(),session=data?.session,d=state();if(!session||!d||(syncing&&!force))return false;const stamp=now();d.versionDatos=Math.max(DATA_VERSION,Number(d.versionDatos)||DATA_VERSION);const {error}=await client.from(CLOUD_TABLE).upsert({user_id:session.user.id,state:d,updated_at:stamp},{onConflict:'user_id'});if(error){console.warn('[Ludeiko] Sincronización:',error.message);return false;}localStorage.setItem(LOAD_MARKER,stamp);localStorage.removeItem(DIRTY_MARKER);return true;}
+  function scheduleRetry(){if(!initialized||!navigator.onLine)return;clearTimeout(retryTimer);retryTimer=setTimeout(()=>upload().catch(console.warn),2500);}
+  async function upload(force=false){
+    const {data}=await client.auth.getSession(),session=data?.session,d=state();
+    if(!session||!d||(syncing&&!force))return false;
+    if(!navigator.onLine){scheduleRetry();return false;}
+    const stamp=now();
+    d.versionDatos=Math.max(DATA_VERSION,Number(d.versionDatos)||DATA_VERSION);
+    const {error}=await client.from(CLOUD_TABLE).upsert({user_id:session.user.id,state:d,updated_at:stamp},{onConflict:'user_id'});
+    if(error){console.warn('[Ludeiko] Sincronización:',error.message);scheduleRetry();return false;}
+    localStorage.setItem(LOAD_MARKER,stamp);
+    localStorage.removeItem(DIRTY_MARKER);
+    status('Sincronizado');
+    return true;
+  }
   function queue(){if(!initialized||syncing)return;clearTimeout(timer);timer=setTimeout(()=>upload().catch(console.warn),900);}
   window.save=function(d){if(typeof originalSave==='function')originalSave(d);markDirty();queue();};
   function status(text,error=false){const e=document.querySelector('[data-cloud-status]');if(e){e.textContent=text;e.dataset.error=error?'1':'0';}}
@@ -33,7 +46,7 @@
     syncing=true;
     try{
       const {data,error}=await client.from(CLOUD_TABLE).select('state,updated_at').eq('user_id',session.user.id).maybeSingle();
-      if(error){console.warn('[Ludeiko] Lectura cloud:',error.message);return;}
+      if(error){console.warn('[Ludeiko] Lectura cloud:',error.message);status('No se ha podido sincronizar ahora.',true);return;}
       const local=state(),remote=data?.state,remoteTime=data?.updated_at||'',lastLoaded=localStorage.getItem(LOAD_MARKER)||'',localDirty=localStorage.getItem(DIRTY_MARKER)||'';
       if(!remote||typeof remote!=='object'||!Object.keys(remote).length){await upload(true);status('Sincronizado');return;}
       const r=Date.parse(remoteTime)||0,l=Date.parse(localDirty)||0,m=Date.parse(lastLoaded)||0;
@@ -57,8 +70,12 @@
     lastSessionId=id;
     setTimeout(async()=>{try{status('Sincronizando…');await restore(session);if(reloading){reloading=false;location.reload();return;}render();}catch(e){console.warn('[Ludeiko] Auth:',e);}},0);
   }
+  window.addEventListener('online',()=>{status('Conexión recuperada. Sincronizando…');clearTimeout(retryTimer);scheduleRetry();});
+  window.addEventListener('offline',()=>status('Sin conexión. Los cambios se guardarán y se sincronizarán al recuperar internet.'));
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&initialized)queue();});
+  window.addEventListener('pagehide',()=>{if(initialized&&localStorage.getItem(DIRTY_MARKER))upload().catch(()=>{});});
   client.auth.onAuthStateChange((event,session)=>processSession(session,event));
   if(typeof originalParentDashboard==='function')window.parentDashboard=function(){originalParentDashboard();render();};
-  client.auth.getSession().then(async({data})=>{initialized=true;if(data?.session){lastSessionId=data.session.user.id;await restore(data.session);if(reloading){reloading=false;location.reload();return;}}}).catch(e=>console.warn('[Ludeiko] Sesión:',e));
+  client.auth.getSession().then(async({data})=>{initialized=true;if(data?.session){lastSessionId=data.session.user.id;await restore(data.session);if(reloading){reloading=false;location.reload();return;}render();}}).catch(e=>console.warn('[Ludeiko] Sesión:',e));
   window.ludeikoCloud={isConfigured:true,getSession:()=>client.auth.getSession(),syncNow:()=>upload(true),gameVersion:GAME_VERSION,dataVersion:DATA_VERSION};
 })();
