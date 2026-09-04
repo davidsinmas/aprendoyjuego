@@ -1,10 +1,11 @@
-/* V3.10.4 · Avatar compacto durante scroll sin bloquear el gesto táctil. */
+/* V3.10.5 · Avatar grande y fijo durante el scroll de la tienda. */
 .shop-layout .shop-showcase{position:-webkit-sticky;position:sticky;top:12px;align-self:start;z-index:20}
 .shop-layout .shop-preview-card{position:relative}
-.shop-layout .shop-preview-card .avatar-preview{width:min(100%,240px);max-width:240px;margin:0 auto}
+.shop-layout .shop-preview-card .avatar-preview{width:min(100%,300px);max-width:300px;margin:0 auto}
+.shop-layout .shop-preview-card .preview-label{display:none}
 
 @media(max-width:840px){
-  /* El avatar es flotante, pero NO puede capturar el gesto de desplazamiento. */
+  /* El avatar queda fijo y no captura el gesto de desplazamiento. */
   .shop-layout .shop-showcase{display:contents;position:static}
   .shop-layout .shop-preview-card{
     position:fixed;
@@ -14,7 +15,7 @@
     width:auto;
     max-width:none;
     margin:0;
-    padding:3px;
+    padding:4px;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -24,9 +25,10 @@
     box-shadow:0 8px 22px rgba(9,31,55,.22);
     pointer-events:none;
   }
-  .shop-layout .shop-preview-card .avatar-preview{width:128px;max-width:128px;flex:0 0 128px}
+  .shop-layout .shop-preview-card .avatar-preview{width:180px;max-width:180px;flex:0 0 180px}
+  .shop-layout .shop-preview-card .avatar-status{display:none}
 
-  /* No animaciones ni filtros en la copia visible durante el scroll. */
+  /* Evitar trabajo visual innecesario durante el scroll. */
   .shop-layout .shop-preview-card .avatar-layer[data-rarity="legendary"],
   .shop-layout .shop-preview-card.avatar-preview-card::before,
   .shop-layout .shop-preview-card.avatar-preview-card::after,
@@ -34,5 +36,5 @@
 }
 
 @media(max-width:390px){
-  .shop-layout .shop-preview-card .avatar-preview{width:112px;max-width:112px;flex-basis:112px}
+  .shop-layout .shop-preview-card .avatar-preview{width:155px;max-width:155px;flex-basis:155px}
 }
