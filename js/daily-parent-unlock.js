@@ -1,9 +1,8 @@
-/* V3.8.18 — desbloqueo manual desde Padres.
+/* V3.8.19 — acceso estable a juegos de acción desde Padres.
  *
- * En Zona de padres los juegos de acción permanecen bloqueados hasta pulsar
- * explícitamente el botón de desbloqueo. Una vez desbloqueados, permanecen
- * disponibles mientras el modo Padres esté activo y no consumen el acceso al
- * entrar en una partida.
+ * El permiso de Padres para los juegos de acción se guarda como un estado
+ * independiente. Entrar en un juego nunca lo consume ni modifica. Solo se
+ * elimina al salir explícitamente del Modo Padres.
  */
 (function(){
   const todayKey=()=>new Date().toLocaleDateString('sv-SE');
@@ -26,12 +25,13 @@
 
   function actionAvailable(){
     ensureActionAccess();
+    /* En Padres el permiso manual es independiente del pase diario. */
     if(parentMode)return !!parentAccess().available;
     return !!D.actionAccess?.available&&!D.actionAccess?.consumed;
   }
 
   function consumeForActionGame(){
-    /* En modo Padres el desbloqueo no se consume al abrir un juego. */
+    /* El acceso de Padres jamás se consume al abrir un juego. */
     if(parentMode)return true;
     return consumeActionGameAccess();
   }
@@ -62,7 +62,7 @@
 
   const previousAvailable=actionGamesAvailable;
   window.actionGamesAvailable=function(){
-    if(parentMode)return actionAvailable();
+    if(parentMode)return !!parentAccess().available;
     return previousAvailable();
   };
 
@@ -90,7 +90,16 @@
     const old=document.querySelector('.parent-action-unlock');
     if(old)old.remove();
     const unlocked=parentAccess().available;
-    grid.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><h3>⚡ Juegos de acción</h3><p class="muted">Los tres juegos permanecen bloqueados en modo Padres hasta que pulses el botón. Una vez desbloqueados, quedan disponibles mientras el modo Padres esté activo.</p><button type="button" class="btn ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'✓ JUEGOS DESBLOQUEADOS':'🔓 DESBLOQUEAR JUEGOS'}</button>${unlocked?'<small class="muted">Ya están desbloqueados. Puedes entrar en Duelo de Guardianes, Defensa del planeta o Tank Pixel sin perder el acceso.</small>':''}</div>`);
+    grid.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><h3>⚡ Juegos de acción</h3><p class="muted">Activa este permiso para probar Duelo de Guardianes, Defensa del planeta y Tank Pixel. El permiso permanece activo mientras estés en modo Padres y no se consume al entrar en un juego.</p><button type="button" class="btn ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'✓ JUEGOS DESBLOQUEADOS':'🔓 DESBLOQUEAR JUEGOS'}</button>${unlocked?'<small class="muted">Los tres juegos están disponibles. Entrar en uno no bloquea los demás.</small>':''}</div>`);
+  };
+
+  /* Al salir de Padres se elimina únicamente el permiso manual de Padres. */
+  const previousDisableParentMode=window.disableParentMode;
+  window.disableParentMode=function(){
+    const access=parentAccess();
+    access.available=false;
+    save(D);
+    if(typeof previousDisableParentMode==='function')previousDisableParentMode();
   };
 
   save(D);
