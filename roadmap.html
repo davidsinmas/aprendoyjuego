@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#dfe7e3">
+  <title>Hoja de ruta · Ludeiko</title>
+  <style>
+    :root{--bg:#eef3f0;--card:#fff;--text:#24312d;--muted:#68746f;--line:#d7dfdb;--accent:#315c50;--done:#718078;--late:#a64b3c}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{width:min(760px,calc(100% - 28px));margin:0 auto;padding:32px 0 48px}
+    h1{margin:0;font-size:clamp(1.7rem,5vw,2.3rem);letter-spacing:-.03em}
+    .intro{margin:8px 0 26px;color:var(--muted);font-size:.98rem}
+    .roadmap{display:grid;gap:12px}
+    .stage{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(36,49,45,.05)}
+    .stage button{appearance:none;border:0;background:none;width:100%;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:14px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+    .stage-main{min-width:0}
+    .stage-title{display:block;font-weight:750;font-size:1.05rem}
+    .stage-date{display:block;margin-top:5px;color:var(--muted);font-size:.9rem}
+    .marker{align-self:center;color:var(--accent);font-size:1.2rem;transition:transform .2s}
+    .details{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
+    .details>div{overflow:hidden}
+    .details p{margin:0;padding:0 20px 19px;color:#4d5a55;line-height:1.55}
+    .stage.open .details{grid-template-rows:1fr}
+    .stage.open .marker{transform:rotate(90deg)}
+    .stage.done .stage-title,.stage.done .stage-date{text-decoration:line-through;color:var(--done)}
+    .stage.done .marker{color:var(--done)}
+    .stage.late{border-color:rgba(166,75,60,.45)}
+    .stage.late .stage-date{color:var(--late);font-weight:650}
+    .status{display:inline-block;margin-left:8px;font-size:.75rem;font-weight:700;text-decoration:none!important}
+    @media(max-width:520px){main{padding-top:24px}.stage button{padding:16px}.details p{padding:0 16px 17px}}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Hoja de ruta de Ludeiko</h1>
+    <p class="intro">Pulsa cada etapa para ver qué se pretende conseguir. Las fechas son las previstas y se irán actualizando conforme avance el proyecto.</p>
+    <section class="roadmap" aria-label="Hoja de ruta">
+      <article class="stage">
+        <button type="button" aria-expanded="false">
+          <span class="stage-main"><span class="stage-title">1. Cerrar y estabilizar el acceso de familias</span><span class="stage-date">5–7 septiembre 2026</span></span><span class="marker">›</span>
+        </button>
+        <div class="details"><div><p>Dejar resuelto el registro, confirmación de correo, inicio de sesión y acceso al modo Padres, incluyendo el comportamiento específico de Safari. El objetivo es que el sistema de cuentas sea estable antes de seguir ampliando funciones.</p></div></div>
+      </article>
+      <article class="stage">
+        <button type="button" aria-expanded="false">
+          <span class="stage-main"><span class="stage-title">2. Consolidar la sincronización entre dispositivos</span><span class="stage-date">8–12 septiembre 2026</span></span><span class="marker">›</span>
+        </button>
+        <div class="details"><div><p>Comprobar que el progreso, la configuración y los datos del modo Padres se conservan correctamente en la nube y que los cambios locales y remotos se resuelven sin perder información.</p></div></div>
+      </article>
+      <article class="stage">
+        <button type="button" aria-expanded="false">
+          <span class="stage-main"><span class="stage-title">3. Consolidar avatar, equipamiento y tienda</span><span class="stage-date">13–19 septiembre 2026</span></span><span class="marker">›</span>
+        </button>
+        <div class="details"><div><p>Dejar el sistema de avatar y equipamiento preparado como una base estable y ampliable, manteniendo la separación entre imágenes de catálogo y capas equipables y conservando el trabajo ya realizado en la tienda.</p></div></div>
+      </article>
+      <article class="stage">
+        <button type="button" aria-expanded="false">
+          <span class="stage-main"><span class="stage-title">4. Estabilizar y completar los juegos de acción</span><span class="stage-date">20–26 septiembre 2026</span></span><span class="marker">›</span>
+        </button>
+        <div class="details"><div><p>Terminar la estabilización de los juegos de acción, especialmente el juego de tanques, evitando bloqueos al comenzar a mover los tanques y al aparecer bonus. Mantener obstáculos, rebotes, destrucción progresiva y la mecánica de bonus ya definida.</p></div></div>
+      </article>
+      <article class="stage">
+        <button type="button" aria-expanded="false">
+          <span class="stage-main"><span class="stage-title">5. Integrar y pulir la experiencia educativa diaria</span><span class="stage-date">27 septiembre–3 octubre 2026</span></span><span class="marker">›</span>
+        </button>
+        <div class="details"><div><p>Revisar el flujo diario de ejercicios y recompensas, los modos educativos y la presentación del avatar en la pantalla principal, manteniendo desactivado el juego de las rimas mientras siga esa decisión.</p></div></div>
+      </article>
+      <article class="stage">
+        <button type="button" aria-expanded="false">
+          <span class="stage-main"><span class="stage-title">6. Revisión final, móvil, escritorio y publicación</span><span class="stage-date">4–10 octubre 2026</span></span><span class="marker">›</span>
+        </button>
+        <div class="details"><div><p>Hacer una revisión completa de rutas, recursos, funcionamiento en móvil y ordenador, persistencia de datos, pantallas y juegos. Corregir los problemas encontrados y dejar una versión limpia y estable para GitHub Pages.</p></div></div>
+      </article>
+    </section>
+  </main>
+  <script>
+    document.querySelectorAll('.stage button').forEach(button=>{
+      button.addEventListener('click',()=>{
+        const stage=button.closest('.stage');
+        const open=stage.classList.toggle('open');
+        button.setAttribute('aria-expanded',open?'true':'false');
+      });
+    });
+  </script>
+</body>
+</html>
