@@ -23,7 +23,7 @@
       }
     }catch(e){}
     window.APP_VERSION=version;
-    const styles=['css/app.css','css/levels.css','css/avatar.css','css/home-avatar.css','css/duel.css','css/planet.css','css/differences.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css','css/scroll-fix.css','css/daily-progress.css'];
+    const styles=['css/app.css','css/levels.css','css/avatar.css','css/home-avatar.css','css/duel.css','css/planet.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css','css/scroll-fix.css','css/daily-progress.css','css/avatar-sticky.css'];
     for(const href of styles){
       const link=document.createElement('link');link.rel='stylesheet';link.href=href+'?v='+encodeURIComponent(version);document.head.appendChild(link);
     }
