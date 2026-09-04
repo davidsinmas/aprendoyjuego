@@ -1,5 +1,5 @@
 {
-  "version": "3.9.2",
-  "name": "Corrección del desbloqueo de juegos de acción",
-  "date": "2026-09-04"
+  "version": "3.9.4",
+  "name": "Compatibilidad del PIN con Safari y registro de cuenta",
+  "date": "2026-09-05"
 }
