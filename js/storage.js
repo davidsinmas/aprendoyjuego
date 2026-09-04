@@ -1,4 +1,4 @@
-// Compatibilidad con el validador histórico del actualizador: versionDatos:11
+// Compatibilidad con el validador histórico del actualizador: versionDatos:20
 const STORE='aprendo_jugando_datos';
 const STORE_BACKUP='aprendo_jugando_respaldo';
 function storedProgressScore(d){
@@ -9,7 +9,7 @@ function storedProgressScore(d){
 function readStored(key){try{return JSON.parse(localStorage.getItem(key))}catch{return null;}}
 function blank(){
   return{
-    versionDatos:19,
+    versionDatos:20,
     perfil:{nombre:'Jugador'},
     diamantes:0,
     estadisticas:{},
@@ -91,7 +91,7 @@ function load(){
   delete d.monedas;
   delete d.inventario;
   delete d.equipado;
-  d.versionDatos=19;
+  d.versionDatos=20;
   for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
     const v=localStorage.getItem('aprendo_stats_'+id);
     if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
