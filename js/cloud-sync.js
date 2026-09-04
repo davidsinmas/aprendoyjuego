@@ -1,8 +1,9 @@
-/* V3.9.1 — versionado de datos y sincronización cloud con resolución por cambios. */
+/* V3.9.6 — registro con retorno explícito a GitHub Pages. */
 (function(){
   'use strict';
   const SUPABASE_URL='https://wqyvbsnmrpomxoqfxozb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY='sb_publishable_cbA-5xXZH-VdJGiCxLB-PQ_M6loQAhs';
+  const AUTH_REDIRECT_URL='https://davidsinmas.github.io/aprendoyjuego/';
   const CLOUD_TABLE='game_states',LOAD_MARKER='ludeiko_cloud_last_loaded_at_v2',DIRTY_MARKER='ludeiko_cloud_local_changed_at_v1';
   const GAME_VERSION='3.9.1',DATA_VERSION=20;
   const client=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
@@ -24,7 +25,7 @@
   }
   function render(){const grid=document.querySelector('.parent-grid');if(!grid)return;const old=grid.querySelector('.ludeiko-cloud-card');if(old)old.remove();client.auth.getSession().then(({data})=>{if(!document.querySelector('.parent-grid'))return;grid.insertAdjacentHTML('afterbegin',card(data?.session||null));bind(grid);});}
   function bind(root){const form=root.querySelector('[data-cloud-form]');if(form&&!form.dataset.bound){form.dataset.bound='1';form.addEventListener('submit',async e=>{e.preventDefault();status('Iniciando sesión…');const {error}=await client.auth.signInWithPassword({email:form.email.value.trim(),password:form.password.value});if(error)status(error.message,true);});}
-    const signup=root.querySelector('[data-cloud-signup]');if(signup&&!signup.dataset.bound){signup.dataset.bound='1';signup.addEventListener('click',async()=>{const email=form?.email?.value.trim()||'',password=form?.password?.value||'';if(!email||password.length<6){status('Introduce un correo y una contraseña de al menos 6 caracteres.',true);return;}status('Creando cuenta…');const {data,error}=await client.auth.signUp({email,password,options:{data:{product:'ludeiko'}}});if(error){status(error.message,true);return;}status(data.session?'Cuenta creada. Sincronización activa.':'Cuenta creada. Revisa tu correo para confirmar la cuenta y después inicia sesión.');});}
+    const signup=root.querySelector('[data-cloud-signup]');if(signup&&!signup.dataset.bound){signup.dataset.bound='1';signup.addEventListener('click',async()=>{const email=form?.email?.value.trim()||'',password=form?.password?.value||'';if(!email||password.length<6){status('Introduce un correo y una contraseña de al menos 6 caracteres.',true);return;}status('Creando cuenta…');const {data,error}=await client.auth.signUp({email,password,options:{data:{product:'ludeiko'},emailRedirectTo:AUTH_REDIRECT_URL}});if(error){status(error.message,true);return;}status(data.session?'Cuenta creada. Sincronización activa.':'Cuenta creada. Revisa tu correo para confirmar la cuenta y después inicia sesión.');});}
     const signout=root.querySelector('[data-cloud-signout]');if(signout&&!signout.dataset.bound){signout.dataset.bound='1';signout.addEventListener('click',async()=>{await client.auth.signOut();});}
   }
   async function restore(session){
