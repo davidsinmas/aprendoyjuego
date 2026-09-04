@@ -1,18 +1,41 @@
-/* V3.10.2 · Avatar de tienda/inventario visible durante el scroll. */
+/* V3.10.3 · Avatar de tienda visible durante el scroll sin sticky anidado en móvil. */
 .shop-layout .shop-showcase{position:-webkit-sticky;position:sticky;top:12px;align-self:start;z-index:20}
 .shop-layout .shop-preview-card{position:relative}
 .shop-layout .shop-preview-card .avatar-preview{width:min(100%,240px);max-width:240px;margin:0 auto}
 
-/* En pantallas estrechas el avatar queda compacto, fijo arriba y deja espacio para el catálogo. */
+/* En móvil Safari/iOS, position:sticky dentro de la tarjeta de contenido puede provocar tirones.
+   El avatar pasa a ser una capa fija y compacta; el documento conserva un único scroll nativo. */
 @media(max-width:840px){
-  .shop-layout .shop-showcase{display:block;position:sticky;position:-webkit-sticky;top:0;align-self:start}
-  .shop-layout .shop-preview-card{position:relative;top:auto;max-width:100%;width:100%;padding:5px;display:flex;justify-content:center;align-items:center;min-height:0}
+  .shop-layout .shop-showcase{display:contents;position:static}
+  .shop-layout .shop-preview-card{
+    position:fixed;
+    top:max(8px,env(safe-area-inset-top));
+    left:50%;
+    z-index:100;
+    width:auto;
+    max-width:none;
+    margin:0;
+    padding:4px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:0;
+    transform:translateX(-50%);
+    border-radius:18px;
+    box-shadow:0 8px 22px rgba(9,31,55,.26);
+  }
   .shop-layout .shop-preview-card .avatar-preview{width:150px;max-width:150px;flex:0 0 150px}
-  .shop-layout .shop-showcase .shop-detail{position:static;margin-top:10px}
+  .shop-layout .shop-showcase .shop-detail{position:static;margin-top:0}
+
+  /* Evita repintados continuos de filtros/auras mientras se desplaza la página. */
+  .shop-layout .shop-preview-card .avatar-layer[data-rarity="legendary"],
+  .shop-layout .shop-preview-card.avatar-preview-card::before,
+  .shop-layout .shop-preview-card.avatar-preview-card::after{animation:none!important;filter:none!important}
+  .shop-layout .shop-preview-card .avatar-stage.has-legendary::before{animation:none!important}
 }
 
 @media(max-width:600px){
-  .shop-layout .shop-preview-card{padding:4px}
+  .shop-layout .shop-preview-card{padding:3px}
   .shop-layout .shop-preview-card .avatar-preview{width:128px;max-width:128px;flex-basis:128px}
 }
 
