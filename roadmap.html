@@ -6,73 +6,117 @@
   <meta name="theme-color" content="#dfe7e3">
   <title>Hoja de ruta · Ludeiko</title>
   <style>
-    :root{--bg:#eef3f0;--card:#fff;--text:#24312d;--muted:#68746f;--line:#d7dfdb;--accent:#315c50;--done:#718078;--late:#a64b3c}
+    :root{--bg:#eef3f0;--card:#fff;--text:#24312d;--muted:#68746f;--line:#d7dfdb;--accent:#315c50;--done:#718078;--late:#a64b3c;--future:#7a5b18}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    main{width:min(760px,calc(100% - 28px));margin:0 auto;padding:32px 0 48px}
+    main{width:min(820px,calc(100% - 28px));margin:0 auto;padding:32px 0 48px}
     h1{margin:0;font-size:clamp(1.7rem,5vw,2.3rem);letter-spacing:-.03em}
-    .intro{margin:8px 0 26px;color:var(--muted);font-size:.98rem}
+    .intro{margin:8px 0 26px;color:var(--muted);font-size:.98rem;line-height:1.5}
     .roadmap{display:grid;gap:12px}
     .stage{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(36,49,45,.05)}
     .stage button{appearance:none;border:0;background:none;width:100%;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:14px;text-align:left;color:inherit;font:inherit;cursor:pointer}
-    .stage-main{min-width:0}
-    .stage-title{display:block;font-weight:750;font-size:1.05rem}
-    .stage-date{display:block;margin-top:5px;color:var(--muted);font-size:.9rem}
-    .marker{align-self:center;color:var(--accent);font-size:1.2rem;transition:transform .2s}
-    .details{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
-    .details>div{overflow:hidden}
-    .details p{margin:0;padding:0 20px 19px;color:#4d5a55;line-height:1.55}
-    .stage.open .details{grid-template-rows:1fr}
-    .stage.open .marker{transform:rotate(90deg)}
-    .stage.done .stage-title,.stage.done .stage-date{text-decoration:line-through;color:var(--done)}
-    .stage.done .marker{color:var(--done)}
-    .stage.late{border-color:rgba(166,75,60,.45)}
-    .stage.late .stage-date{color:var(--late);font-weight:650}
-    .status{display:inline-block;margin-left:8px;font-size:.75rem;font-weight:700;text-decoration:none!important}
+    .stage-main{min-width:0}.stage-title{display:block;font-weight:750;font-size:1.05rem}.stage-date{display:block;margin-top:5px;color:var(--muted);font-size:.9rem}
+    .marker{align-self:center;color:var(--accent);font-size:1.2rem;transition:transform .2s}.details{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}.details>div{overflow:hidden}.details p{margin:0;padding:0 20px 19px;color:#4d5a55;line-height:1.55}
+    .stage.open .details{grid-template-rows:1fr}.stage.open .marker{transform:rotate(90deg)}
+    .stage.done .stage-title,.stage.done .stage-date{text-decoration:line-through;color:var(--done)}.stage.done .marker{color:var(--done)}
+    .stage.late{border-color:rgba(166,75,60,.45)}.stage.late .stage-date{color:var(--late);font-weight:650}
+    .status{display:inline-block;margin-left:8px;font-size:.75rem;font-weight:700;text-decoration:none!important}.future{color:var(--future)}
+    .legend{margin:0 0 18px;padding:12px 15px;background:rgba(255,255,255,.65);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:.88rem;line-height:1.45}
     @media(max-width:520px){main{padding-top:24px}.stage button{padding:16px}.details p{padding:0 16px 17px}}
   </style>
 </head>
 <body>
   <main>
     <h1>Hoja de ruta de Ludeiko</h1>
-    <p class="intro">Pulsa cada etapa para ver qué se pretende conseguir. Las fechas son las previstas y se irán actualizando conforme avance el proyecto.</p>
+    <p class="intro">Plan completo desde la estabilización técnica hasta una versión preparada para comercializar. Las fechas son objetivos de trabajo, no fechas de lanzamiento comprometidas. Pulsa cada etapa para consultar el alcance.</p>
+    <p class="legend"><b>Estado:</b> las etapas tachadas están cerradas. Las etapas posteriores siguen pendientes aunque tengan fecha prevista. El plan se actualizará conforme se validen hitos, aparezcan retrasos o cambien las prioridades.</p>
     <section class="roadmap" aria-label="Hoja de ruta">
-      <article class="stage">
-        <button type="button" aria-expanded="false">
-          <span class="stage-main"><span class="stage-title">1. Cerrar y estabilizar el acceso de familias</span><span class="stage-date">5–7 septiembre 2026</span></span><span class="marker">›</span>
-        </button>
-        <div class="details"><div><p>Dejar resuelto el registro, confirmación de correo, inicio de sesión y acceso al modo Padres, incluyendo el comportamiento específico de Safari. El objetivo es que el sistema de cuentas sea estable antes de seguir ampliando funciones.<br><br><b>Pendiente posterior:</b> incorporar un servicio SMTP propio/externo para el envío de correo transaccional, evitando depender del límite del proveedor de correo de prueba de Supabase. Se mantiene fuera de esta fase hasta confirmar que el flujo actual queda validado.</p></div></div>
+
+      <article class="stage done">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">1. Cerrar y estabilizar el acceso de familias <span class="status">CERRADA</span></span><span class="stage-date">5–7 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Registro, confirmación de correo, inicio de sesión y acceso al modo Padres. Se ha comprobado el comportamiento de Safari y el teclado del PIN. Esta fase queda cerrada con el funcionamiento actual.<br><br><b>Trabajo aplazado:</b> incorporar más adelante un SMTP propio/externo para el correo transaccional, eliminando la dependencia del límite de correo de prueba de Supabase.</p></div></div>
       </article>
-      <article class="stage">
-        <button type="button" aria-expanded="false">
-          <span class="stage-main"><span class="stage-title">2. Consolidar la sincronización entre dispositivos</span><span class="stage-date">8–12 septiembre 2026</span></span><span class="marker">›</span>
-        </button>
-        <div class="details"><div><p>Comprobar que el progreso, la configuración y los datos del modo Padres se conservan correctamente en la nube y que los cambios locales y remotos se resuelven sin perder información. Se revisará especialmente el primer acceso desde un dispositivo nuevo, los cambios realizados sin conexión, la recuperación de una sesión existente y el comportamiento al volver a conectarse.</p></div></div>
+
+      <article class="stage done">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">2. Consolidar la sincronización entre dispositivos <span class="status">CERRADA</span></span><span class="stage-date">8–12 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Sincronización de progreso entre dispositivos, recuperación de sesión, cambios realizados sin conexión, recuperación al volver a tener internet y persistencia de los datos del modo Padres. Validada mediante pruebas reales con la misma cuenta en dos dispositivos.</p></div></div>
       </article>
+
       <article class="stage">
-        <button type="button" aria-expanded="false">
-          <span class="stage-main"><span class="stage-title">3. Consolidar avatar, equipamiento y tienda</span><span class="stage-date">13–19 septiembre 2026</span></span><span class="marker">›</span>
-        </button>
-        <div class="details"><div><p>Dejar el sistema de avatar y equipamiento preparado como una base estable y ampliable, manteniendo la separación entre imágenes de catálogo y capas equipables y conservando el trabajo ya realizado en la tienda.</p></div></div>
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">3. Consolidar avatar, equipamiento y tienda</span><span class="stage-date">13–19 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Auditar y consolidar el sistema actual de avatar, tienda y equipamiento. Separar definitivamente las imágenes de catálogo de las capas equipables. Mantener un avatar maestro con postura, escala, lienzo y origen fijos y preparar las piezas mediante un sistema tipo paper-doll, con orden de capas coherente. Convertir los objetos en datos estructurados para poder añadir muchos elementos sin reprogramar la interfaz. Revisar precios, rarezas, recompensas, inventario y persistencia.</p></div></div>
       </article>
+
       <article class="stage">
-        <button type="button" aria-expanded="false">
-          <span class="stage-main"><span class="stage-title">4. Estabilizar y completar los juegos de acción</span><span class="stage-date">20–26 septiembre 2026</span></span><span class="marker">›</span>
-        </button>
-        <div class="details"><div><p>Terminar la estabilización de los juegos de acción, especialmente el juego de tanques, evitando bloqueos al comenzar a mover los tanques y al aparecer bonus. Mantener obstáculos, rebotes, destrucción progresiva y la mecánica de bonus ya definida.</p></div></div>
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">4. Estabilizar y completar los juegos de acción</span><span class="stage-date">20–26 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Completar la estabilización de los juegos de acción, especialmente el juego de tanques: evitar bloqueos al mover los tanques y al aparecer bonus; conservar obstáculos, rebotes de disparos, destrucción progresiva, bonus y pérdida del bonus al recibir un impacto. Revisar también rendimiento, colisiones, reinicio de partidas y comportamiento en móvil.</p></div></div>
       </article>
+
       <article class="stage">
-        <button type="button" aria-expanded="false">
-          <span class="stage-main"><span class="stage-title">5. Integrar y pulir la experiencia educativa diaria</span><span class="stage-date">27 septiembre–3 octubre 2026</span></span><span class="marker">›</span>
-        </button>
-        <div class="details"><div><p>Revisar el flujo diario de ejercicios y recompensas, los modos educativos y la presentación del avatar en la pantalla principal, manteniendo desactivado el juego de las rimas mientras siga esa decisión.</p></div></div>
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">5. Ampliar los juegos para cubrir varias edades</span><span class="stage-date">27 septiembre–4 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Crear más niveles dentro de cada juego para que no exista un único recorrido pensado para una sola edad. Diseñar una progresión clara de dificultad, velocidad, cantidad de elementos, complejidad y exigencia educativa. Mantener recompensas y progreso coherentes entre niveles.</p></div></div>
       </article>
+
       <article class="stage">
-        <button type="button" aria-expanded="false">
-          <span class="stage-main"><span class="stage-title">6. Revisión final, móvil, escritorio y publicación</span><span class="stage-date">4–10 octubre 2026</span></span><span class="marker">›</span>
-        </button>
-        <div class="details"><div><p>Hacer una revisión completa de rutas, recursos, funcionamiento en móvil y ordenador, persistencia de datos, pantallas y juegos. Corregir los problemas encontrados y dejar una versión limpia y estable para GitHub Pages.</p></div></div>
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">6. Adaptación automática según la edad del jugador</span><span class="stage-date">5–11 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Incorporar durante el alta o configuración del jugador la edad necesaria para adaptar la experiencia. Definir rangos de edad y reglas de selección de dificultad para que los juegos propongan un nivel apropiado sin impedir que la familia pueda ajustar la dificultad desde el modo Padres. Revisar cómo se almacena y sincroniza esta configuración y evitar que la edad quede expuesta innecesariamente en la interfaz pública.</p></div></div>
       </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">7. Cerrar experiencia educativa y progresión</span><span class="stage-date">12–18 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Revisar el recorrido completo del niño: pantalla principal, avatar equipado, selección de juegos, niveles, ejercicios, XP, diamantes, recompensas, tienda y evolución. Comprobar que las decisiones educativas y las recompensas forman un sistema comprensible y motivador. Mantener desactivado el juego de las rimas mientras siga vigente esa decisión.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">8. Identidad, nombre y preparación comercial</span><span class="stage-date">19–25 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Comprobar disponibilidad y uso del nombre de la aplicación y preparar, cuando corresponda, el registro del nombre/marca. Revisar dominio, identidad visual, iconos, textos comerciales y nombres de producto. Dejar definida la identidad que se utilizará de forma consistente en la aplicación, web, comunicaciones y marketing antes de la promoción pública.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">9. Cuenta real, correo transaccional y recuperación</span><span class="stage-date">26 octubre–1 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Configurar el SMTP externo previsto y sustituir el sistema de correo de prueba por correo transaccional preparado para producción. Probar registro, confirmación, recuperación de contraseña, cambios de correo, mensajes de error y enlaces de retorno. Revisar límites, entregabilidad y configuración de autenticación del dominio del correo.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">10. Privacidad, condiciones y protección de menores</span><span class="stage-date">2–8 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Preparar la documentación necesaria para una versión comercial: privacidad, condiciones de uso, gestión de cuentas, tratamiento de datos de menores, consentimiento y configuración familiar. Revisar qué datos se solicitan, cuáles son imprescindibles y cómo se almacenan. Validar que la arquitectura de cuentas y analítica es compatible con el público infantil y con la comercialización prevista.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">11. Fase beta con cuentas gratuitas</span><span class="stage-date">9–22 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Abrir una fase de pruebas controlada con cuentas gratuitas y usuarios reales. Comprobar altas, acceso, progreso, sincronización, pérdida de conexión, recuperación de cuentas, uso de varios dispositivos, juegos, niveles, avatar, tienda y modo Padres. Recoger errores y comentarios de forma estructurada y priorizar los problemas que impidan el uso normal.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">12. Prueba multiplataforma y compatibilidad</span><span class="stage-date">23–29 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Prueba sistemática en móvil y escritorio, con especial atención a iPhone/iPad y Safari, además de los principales navegadores de ordenador. Revisar orientación, tamaños de pantalla, teclado, táctil, desplazamiento, sonido, rendimiento, carga de recursos, persistencia, sesiones y comportamiento al cambiar de dispositivo. Corregir problemas reales antes de la publicación.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">13. Pulido final, rendimiento y seguridad</span><span class="stage-date">30 noviembre–6 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Auditoría final del código y estructura del proyecto. Comprobar rutas, referencias HTML/CSS/JS, recursos, versiones, almacenamiento, sincronización y errores de consola. Optimizar imágenes y tiempos de carga. Revisar permisos, exposición de datos, sesiones y operaciones críticas. Eliminar archivos de prueba y duplicados y dejar una base limpia para producción.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">14. Preparar lanzamiento y marketing</span><span class="stage-date">7–13 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Preparar la presentación comercial: propuesta de valor, público objetivo, mensajes principales, capturas, demostraciones, página de presentación, materiales para redes y canales de comunicación. Definir estrategia de lanzamiento, campaña inicial, contenidos y forma de captar los primeros usuarios sin comprometer la experiencia del producto. Preparar también instrucciones sencillas para familias.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">15. Prelanzamiento y prueba final de producción</span><span class="stage-date">14–20 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Repetir el recorrido completo usando la configuración que tendrá el producto comercial: creación de cuenta, correo real, selección de jugador y edad, juegos, progresión, recompensas, avatar, tienda, sincronización y recuperación. Verificar que no quedan funciones experimentales ni mensajes de desarrollo. Realizar una última ronda de pruebas de aceptación antes de abrir al público.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">16. Versión comercializable</span><span class="stage-date">21–31 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Publicar la versión considerada apta para comercialización. Etiquetar la versión estable, conservar una referencia clara del estado publicado y documentar el procedimiento de actualización. A partir de aquí, separar las nuevas funcionalidades de las correcciones críticas para evitar que el producto comercial pierda estabilidad.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">17. Seguimiento después del lanzamiento</span><span class="stage-date">Desde enero 2027</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Monitorizar errores, funcionamiento del registro, sincronización, rendimiento y comentarios de las familias. Medir qué juegos y niveles se utilizan, detectar puntos de abandono y planificar nuevas edades, niveles, juegos, equipamiento y mejoras. Mantener una política de versiones estable y un ciclo de actualización controlado.</p></div></div>
+      </article>
+
     </section>
   </main>
   <script>
