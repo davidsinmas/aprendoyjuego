@@ -1,9 +1,4 @@
-/* V3.8.19 — acceso estable a juegos de acción desde Padres.
- *
- * El permiso de Padres para los juegos de acción se guarda como un estado
- * independiente. Entrar en un juego nunca lo consume ni modifica. Solo se
- * elimina al salir explícitamente del Modo Padres.
- */
+/* V3.9.2 — acceso a juegos de acción persistente tras completar los niveles diarios. */
 (function(){
   const todayKey=()=>new Date().toLocaleDateString('sv-SE');
 
@@ -13,6 +8,20 @@
     }
     D.parentActionAccess.available=!!D.parentActionAccess.available;
     return D.parentActionAccess;
+  }
+
+  function levelUnlockActive(){
+    const p=D.progresoNivelesDiarios;
+    const target=Math.max(10,Math.floor(Number(D.ajustes?.nivelesDiarios)||10));
+    return !!(p&&p.fecha===todayKey()&&Array.isArray(p.niveles)&&p.niveles.length>=target);
+  }
+
+  function restoreLevelUnlock(){
+    if(!levelUnlockActive())return false;
+    D.actionAccess={date:todayKey(),available:true,consumed:false};
+    if(D.progresoNivelesDiarios)D.progresoNivelesDiarios.desbloqueado=true;
+    save(D);
+    return true;
   }
 
   function parentUnlockActionGames(){
@@ -25,14 +34,14 @@
 
   function actionAvailable(){
     ensureActionAccess();
-    /* En Padres el permiso manual es independiente del pase diario. */
     if(parentMode)return !!parentAccess().available;
+    if(levelUnlockActive())restoreLevelUnlock();
     return !!D.actionAccess?.available&&!D.actionAccess?.consumed;
   }
 
   function consumeForActionGame(){
-    /* El acceso de Padres jamás se consume al abrir un juego. */
-    if(parentMode)return true;
+    /* Tras completar los niveles diarios, los tres juegos de acción permanecen disponibles durante el día. */
+    if(parentMode||levelUnlockActive())return true;
     return consumeActionGameAccess();
   }
 
@@ -63,6 +72,7 @@
   const previousAvailable=actionGamesAvailable;
   window.actionGamesAvailable=function(){
     if(parentMode)return !!parentAccess().available;
+    if(levelUnlockActive())return true;
     return previousAvailable();
   };
 
@@ -70,7 +80,7 @@
     const unlocked=actionAvailable();
     const note=parentMode
       ? (unlocked?'Desbloqueado · disponible en modo Padres':'Bloqueado · pulsa «Desbloquear» en Padres')
-      : (unlocked?'Objetivo diario completado · una partida disponible':`Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear una partida`);
+      : (unlocked?'Objetivo conseguido · juegos de acción disponibles hoy':`Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear los juegos de acción`);
     return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="playGuardianFromAccess()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
@@ -78,7 +88,7 @@
     const unlocked=actionAvailable();
     const note=parentMode
       ? (unlocked?'Desbloqueado · disponible en modo Padres':'Bloqueado · pulsa «Desbloquear» en Padres')
-      : (unlocked?'Objetivo diario completado · una partida disponible':`Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear una partida`);
+      : (unlocked?'Objetivo conseguido · juegos de acción disponibles hoy':`Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear los juegos de acción`);
     return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="playPlanetFromAccess()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
@@ -93,7 +103,6 @@
     grid.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><h3>⚡ Juegos de acción</h3><p class="muted">Activa este permiso para probar Duelo de Guardianes, Defensa del planeta y Tank Pixel. El permiso permanece activo mientras estés en modo Padres y no se consume al entrar en un juego.</p><button type="button" class="btn ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'✓ JUEGOS DESBLOQUEADOS':'🔓 DESBLOQUEAR JUEGOS'}</button>${unlocked?'<small class="muted">Los tres juegos están disponibles. Entrar en uno no bloquea los demás.</small>':''}</div>`);
   };
 
-  /* Al salir de Padres se elimina únicamente el permiso manual de Padres. */
   const previousDisableParentMode=window.disableParentMode;
   window.disableParentMode=function(){
     const access=parentAccess();
