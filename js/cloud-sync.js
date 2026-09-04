@@ -8,6 +8,7 @@
   const SUPABASE_URL='https://wqyvbsnmrpomxoqfxozb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY='sb_publishable_cbA-5xXZH-VdJGiCxLB-PQ_M6loQAhs';
   const CLOUD_TABLE='game_states';
+  const LOAD_MARKER='ludeiko_cloud_last_loaded_at_v1';
   const supabaseClient=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
   if(!supabaseClient){
@@ -18,16 +19,17 @@
   let syncing=false;
   let uploadTimer=null;
   let initialized=false;
+  let reloadAfterCloudLoad=false;
 
   const originalSave=window.save;
   const originalParentDashboard=window.parentDashboard;
 
   function currentState(){
-    return window.D&&typeof window.D==='object'?window.D:null;
+    try{return typeof D!=='undefined'&&D&&typeof D==='object'?D:null;}catch{return null;}
   }
 
-  function localSave(){
-    if(typeof originalSave==='function')originalSave(currentState());
+  function localSave(state){
+    if(typeof originalSave==='function')originalSave(state);
   }
 
   function meaningfulState(state){
@@ -67,7 +69,7 @@
       const email=session.user?.email||'cuenta familiar';
       return `<div class="parent-card ludeiko-cloud-card"><h3>☁️ Cuenta Ludeiko</h3><p class="muted">Sincronización activa. El progreso y los ajustes de Padres se guardan en esta cuenta y estarán disponibles en tus otros dispositivos.</p><p><b>${escapeHTML(email)}</b></p><p class="muted" data-cloud-status>Sincronizado</p><button type="button" class="btn secondary" data-cloud-signout>Cerrar sesión</button></div>`;
     }
-    return `<div class="parent-card ludeiko-cloud-card"><h3>☁️ Sincronizar entre dispositivos</h3><p class="muted">Crea una cuenta familiar o inicia sesión para conservar el progreso, la configuración y los juegos activos al cambiar de móvil, tablet u ordenador.</p><form data-cloud-form><label style="display:block;margin:.5rem 0">Correo electrónico<input name="email" type="email" autocomplete="email" required style="display:block;width:100%;box-sizing:border-box;margin-top:.25rem"></label><label style="display:block;margin:.5rem 0">Contraseña<input name="password" type="password" autocomplete="current-password" minlength="6" required style="display:block;width:100%;box-sizing:border-box;margin-top:.25rem"></label><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem"><button type="submit" class="btn primary" data-cloud-login>Iniciar sesión</button><button type="button" class="btn secondary" data-cloud-signup>Crear cuenta</button></div><p class="muted" data-cloud-status>El juego seguirá funcionando aunque no inicies sesión.</p></form></div>`;
+    return `<div class="parent-card ludeiko-cloud-card"><h3>☁️ Sincronizar entre dispositivos</h3><p class="muted">Crea una cuenta familiar o inicia sesión para conservar el progreso, la configuración y los juegos activos al cambiar de móvil, tablet u ordenador.</p><form data-cloud-form><label style="display:block;margin:.5rem 0">Correo electrónico<input name="email" type="email" autocomplete="email" required style="display:block;width:100%;box-sizing:border-box;margin-top:.25rem"></label><label style="display:block;margin:.5rem 0">Contraseña<input name="password" type="password" autocomplete="current-password" minlength="6" required style="display:block;width:100%;box-sizing:border-box;margin-top:.25rem"></label><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem"><button type="submit" class="btn primary">Iniciar sesión</button><button type="button" class="btn secondary" data-cloud-signup>Crear cuenta</button></div><p class="muted" data-cloud-status>El juego seguirá funcionando aunque no inicies sesión.</p></form></div>`;
   }
 
   function escapeHTML(value){
@@ -80,6 +82,7 @@
     const old=grid.querySelector('.ludeiko-cloud-card');
     if(old)old.remove();
     supabaseClient.auth.getSession().then(({data})=>{
+      if(!document.querySelector('.parent-grid'))return;
       grid.insertAdjacentHTML('afterbegin',accountCardHTML(data?.session||null));
       bindAccountEvents(grid);
     });
@@ -115,9 +118,7 @@
     const signout=root.querySelector('[data-cloud-signout]');
     if(signout&&!signout.dataset.bound){
       signout.dataset.bound='1';
-      signout.addEventListener('click',async()=>{
-        await supabaseClient.auth.signOut();
-      });
+      signout.addEventListener('click',async()=>{await supabaseClient.auth.signOut();});
     }
   }
 
@@ -128,16 +129,23 @@
       const {data,error}=await supabaseClient.from(CLOUD_TABLE).select('state,updated_at').eq('user_id',session.user.id).maybeSingle();
       if(error){console.warn('[Ludeiko] No se pudo leer el progreso cloud:',error.message);return;}
       const local=currentState();
-      if(data?.state&&typeof data.state==='object'&&Object.keys(data.state).length){
-        const remote=data.state;
-        /* Si existe una cuenta ya usada, su estado es la fuente compartida.
-         * En una cuenta nueva se conserva el progreso local y se sube abajo. */
+      const remote=data?.state;
+      const loadedMarker=localStorage.getItem(LOAD_MARKER)||'';
+      if(remote&&typeof remote==='object'&&Object.keys(remote).length){
+        if(data.updated_at===loadedMarker){
+          setStatus('Sincronizado');
+          return;
+        }
         if(meaningfulState(remote)>0||meaningfulState(local)<=0){
-          window.D=remote;
-          localSave();
-          if(typeof window.renderHome==='function')window.renderHome();
+          /* D es una variable global del juego; se actualiza antes de recargar para
+           * que la carga normal de storage.js la reconstruya en el mismo formato. */
+          D=remote;
+          localSave(remote);
+          localStorage.setItem(LOAD_MARKER,data.updated_at||'');
+          reloadAfterCloudLoad=true;
         }else{
           await uploadNow();
+          localStorage.setItem(LOAD_MARKER,data.updated_at||'');
         }
       }else{
         await uploadNow();
@@ -152,8 +160,12 @@
     if(event==='SIGNED_IN'&&session){
       setStatus('Sincronizando…');
       await loadCloudState(session);
+      if(reloadAfterCloudLoad){reloadAfterCloudLoad=false;window.location.reload();return;}
     }
-    if(event==='SIGNED_OUT')setStatus('Sesión cerrada. El juego sigue guardado en este dispositivo.');
+    if(event==='SIGNED_OUT'){
+      localStorage.removeItem(LOAD_MARKER);
+      setStatus('Sesión cerrada. El juego sigue guardado en este dispositivo.');
+    }
     renderAccountCard();
   }
 
@@ -161,7 +173,7 @@
     onAuthChange(event,session).catch(error=>console.warn('[Ludeiko] Error de autenticación:',error));
   });
 
-  if(typeof originalParentDashboard==='function'){
+  if(typeof originalParentDashboard==='function){
     window.parentDashboard=function(){
       originalParentDashboard();
       renderAccountCard();
@@ -170,7 +182,10 @@
 
   supabaseClient.auth.getSession().then(async({data})=>{
     initialized=true;
-    if(data?.session)await loadCloudState(data.session);
+    if(data?.session){
+      await loadCloudState(data.session);
+      if(reloadAfterCloudLoad){reloadAfterCloudLoad=false;window.location.reload();}
+    }
   }).catch(error=>console.warn('[Ludeiko] No se pudo recuperar la sesión:',error));
 
   window.ludeikoCloud={
