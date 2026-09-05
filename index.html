@@ -1,37 +1,6 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#dfe7e3">
-  <title>Ludeiko</title>
-</head>
-<body>
-  <main id="app"></main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  (async()=>{
-    const requestedVersion=new URLSearchParams(window.location.search).get('v');
-    let version=requestedVersion||'actual';
-    try{
-      const cacheKey=requestedVersion||Date.now().toString();
-      const response=await fetch('version.json?v='+encodeURIComponent(cacheKey),{cache:'no-store'});
-      if(response.ok){
-        const info=await response.json();
-        if(info&&info.version&&!requestedVersion)version=info.version;
-      }
-    }catch(e){}
-    window.APP_VERSION=version;
-    const styles=['css/app.css','css/levels.css','css/avatar.css','css/home-avatar.css','css/duel.css','css/planet.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css','css/scroll-fix.css','css/daily-progress.css','css/avatar-sticky.css'];
-    for(const href of styles){
-      const link=document.createElement('link');link.rel='stylesheet';link.href=href+'?v='+encodeURIComponent(version);document.head.appendChild(link);
-    }
-    const scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/avatar.js','js/duel.js','js/planet.js','js/planet-enhancements.js','js/pedagogy.js','js/app.js','js/screen-fit.js','js/exercise-fit.js','js/math-tuning.js','js/sound.js','js/speech-fix.js','js/adaptive-daily.js','js/differences.js','js/differences-polish.js','js/differences-errors.js','js/tank-pixel.js','js/word-syllable-fix.js','js/daily-progress-mode.js','js/daily-parent-unlock.js','js/home-avatar-rimas.js','js/cloud-sync.js','js/shop-level-view.js'];
-    for(const src of scripts){
-      await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src+'?v='+encodeURIComponent(version);script.onload=resolve;script.onerror=reject;document.body.appendChild(script);});
-    }
-  })().catch(()=>{document.getElementById('app').innerHTML='<p style="padding:24px;font-family:sans-serif">No se ha podido cargar el juego. Recarga la página.</p>';});
-  </script>
-</body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#dfe7e3"><title>Ludeiko</title></head>
+<body><main id="app"></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+(async()=>{const requestedVersion=new URLSearchParams(window.location.search).get('v');let version=requestedVersion||'actual';try{const cacheKey=requestedVersion||Date.now().toString();const response=await fetch('version.json?v='+encodeURIComponent(cacheKey),{cache:'no-store'});if(response.ok){const info=await response.json();if(info&&info.version&&!requestedVersion)version=info.version;}}catch(e){}window.APP_VERSION=version;const styles=['css/app.css','css/levels.css','css/avatar.css','css/home-avatar.css','css/duel.css','css/planet.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css','css/scroll-fix.css','css/daily-progress.css','css/avatar-sticky.css','css/avatar-character-shop.css'];for(const href of styles){const link=document.createElement('link');link.rel='stylesheet';link.href=href+'?v='+encodeURIComponent(version);document.head.appendChild(link);}const scripts=['js/data.js','js/avatar-data.js','js/avatar-catalog.js','js/storage.js','js/avatar.js','js/duel.js','js/planet.js','js/planet-enhancements.js','js/pedagogy.js','js/app.js','js/screen-fit.js','js/exercise-fit.js','js/math-tuning.js','js/sound.js','js/speech-fix.js','js/adaptive-daily.js','js/differences.js','js/differences-polish.js','js/differences-errors.js','js/tank-pixel.js','js/word-syllable-fix.js','js/daily-progress-mode.js','js/daily-parent-unlock.js','js/home-avatar-rimas.js','js/cloud-sync.js','js/shop-level-view.js','js/avatar-character-shop.js','js/avatar-character-home.js'];for(const src of scripts){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src+'?v='+encodeURIComponent(version);script.onload=resolve;script.onerror=reject;document.body.appendChild(script);});}})().catch(()=>{document.getElementById('app').innerHTML='<p style="padding:24px;font-family:sans-serif">No se ha podido cargar el juego. Recarga la página.</p>';});
+</script></body></html>
