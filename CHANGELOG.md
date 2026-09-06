@@ -1,3 +1,13 @@
+## V3.15.1 — 2026-09-06
+
+- El **Felino ahora puede visualizarse antes de comprarlo** desde la tienda de Avatar.
+- La selección de un personaje bloqueado ya no intenta comprarlo automáticamente.
+- Se añade un botón explícito **Comprar Felino · 350 diamantes** junto a su previsualización.
+- La compra descuenta los diamantes y desbloquea inmediatamente el personaje.
+- Tras desbloquearlo, el Felino pasa a ser el personaje activo y aparecen sus 9 piezas de la Categoría 1.
+- La compra individual de equipamiento queda condicionada a que el personaje esté desbloqueado.
+- Se mantiene la compra/equipamiento mediante diamantes y la validación por nivel.
+
 ## V3.15.0 — 2026-09-06
 
 - Se incorpora el personaje **Felino** al sistema de avatar.
