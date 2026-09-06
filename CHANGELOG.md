@@ -1,3 +1,11 @@
+## V3.15.2 — 2026-09-06
+
+- El equipamiento de la **Categoría 1 · Aventurero** del Felino ahora se muestra también antes de desbloquear el personaje, como catálogo de vista previa.
+- Se corrige la presentación de las 9 piezas del Felino mediante sprites individuales del atlas, evitando mostrar el atlas completo dentro de cada tarjeta.
+- Se mantiene el bloqueo de compra: primero hay que desbloquear el Felino por **350 diamantes**.
+- Se mejora el encuadre de la previsualización del Felino para que el personaje tenga una presencia visual mayor en la tienda.
+- Se mantiene el flujo de compra, inventario y equipamiento existente.
+
 ## V3.15.1 — 2026-09-06
 
 - El **Felino ahora puede visualizarse antes de comprarlo** desde la tienda de Avatar.
