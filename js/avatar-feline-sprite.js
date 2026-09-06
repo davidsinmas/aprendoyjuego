@@ -1,2 +1,6 @@
-/* V3.15 · sprite de la colección Felino para la tienda. */
-(function(){'use strict';const cells=['helmet','neck','shoulders','chest','gloves','accessory','legs','boots','tail'];function apply(){document.querySelectorAll('img[src*="atlas16.png"]').forEach(img=>{let id=img.closest('.avatar-item-card')?.dataset.item;if(!id){const selected=document.querySelector('.avatar-item-card.selected');id=selected?.dataset.item||''}if(!id.startsWith('felino_aprendiz_'))return;const key=id.replace('felino_aprendiz_',''),n=cells.indexOf(key);if(n<0)return;const col=n%3,row=Math.floor(n/3);img.style.objectFit='none';img.style.objectPosition=`-${col*64}px -${row*64}px`;});}new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});setTimeout(apply,0);})();
+/* V3.15.2 · sprites Felino para la tienda. */
+(function(){'use strict';
+const cells=['helmet','neck','shoulders','chest','gloves','accessory','legs','boots','tail'];
+function apply(){document.querySelectorAll('[data-feline-sprite]').forEach(el=>{const id=el.dataset.felineSprite||'',key=id.replace('felino_aprendiz_',''),n=cells.indexOf(key);if(n<0)return;const col=n%3,row=Math.floor(n/3);el.style.backgroundImage='url("assets/shop/felino/aprendiz/atlas16.png?v='+(window.APP_VERSION||'actual')+'")';el.style.backgroundSize='192px 192px';el.style.backgroundPosition=`-${col*64}px -${row*64}px`;el.style.backgroundRepeat='no-repeat';});}
+new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});setTimeout(apply,0);
+})();
