@@ -1,114 +1,79 @@
-// Compatibilidad con el validador histórico del actualizador: versionDatos:20
+// Compatibilidad con el validador histórico del actualizador: versionDatos:21
 const STORE='aprendo_jugando_datos';
 const STORE_BACKUP='aprendo_jugando_respaldo';
-function storedProgressScore(d){
-  if(!d||typeof d!=='object')return -1;
-  const games=Object.values(d.estadisticas||{}).reduce((sum,item)=>sum+Math.max(0,Number(item?.partidas)||0),0);
-  return games*1000+Math.max(0,Number(d.totalAciertos)||0)*10+Math.max(1,Number(d.nivelJugador)||1);
-}
+function storedProgressScore(d){if(!d||typeof d!=='object')return -1;const games=Object.values(d.estadisticas||{}).reduce((sum,item)=>sum+Math.max(0,Number(item?.partidas)||0),0);return games*1000+Math.max(0,Number(d.totalAciertos)||0)*10+Math.max(1,Number(d.nivelJugador)||1);}
 function readStored(key){try{return JSON.parse(localStorage.getItem(key))}catch{return null;}}
-function blank(){
-  return{
-    versionDatos:20,
-    perfil:{nombre:'Jugador'},
-    diamantes:0,
-    estadisticas:{},
-    totalAciertos:0,
-    nivelJugador:1,
-    xp:0,
-    retosDiarios:{fecha:'',retos:[],premio:false},
-    retosCompletadosTotal:0,
-    actionAccess:{date:'',available:false,consumed:false},
-    dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0},
-    defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0},
-    diferencias:{actual:1,completadas:0},
-    unidadesPedagogicas:{restasMas10:{paso:1,pasosCompletados:[],completada:false,mejorResultado:0}},
-    logros:[],
-    ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false,juegosActivos:{suma:true,resta:true,comparar:true,palabras:true,sopa:true,sonidoInicial:true,sonidoFinal:true,construir:true,ordenarSilabas:true,rimas:true}},
-    avatar:{
-      owned:[],
-      equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}
-    }
-  };
+function blank(){return{versionDatos:21,perfil:{nombre:'Jugador'},diamantes:0,estadisticas:{},totalAciertos:0,nivelJugador:1,xp:0,retosDiarios:{fecha:'',retos:[],premio:false},retosCompletadosTotal:0,actionAccess:{date:'',available:false,consumed:false},dueloGuardianes:{unlocked:false,unlockedBy:null,matches:0},defensaPlaneta:{unlocked:false,unlockedBy:null,missions:0,bestScore:0},diferencias:{actual:1,completadas:0},unidadesPedagogicas:{restasMas10:{paso:1,pasosCompletados:[],completada:false,mejorResultado:0}},logros:[],ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false,juegosActivos:{suma:true,resta:true,comparar:true,palabras:true,sopa:true,sonidoInicial:true,sonidoFinal:true,construir:true,ordenarSilabas:true,rimas:true}},avatar:{characters:{},activeCharacterId:'principal',owned:[],equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}}};}
+
+const AVATAR_SLOTS=['back','legs','boots','chest','shoulders','gloves','head','helmet','shield','weapon','effects'];
+const LEGACY_ID_MAP={
+  nova_helmet_common:'nova_helmet_aprendiz',nova_chest_common:'nova_chest_aprendiz',nova_shoulders_common:'nova_shoulders_aprendiz',nova_gloves_common:'nova_gloves_aprendiz',nova_legs_common:'nova_legs_aprendiz',nova_boots_common:'nova_boots_aprendiz',nova_shield_common:'nova_shield_aprendiz',nova_weapon_common:'nova_weapon_aprendiz',
+  nova_helmet_rare:'nova_helmet_explorador',nova_chest_rare:'nova_chest_explorador',nova_shoulders_rare:'nova_shoulders_explorador',nova_gloves_rare:'nova_gloves_explorador',nova_legs_rare:'nova_legs_explorador',nova_boots_rare:'nova_boots_explorador',nova_shield_rare:'nova_shield_explorador',nova_weapon_rare:'nova_weapon_explorador',
+  nova_helmet:'nova_helmet_aventurero',nova_chest:'nova_chest_aventurero',nova_shoulders:'nova_shoulders_aventurero',nova_gloves:'nova_gloves_aventurero',nova_legs:'nova_legs_aventurero',nova_boots:'nova_boots_aventurero',nova_shield:'nova_shield_aventurero',nova_weapon:'nova_weapon_aventurero'
+};
+
+function migrateItemId(id){return typeof id==='string'&&LEGACY_ID_MAP[id]?LEGACY_ID_MAP[id]:id;}
+function migrateLevel(value,fallback='aventurero'){
+  if(typeof value==='number'&&Number.isInteger(value))return Math.min(8,Math.max(1,value));
+  if(typeof value!=='string')return LEVEL_BY_ID?.[fallback]?.order||3;
+  const normalized=value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(normalized==='rare')return 1;
+  if(normalized==='common')return 1;
+  if(normalized==='legendary')return 3;
+  const direct=AVATAR_LEVELS?.find(level=>level.id===normalized||level.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')===normalized);
+  return direct?.order||LEVEL_BY_ID?.[fallback]?.order||3;
 }
+function normalizeEquipped(source){const equipped={};for(const slot of AVATAR_SLOTS){const value=typeof source?.[slot]==='string'?migrateItemId(source[slot]):null;equipped[slot]=value;}return equipped;}
 function normalizeAvatar(raw){
-  const slots=['back','legs','boots','chest','shoulders','gloves','head','helmet','shield','weapon','effects'];
   const avatar=raw&&typeof raw==='object'?raw:{};
-  const owned=Array.isArray(avatar.owned)?[...new Set(avatar.owned.filter(x=>typeof x==='string'))]:[];
-  const source=avatar.equipped&&typeof avatar.equipped==='object'?avatar.equipped:{};
-  const equipped={};
-  for(const slot of slots)equipped[slot]=typeof source[slot]==='string'?source[slot]:null;
-  return{owned,equipped};
+  const legacyOwned=Array.isArray(avatar.owned)?avatar.owned.map(migrateItemId):[];
+  const legacyEquipped=normalizeEquipped(avatar.equipped);
+  const sourceCharacters=avatar.characters&&typeof avatar.characters==='object'?avatar.characters:{};
+  const characters={};
+  if(Object.keys(sourceCharacters).length){
+    for(const [legacyId,state] of Object.entries(sourceCharacters)){
+      const id=legacyId==='nova_guardian'?'principal':legacyId;
+      const level=migrateLevel(state?.levelId??state?.level??state?.rarity, id==='principal'?'aventurero':'aprendiz');
+      const owned=Array.isArray(state?.owned)?state.owned.map(migrateItemId):[];
+      const equipped=normalizeEquipped(state?.equipped);
+      characters[id]={unlocked:state?.unlocked!==false,level,levelId:LEVEL_BY_ORDER?.[level]?.id||'aprendiz',owned:[...new Set(owned)],equipped};
+    }
+  }
+  const principal=characters.principal||{unlocked:true,level:3,levelId:'aventurero',owned:[],equipped:normalizeEquipped({})};
+  principal.owned=[...new Set([...principal.owned,...legacyOwned])];
+  for(const slot of AVATAR_SLOTS)if(!principal.equipped[slot]&&legacyEquipped[slot])principal.equipped[slot]=legacyEquipped[slot];
+  characters.principal=principal;
+  for(const id of Object.keys(AVATAR.characters||{}))if(!characters[id]){const meta=AVATAR.characters[id];characters[id]={unlocked:false,level:migrateLevel(meta.levelId,'aprendiz'),levelId:meta.levelId||'aprendiz',owned:[],equipped:normalizeEquipped({})};}
+  let active=avatar.activeCharacterId==='nova_guardian'?'principal':avatar.activeCharacterId;
+  if(!active||!characters[active]||!characters[active].unlocked)active='principal';
+  return{characters,activeCharacterId:active,owned:[...characters[active].owned],equipped:normalizeEquipped(characters[active].equipped)};
 }
+
 function load(){
   const primary=readStored(STORE),backup=readStored(STORE_BACKUP);
   let d=storedProgressScore(backup)>storedProgressScore(primary)?backup:primary||backup;
   if(!d)d=blank();
-  d.perfil=d.perfil&&typeof d.perfil==='object'?d.perfil:{nombre:'Jugador'};
-  if(!d.perfil.nombre)d.perfil.nombre='Jugador';
+  d.perfil=d.perfil&&typeof d.perfil==='object'?d.perfil:{nombre:'Jugador'};if(!d.perfil.nombre)d.perfil.nombre='Jugador';
   d.diamantes=Math.max(0,Number(d.diamantes??d.monedas??0)||0);
   d.estadisticas=d.estadisticas&&typeof d.estadisticas==='object'?d.estadisticas:{};
-  d.totalAciertos=Math.max(0,Number(d.totalAciertos)||0);
-  d.nivelJugador=Math.max(1,Number(d.nivelJugador)||1);
-  d.xp=Math.max(0,Number(d.xp)||0);
-  d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',retos:[],premio:false};
-  if(!Array.isArray(d.retosDiarios.retos))d.retosDiarios.retos=[];
-  d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);
-  d.actionAccess=d.actionAccess&&typeof d.actionAccess==='object'?d.actionAccess:{date:'',available:false,consumed:false};
-  d.actionAccess.date=typeof d.actionAccess.date==='string'?d.actionAccess.date:'';
-  d.actionAccess.consumed=!!d.actionAccess.consumed;
-  d.actionAccess.available=!!d.actionAccess.available&&!d.actionAccess.consumed;
-  d.dueloGuardianes=d.dueloGuardianes&&typeof d.dueloGuardianes==='object'?d.dueloGuardianes:{};
-  d.dueloGuardianes.unlocked=false;
-  d.dueloGuardianes.unlockedBy=null;
-  d.dueloGuardianes.matches=Math.max(0,Math.floor(Number(d.dueloGuardianes.matches)||0));
-  d.defensaPlaneta=d.defensaPlaneta&&typeof d.defensaPlaneta==='object'?d.defensaPlaneta:{};
-  d.defensaPlaneta.unlocked=false;
-  d.defensaPlaneta.unlockedBy=null;
-  d.defensaPlaneta.missions=Math.max(0,Math.floor(Number(d.defensaPlaneta.missions)||0));
-  d.defensaPlaneta.bestScore=Math.max(0,Math.floor(Number(d.defensaPlaneta.bestScore)||0));
-  d.diferencias=d.diferencias&&typeof d.diferencias==='object'?d.diferencias:{};
-  d.diferencias.completadas=Math.min(50,Math.max(0,Math.floor(Number(d.diferencias.completadas)||0)));
-  d.diferencias.actual=Math.min(50,Math.max(1,Math.floor(Number(d.diferencias.actual)||d.diferencias.completadas+1)));
-  d.unidadesPedagogicas=d.unidadesPedagogicas&&typeof d.unidadesPedagogicas==='object'?d.unidadesPedagogicas:{};
-  const subtractionUnit=d.unidadesPedagogicas.restasMas10&&typeof d.unidadesPedagogicas.restasMas10==='object'?d.unidadesPedagogicas.restasMas10:{};
-  subtractionUnit.paso=Math.min(5,Math.max(1,Math.floor(Number(subtractionUnit.paso)||1)));
-  subtractionUnit.pasosCompletados=Array.isArray(subtractionUnit.pasosCompletados)?[...new Set(subtractionUnit.pasosCompletados.map(Number).filter(step=>Number.isInteger(step)&&step>=1&&step<=5))]:[];
-  subtractionUnit.completada=subtractionUnit.completada===true;
-  subtractionUnit.mejorResultado=Math.min(100,Math.max(0,Math.floor(Number(subtractionUnit.mejorResultado)||0)));
-  if(subtractionUnit.completada){subtractionUnit.paso=5;subtractionUnit.pasosCompletados=[1,2,3,4,5];}
-  d.unidadesPedagogicas.restasMas10=subtractionUnit;
-  d.logros=Array.isArray(d.logros)?d.logros:[];
-  d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false};
-  const rawMultiplier=Number(d.ajustes.multiplicadorPrecios);
-  d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(0.25,Number.isFinite(rawMultiplier)?Math.round(rawMultiplier*4)/4:1));
-  d.ajustes.restasMayoresDe10=d.ajustes.restasMayoresDe10===true;
-  const gameTypes=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
-  const storedGames=d.ajustes.juegosActivos&&typeof d.ajustes.juegosActivos==='object'?d.ajustes.juegosActivos:{};
-  d.ajustes.juegosActivos={};
-  for(const type of gameTypes)d.ajustes.juegosActivos[type]=storedGames[type]!==false;
-  if(!gameTypes.some(type=>d.ajustes.juegosActivos[type]))d.ajustes.juegosActivos.suma=true;
-  delete d.monedas;
-  delete d.inventario;
-  delete d.equipado;
-  d.versionDatos=20;
-  for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){
-    const v=localStorage.getItem('aprendo_stats_'+id);
-    if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}
-  }
+  d.totalAciertos=Math.max(0,Number(d.totalAciertos)||0);d.nivelJugador=Math.max(1,Number(d.nivelJugador)||1);d.xp=Math.max(0,Number(d.xp)||0);
+  d.retosDiarios=d.retosDiarios&&typeof d.retosDiarios==='object'?d.retosDiarios:{fecha:'',retos:[],premio:false};if(!Array.isArray(d.retosDiarios.retos))d.retosDiarios.retos=[];
+  d.retosCompletadosTotal=Math.max(0,Number(d.retosCompletadosTotal)||0);d.actionAccess=d.actionAccess&&typeof d.actionAccess==='object'?d.actionAccess:{date:'',available:false,consumed:false};d.actionAccess.date=typeof d.actionAccess.date==='string'?d.actionAccess.date:'';d.actionAccess.consumed=!!d.actionAccess.consumed;d.actionAccess.available=!!d.actionAccess.available&&!d.actionAccess.consumed;
+  d.dueloGuardianes=d.dueloGuardianes&&typeof d.dueloGuardianes==='object'?d.dueloGuardianes:{};d.dueloGuardianes.unlocked=false;d.dueloGuardianes.unlockedBy=null;d.dueloGuardianes.matches=Math.max(0,Math.floor(Number(d.dueloGuardianes.matches)||0));
+  d.defensaPlaneta=d.defensaPlaneta&&typeof d.defensaPlaneta==='object'?d.defensaPlaneta:{};d.defensaPlaneta.unlocked=false;d.defensaPlaneta.unlockedBy=null;d.defensaPlaneta.missions=Math.max(0,Math.floor(Number(d.defensaPlaneta.missions)||0));d.defensaPlaneta.bestScore=Math.max(0,Math.floor(Number(d.defensaPlaneta.bestScore)||0));
+  d.diferencias=d.diferencias&&typeof d.diferencias==='object'?d.diferencias:{};d.diferencias.completadas=Math.min(50,Math.max(0,Math.floor(Number(d.diferencias.completadas)||0)));d.diferencias.actual=Math.min(50,Math.max(1,Math.floor(Number(d.diferencias.actual)||d.diferencias.completadas+1)));
+  d.unidadesPedagogicas=d.unidadesPedagogicas&&typeof d.unidadesPedagogicas==='object'?d.unidadesPedagogicas:{};const subtractionUnit=d.unidadesPedagogicas.restasMas10&&typeof d.unidadesPedagogicas.restasMas10==='object'?d.unidadesPedagogicas.restasMas10:{};subtractionUnit.paso=Math.min(5,Math.max(1,Math.floor(Number(subtractionUnit.paso)||1)));subtractionUnit.pasosCompletados=Array.isArray(subtractionUnit.pasosCompletados)?[...new Set(subtractionUnit.pasosCompletados.map(Number).filter(step=>Number.isInteger(step)&&step>=1&&step<=5))]:[];subtractionUnit.completada=subtractionUnit.completada===true;subtractionUnit.mejorResultado=Math.min(100,Math.max(0,Math.floor(Number(subtractionUnit.mejorResultado)||0)));if(subtractionUnit.completada){subtractionUnit.paso=5;subtractionUnit.pasosCompletados=[1,2,3,4,5];}d.unidadesPedagogicas.restasMas10=subtractionUnit;
+  d.logros=Array.isArray(d.logros)?d.logros:[];d.ajustes=d.ajustes&&typeof d.ajustes==='object'?d.ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false};const rawMultiplier=Number(d.ajustes.multiplicadorPrecios);d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(.25,Number.isFinite(rawMultiplier)?Math.round(rawMultiplier*4)/4:1));d.ajustes.restasMayoresDe10=d.ajustes.restasMayoresDe10===true;
+  const gameTypes=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];const storedGames=d.ajustes.juegosActivos&&typeof d.ajustes.juegosActivos==='object'?d.ajustes.juegosActivos:{};d.ajustes.juegosActivos={};for(const type of gameTypes)d.ajustes.juegosActivos[type]=storedGames[type]!==false;if(!gameTypes.some(type=>d.ajustes.juegosActivos[type]))d.ajustes.juegosActivos.suma=true;
+  delete d.monedas;delete d.inventario;delete d.equipado;
+  d.versionDatos=21;
+  for(const id of ['suma1','suma2','suma3','resta1','resta2','resta3']){const v=localStorage.getItem('aprendo_stats_'+id);if(v&&!d.estadisticas[id])try{d.estadisticas[id]=JSON.parse(v)}catch{}}
   d.avatar=normalizeAvatar(d.avatar);
   if(typeof AVATAR!=='undefined'&&Array.isArray(AVATAR.items)){
     const catalog=new Map(AVATAR.items.map(item=>[item.id,item]));
-    d.avatar.owned=d.avatar.owned.filter(id=>catalog.has(id));
-    for(const slot of Object.keys(d.avatar.equipped)){
-      const item=catalog.get(d.avatar.equipped[slot]);
-      if(!item||item.slot!==slot)d.avatar.equipped[slot]=null;
-    }
+    for(const state of Object.values(d.avatar.characters)){state.owned=[...new Set(state.owned.filter(id=>catalog.has(id)))];for(const slot of AVATAR_SLOTS){const item=catalog.get(state.equipped[slot]);if(!item||item.slot!==slot||!item.available&&item.level>state.level)state.equipped[slot]=null;}}
+    const active=d.avatar.characters[d.avatar.activeCharacterId]||d.avatar.characters.principal;d.avatar.owned=[...active.owned];d.avatar.equipped=normalizeEquipped(active.equipped);
   }
   save(d);return d;
 }
-function save(d){
-  const serialized=JSON.stringify(d);
-  localStorage.setItem(STORE,serialized);
-  localStorage.setItem(STORE_BACKUP,serialized);
-}
+function save(d){const serialized=JSON.stringify(d);localStorage.setItem(STORE,serialized);localStorage.setItem(STORE_BACKUP,serialized);}
