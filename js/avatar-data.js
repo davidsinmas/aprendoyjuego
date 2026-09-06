@@ -16,10 +16,13 @@ const AVATAR_LEVELS=[
 const LEVEL_BY_ID=Object.fromEntries(AVATAR_LEVELS.map(level=>[level.id,level]));
 const LEVEL_BY_ORDER=Object.fromEntries(AVATAR_LEVELS.map(level=>[level.order,level]));
 
+// Tres niveles de equipamiento actualmente disponibles.
+// El antiguo nivel intermedio ha sido eliminado del catálogo.
+// El conjunto Eclipse Áureo es el equipamiento de máximo nivel disponible.
 const EQUIPMENT_TIERS=[
   {id:'aprendiz',levelId:'aprendiz',order:1,directory:'common/',priceFactor:1},
-  {id:'explorador',levelId:'explorador',order:2,directory:'rare/',priceFactor:2},
-  {id:'aventurero',levelId:'aventurero',order:3,directory:'',priceFactor:4}
+  {id:'explorador',levelId:'explorador',order:2,directory:'',priceFactor:4},
+  {id:'aventurero',levelId:'aventurero',order:3,directory:'eclipse_aureo/',priceFactor:1}
 ];
 
 const EQUIPMENT_PIECES=[
@@ -33,8 +36,19 @@ const EQUIPMENT_PIECES=[
   {key:'weapon',asset:'nova_weapon',label:'Espada',slot:'weapon',basePrice:64,description:'Hoja de energía estable para las misiones.'}
 ];
 
+const ECLIPSE_PIECES=[
+  {key:'helmet',id:'eclipse_helmet',name:'Casco Eclipse Áureo',slot:'helmet',price:320,asset:'eclipse_helmet',description:'Casco de obsidiana estelar con líneas de oro y visor de energía áurea.'},
+  {key:'chest',id:'eclipse_chest',name:'Peto Eclipse Áureo',slot:'chest',price:300,asset:'eclipse_chest',description:'Armadura negra reforzada con núcleo dorado y placas de élite.'},
+  {key:'shoulders',id:'eclipse_shoulders',name:'Hombreras Eclipse Áureo',slot:'shoulders',price:260,asset:'eclipse_shoulders',description:'Hombreras de obsidiana con bordes dorados para misiones de máximo nivel.'},
+  {key:'gloves',id:'eclipse_gloves',name:'Guanteletes Eclipse Áureo',slot:'gloves',price:240,asset:'eclipse_gloves',description:'Guanteletes negros con conductos de energía dorada de alta precisión.'},
+  {key:'legs',id:'eclipse_legs',name:'Grebas Eclipse Áureo',slot:'legs',price:280,asset:'eclipse_legs',description:'Grebas articuladas oscuras con refuerzos áureos y gran movilidad.'},
+  {key:'boots',id:'eclipse_boots',name:'Botas Eclipse Áureo',slot:'boots',price:220,asset:'eclipse_boots',description:'Botas de gravedad negras con estabilizadores dorados.'},
+  {key:'shield',id:'eclipse_shield',name:'Escudo Eclipse Áureo',slot:'shield',price:340,asset:'eclipse_shield',description:'Escudo de obsidiana y oro preparado para las misiones más exigentes.'},
+  {key:'weapon',id:'eclipse_cannon',name:'Cañón Eclipse Áureo',slot:'weapon',price:380,asset:'eclipse_cannon',description:'Cañón estelar de gran tamaño con cuerpo negro, anillos dorados y núcleo luminoso.'}
+];
+
 const AVATAR={
-  schemaVersion:6,
+  schemaVersion:7,
   canvas:{width:1024,height:1024},
   levels:AVATAR_LEVELS,
   base:{id:'avatar_base',src:'assets/avatar/base/avatar_base.png',layer:10,optional:false},
@@ -48,7 +62,7 @@ const AVATAR={
     personaje_animal:{id:'personaje_animal',name:'Personaje animal',description:'Pendiente de avatar maestro aprobado.',levelId:'aprendiz',masterSrc:null,price:350,available:false,assetStatus:'pending_asset'}
   },
   items:[
-    ...EQUIPMENT_TIERS.flatMap(tier=>EQUIPMENT_PIECES.map(piece=>({
+    ...EQUIPMENT_TIERS.slice(0,2).flatMap(tier=>EQUIPMENT_PIECES.map(piece=>({
       id:`${piece.asset}_${tier.id}`,
       name:`${piece.label} ${LEVEL_BY_ID[tier.levelId].name}`,
       description:piece.description,
@@ -61,14 +75,19 @@ const AVATAR={
       avatarLayer:`assets/avatar/equipment/nova_guardian/${tier.directory}${piece.asset}.png`,
       available:true
     }))),
-    {id:'eclipse_helmet',name:'Casco Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'helmet',levelId:'guerrero',level:4,price:320,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_helmet.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_helmet.png',available:false},
-    {id:'eclipse_chest',name:'Peto Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'chest',levelId:'guerrero',level:4,price:300,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_chest.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_chest.png',available:false},
-    {id:'eclipse_shoulders',name:'Hombreras Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'shoulders',levelId:'guerrero',level:4,price:260,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_shoulders.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_shoulders.png',available:false},
-    {id:'eclipse_gloves',name:'Guanteletes Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'gloves',levelId:'guerrero',level:4,price:240,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_gloves.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_gloves.png',available:false},
-    {id:'eclipse_legs',name:'Grebas Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'legs',levelId:'guerrero',level:4,price:280,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_legs.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_legs.png',available:false},
-    {id:'eclipse_boots',name:'Botas Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'boots',levelId:'guerrero',level:4,price:220,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_boots.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_boots.png',available:false},
-    {id:'eclipse_shield',name:'Escudo Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'shield',levelId:'guerrero',level:4,price:340,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_shield.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_shield.png',available:false},
-    {id:'eclipse_cannon',name:'Cañón Eclipse Áureo',description:'Equipamiento preparado para un nivel futuro.',slot:'weapon',levelId:'guerrero',level:4,price:380,characterId:'principal',shopImage:'assets/shop/eclipse_aureo/eclipse_cannon.png',avatarLayer:'assets/avatar/equipment/eclipse_aureo/eclipse_cannon.png',available:false}
+    ...ECLIPSE_PIECES.map(piece=>({
+      id:piece.id,
+      name:piece.name,
+      description:piece.description,
+      slot:piece.slot,
+      levelId:'aventurero',
+      level:3,
+      price:piece.price,
+      characterId:'principal',
+      shopImage:`assets/shop/eclipse_aureo/${piece.asset}.png`,
+      avatarLayer:`assets/avatar/equipment/eclipse_aureo/${piece.asset}.png`,
+      available:true
+    }))
   ]
 };
 
