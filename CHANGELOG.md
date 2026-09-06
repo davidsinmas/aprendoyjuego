@@ -1,3 +1,11 @@
+## V3.15.4 — 2026-09-06
+
+- Se corrige estructuralmente la previsualización del Felino: la tienda utiliza directamente su avatar maestro y deja de superponer las piezas del catálogo como capas completas.
+- Se elimina el escalado artificial que provocaba que el Felino apareciera ampliado y recortado en la tarjeta.
+- El Felino queda centrado y contenido correctamente dentro de su área de previsualización.
+- Se añade un botón **Tienda de Avatar** en la pantalla principal para acceder directamente a la tienda.
+- Se conserva el flujo de desbloqueo por 350 diamantes y la compra/equipamiento de las 9 piezas.
+
 ## V3.15.2 — 2026-09-06
 
 - El equipamiento de la **Categoría 1 · Aventurero** del Felino ahora se muestra también antes de desbloquear el personaje, como catálogo de vista previa.
@@ -24,14 +32,3 @@
 - Se amplía el modelo de slots del paper-doll con **cola, cuello y accesorio**.
 - Se conserva la jerarquía oficial de ocho niveles: **Aprendiz, Explorador, Aventurero, Guerrero, Héroe, Campeón, Maestro y Leyenda**.
 - Los recursos del muestrario se optimizan para web y se incorpora un atlas compacto para la tienda.
-
-## V3.14.0 — 2026-09-06
-
-- Se establece una única jerarquía oficial de ocho niveles: **Aprendiz, Explorador, Aventurero, Guerrero, Héroe, Campeón, Maestro y Leyenda**.
-- Los tres equipamientos actualmente disponibles pasan a corresponder a **Aprendiz, Explorador y Aventurero**.
-- La tienda se simplifica al flujo **AVATAR → NIVEL → EQUIPAMIENTO**.
-- Cada avatar incorpora su propio nivel y ningún equipamiento de nivel superior puede comprarse ni equiparse.
-- Los niveles futuros quedan preparados estructuralmente sin mostrarse como disponibles mientras no tengan equipamientos.
-- Se añade migración segura de partidas: identificadores antiguos de equipamiento se transforman a los nuevos identificadores sin perder inventario ni compras.
-- Los estados antiguos asociados al segundo nivel se migran al nivel inmediatamente inferior cuando se detectan como datos de avatar heredados.
-- Se mantiene el sistema paper-doll y los assets existentes; no se generan nuevos recursos gráficos.
