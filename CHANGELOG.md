@@ -1,3 +1,14 @@
+## V3.14.0 — 2026-09-06
+
+- Se establece una única jerarquía oficial de ocho niveles: **Aprendiz, Explorador, Aventurero, Guerrero, Héroe, Campeón, Maestro y Leyenda**.
+- Los tres equipamientos actualmente disponibles pasan a corresponder a **Aprendiz, Explorador y Aventurero**.
+- La tienda se simplifica al flujo **AVATAR → NIVEL → EQUIPAMIENTO**.
+- Cada avatar incorpora su propio nivel y ningún equipamiento de nivel superior puede comprarse ni equiparse.
+- Los niveles futuros quedan preparados estructuralmente sin mostrarse como disponibles mientras no tengan equipamientos.
+- Se añade migración segura de partidas: identificadores antiguos de equipamiento se transforman a los nuevos identificadores sin perder inventario ni compras.
+- Los estados antiguos asociados al segundo nivel se migran al nivel inmediatamente inferior cuando se detectan como datos de avatar heredados.
+- Se mantiene el sistema paper-doll y los assets existentes; no se generan nuevos recursos gráficos.
+
 ## V3.13.0 — 2026-09-05
 
 - El planning pasa a una interfaz interactiva de tipo **lámina deslizante**.
