@@ -1,4 +1,4 @@
-/* V3.16.0 · autodiagnóstico técnico de la tienda de Avatar. Solo se ejecuta con ?avatar-test=1. */
+/* V3.17.0 · autodiagnóstico técnico de la tienda de Avatar. Solo se ejecuta con ?avatar-test=1. */
 (function(){
   'use strict';
   function report(name,ok,detail){return {name,ok,detail:detail||''};}
@@ -16,9 +16,9 @@
     const missingSlots=AVATAR.items.filter(i=>!AVATAR.slots[i.slot]).map(i=>i.id);
     results.push(report('Slots válidos',missingSlots.length===0,missingSlots.length?missingSlots.join(', '):'Todos los slots existen.'));
     const feline=AVATAR.items.filter(i=>i.characterId==='personaje_animal');
-    results.push(report('Felino · 9 piezas',feline.length===9,`Detectadas ${feline.length}.`));
+    results.push(report('Felino · 10 piezas',feline.length===10,`Detectadas ${feline.length}.`));
     const felineSlots=[...new Set(feline.map(i=>i.slot))];
-    results.push(report('Felino · slots únicos',felineSlots.length===9,`Detectados ${felineSlots.length} slots.`));
+    results.push(report('Felino · slots únicos',felineSlots.length===10,`Detectados ${felineSlots.length} slots.`));
     const levels=AVATAR_LEVELS||[];
     results.push(report('Progresión · 8 niveles',levels.length===8&&levels.every((l,i)=>l.order===i+1),`Detectados ${levels.length}.`));
     const masters=[...new Set(Object.values(AVATAR.characters).filter(c=>c.available&&c.masterSrc).map(c=>c.masterSrc))];
