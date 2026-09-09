@@ -1,0 +1,50 @@
+name: Instalar assets binarios
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/payload/felino_assets.zip.b64]
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Decodificar y validar assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/felino
+          base64 -d .github/payload/felino_assets.zip.b64 > /tmp/felino/assets.zip
+          unzip -q /tmp/felino/assets.zip -d /tmp/felino/out
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          root=Path('/tmp/felino/out')
+          expected=[*(f'assets/avatar/equipment/felino/aprendiz/{n}.png' for n in ['helmet','neck','shoulders','chest','gloves','accessory','legs','boots','weapon','shield']),*(f'assets/shop/felino/explorador/{n}.png' for n in ['weapon','shield'])]
+          missing=[p for p in expected if not (root/p).is_file()]
+          if missing: raise SystemExit('Faltan: '+', '.join(missing))
+          for rel in expected:
+            p=root/rel
+            h=p.read_bytes()[:24]
+            if len(h)!=24 or h[:8]!=b'\x89PNG\r\n\x1a\n' or h[12:16]!=b'IHDR' or struct.unpack('>II',h[16:24])!=(1024,1024):
+              raise SystemExit(f'PNG inválido o dimensiones incorrectas: {rel}')
+          print('OK: 12 assets válidos')
+          PY
+      - name: Instalar assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -R /tmp/felino/out/assets/. assets/
+          rm -f .github/payload/felino_assets.zip.b64
+          git config user.name "Aprendo Jugando Bot"
+          git config user.email "actions@github.com"
+          git add -A -- assets .github/payload/felino_assets.zip.b64
+          git commit -m "V3.17.0: incorporar assets Felino Explorador"
+          git push
