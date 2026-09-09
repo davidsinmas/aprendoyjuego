@@ -1,10 +1,156 @@
-/** V3.15.5 · niveles y catálogo paper-doll. */
-const AVATAR_LEVELS=[{id:'aprendiz',name:'Aprendiz',order:1},{id:'explorador',name:'Explorador',order:2},{id:'aventurero',name:'Aventurero',order:3},{id:'guerrero',name:'Guerrero',order:4},{id:'heroe',name:'Héroe',order:5},{id:'campeon',name:'Campeón',order:6},{id:'maestro',name:'Maestro',order:7},{id:'leyenda',name:'Leyenda',order:8}];
-const LEVEL_BY_ID=Object.fromEntries(AVATAR_LEVELS.map(x=>[x.id,x])),LEVEL_BY_ORDER=Object.fromEntries(AVATAR_LEVELS.map(x=>[x.order,x]));
-const EQUIPMENT_TIERS=[{id:'aprendiz',levelId:'aprendiz',order:1,directory:'common/',priceFactor:1},{id:'explorador',levelId:'explorador',order:2,directory:'',priceFactor:4},{id:'aventurero',levelId:'aventurero',order:3,directory:'eclipse_aureo/',priceFactor:1}];
-const EQUIPMENT_PIECES=[['helmet','Casco','nova_helmet',54],['chest','Peto','nova_chest',48],['shoulders','Hombreras','nova_shoulders',38],['gloves','Guanteletes','nova_gloves',34],['legs','Grebas','nova_legs',44],['boots','Botas','nova_boots',30],['shield','Escudo','nova_shield',58],['weapon','Espada','nova_weapon',64]].map(x=>({slot:x[0],label:x[1],asset:x[2],basePrice:x[3]}));
-const ECLIPSE_PIECES=[['helmet','eclipse_helmet','Casco Eclipse Áureo','helmet',320],['chest','eclipse_chest','Peto Eclipse Áureo','chest',300],['shoulders','eclipse_shoulders','Hombreras Eclipse Áureo','shoulders',260],['gloves','eclipse_gloves','Guanteletes Eclipse Áureo','gloves',240],['legs','eclipse_legs','Grebas Eclipse Áureo','legs',280],['boots','eclipse_boots','Botas Eclipse Áureo','boots',220],['shield','eclipse_shield','Escudo Eclipse Áureo','shield',340],['weapon','eclipse_cannon','Cañón Eclipse Áureo','weapon',380]].map(x=>({key:x[0],id:x[1],name:x[2],slot:x[3],price:x[4],asset:x[1]}));
-const FELINE_PIECES=[['helmet','Casco de Explorador Felino',55,'helmet.png'],['neck','Bufanda del Explorador',35,'neck.png'],['shoulders','Hombreras del Explorador',48,'shoulders.png'],['chest','Peto del Explorador',58,'chest.png'],['gloves','Guanteletes del Explorador',44,'gloves.png'],['accessory','Bolsa y Brújula',42,'accessory.png'],['legs','Pantalones del Explorador',46,'legs.png'],['boots','Botas del Explorador',52,'boots.png'],['tail','Cola Felina',25,'tail.png']].map(x=>({key:x[0],id:`felino_aprendiz_${x[0]}`,name:x[1],slot:x[0],price:x[2],avatarLayer:`assets/avatar/equipment/felino/aprendiz/${x[3]}`}));
-const AVATAR={schemaVersion:9,canvas:{width:1024,height:1024},levels:AVATAR_LEVELS,base:{id:'avatar_base',src:'assets/avatar/base/avatar_base.png',layer:10,optional:false},slots:{back:{layer:0,label:'Espalda'},tail:{layer:5,label:'Cola'},legs:{layer:20,label:'Piernas'},boots:{layer:30,label:'Botas'},chest:{layer:40,label:'Pecho'},neck:{layer:45,label:'Cuello'},shoulders:{layer:50,label:'Hombreras'},gloves:{layer:60,label:'Brazos y guantes'},head:{layer:70,label:'Cabeza'},helmet:{layer:80,label:'Casco'},accessory:{layer:85,label:'Accesorio'},shield:{layer:90,label:'Escudo'},weapon:{layer:100,label:'Arma'},effects:{layer:110,label:'Efectos'}},economy:{defaultPriceMultiplier:1,minimumPriceMultiplier:.25,maximumPriceMultiplier:3},characters:{principal:{id:'principal',name:'Avatar principal',description:'Avatar principal disponible.',levelId:'aventurero',masterSrc:'assets/avatar/base/avatar_base.png',price:0,available:true,assetStatus:'available'},personaje_femenino:{id:'personaje_femenino',name:'Personaje femenino',description:'Pendiente de avatar maestro aprobado.',levelId:'aprendiz',masterSrc:null,price:250,available:false,assetStatus:'pending_asset'},personaje_animal:{id:'personaje_animal',name:'Felino',description:'Personaje felino aventurero · Categoría 1.',levelId:'aprendiz',masterSrc:'assets/avatar/base/felino_aprendiz.png',price:350,available:true,assetStatus:'available',categoryIds:['felino_aprendiz']}},items:[]};
-AVATAR.items=[...EQUIPMENT_TIERS.slice(0,2).flatMap(t=>EQUIPMENT_PIECES.map(p=>({id:`${p.asset}_${t.id}`,name:`${p.label} ${LEVEL_BY_ID[t.levelId].name}`,description:`${p.label} del nivel ${LEVEL_BY_ID[t.levelId].name}.`,slot:p.slot,levelId:t.levelId,level:t.order,price:p.basePrice*t.priceFactor,characterId:'principal',shopImage:`assets/shop/nova_guardian/${t.directory}${p.asset}.png`,avatarLayer:`assets/avatar/equipment/nova_guardian/${t.directory}${p.asset}.png`,available:true}))),...ECLIPSE_PIECES.map(p=>({id:p.id,name:p.name,description:`${p.name}, equipamiento de élite.`,slot:p.slot,levelId:'aventurero',level:3,price:p.price,characterId:'principal',shopImage:`assets/shop/eclipse_aureo/${p.asset}.png`,avatarLayer:`assets/avatar/equipment/eclipse_aureo/${p.asset}.png`,available:true})),...FELINE_PIECES.map(p=>({id:p.id,name:p.name,description:`${p.name}. Primera categoría del personaje Felino.`,slot:p.slot,levelId:'aprendiz',level:1,categoryId:'felino_aprendiz',characterId:'personaje_animal',price:p.price,shopImage:'assets/shop/felino/aprendiz/atlas16.png',avatarLayer:p.avatarLayer,spriteIndex:FELINE_PIECES.findIndex(x=>x.id===p.id),available:true}))];
-window.AVATAR_LEVELS=AVATAR_LEVELS;window.LEVEL_BY_ID=LEVEL_BY_ID;window.LEVEL_BY_ORDER=LEVEL_BY_ORDER;
+/**
+ * Catálogo y configuración del avatar paper-doll.
+ * Las 24 capas comparten el lienzo maestro 1024 × 1024 y vienen prealineadas.
+ */
+const NOVA_TIERS=[
+  {id:'common',level:1,label:'Común',nameSuffix:'de cadete',priceFactor:1,directory:'common/'},
+  {id:'rare',level:2,label:'Raro',nameSuffix:'de explorador',priceFactor:2,directory:'rare/'},
+  {id:'legendary',level:3,label:'Legendario',nameSuffix:'Guardián Nova',priceFactor:4,directory:''}
+];
+
+const NOVA_PIECES=[
+  {
+    key:'helmet',asset:'nova_helmet',label:'Casco Nova',slot:'helmet',basePrice:54,
+    descriptions:{
+      common:'Aleación ligera y visor reforzado para las primeras misiones.',
+      rare:'Visor de cobalto con sensores para descubrir nuevos mundos.',
+      legendary:'Visor estelar de cobertura completa con halo de energía cian.'
+    }
+  },
+  {
+    key:'chest',asset:'nova_chest',label:'Peto Nova',slot:'chest',basePrice:48,
+    descriptions:{
+      common:'Protección de acero grafito con un núcleo Nova de baja potencia.',
+      rare:'Acero de cobalto reforzado con un núcleo de energía azul.',
+      legendary:'Núcleo estelar, acero de élite, detalles dorados y aura energética.'
+    }
+  },
+  {
+    key:'shoulders',asset:'nova_shoulders',label:'Hombreras Nova',slot:'shoulders',basePrice:38,
+    descriptions:{
+      common:'Placas de cobre y acero preparadas para entrenar con seguridad.',
+      rare:'Placas plateadas para misiones más largas y exigentes.',
+      legendary:'Placas de élite preparadas para proteger toda la galaxia.'
+    }
+  },
+  {
+    key:'gloves',asset:'nova_gloves',label:'Guanteletes Nova',slot:'gloves',basePrice:34,
+    descriptions:{
+      common:'Guanteletes firmes para sujetar el equipo durante el aprendizaje.',
+      rare:'Canalizan energía azul con mayor precisión y potencia.',
+      legendary:'Canalizan energía cian para controlar el equipo con máxima precisión.'
+    }
+  },
+  {
+    key:'legs',asset:'nova_legs',label:'Grebas Nova',slot:'legs',basePrice:44,
+    descriptions:{
+      common:'Armadura articulada de iniciación para moverse con confianza.',
+      rare:'Protección articulada de cobalto para avanzar con rapidez.',
+      legendary:'Protección articulada de élite para moverse con fuerza y velocidad.'
+    }
+  },
+  {
+    key:'boots',asset:'nova_boots',label:'Botas Nova',slot:'boots',basePrice:30,
+    descriptions:{
+      common:'Las primeras botas magnéticas del futuro guardián.',
+      rare:'Botas magnéticas de cobalto para caminar por cualquier planeta.',
+      legendary:'Botas gravitatorias de zafiro y oro con impulso de energía cian.'
+    }
+  },
+  {
+    key:'shield',asset:'nova_shield',label:'Escudo Nova',slot:'shield',basePrice:58,
+    descriptions:{
+      common:'Escudo de entrenamiento equilibrado y resistente.',
+      rare:'Campo de defensa azul con borde de acero plateado.',
+      legendary:'Campo protector dorado capaz de detener cualquier impacto.'
+    }
+  },
+  {
+    key:'weapon',asset:'nova_weapon',label:'Espada Nova',slot:'weapon',basePrice:64,
+    descriptions:{
+      common:'Hoja de energía estable para comenzar el entrenamiento estelar.',
+      rare:'Hoja de energía azul para las misiones de exploración.',
+      legendary:'La hoja fotónica más poderosa de la colección Nova.'
+    }
+  }
+];
+
+
+const ECLIPSE_PIECES=[
+  {id:'eclipse_helmet',name:'Casco Eclipse Áureo',slot:'helmet',price:320,asset:'eclipse_helmet',description:'Casco de obsidiana estelar con líneas de oro y visor de energía áurea.'},
+  {id:'eclipse_chest',name:'Peto Eclipse Áureo',slot:'chest',price:300,asset:'eclipse_chest',description:'Armadura negra reforzada con núcleo dorado y placas de élite.'},
+  {id:'eclipse_shoulders',name:'Hombreras Eclipse Áureo',slot:'shoulders',price:260,asset:'eclipse_shoulders',description:'Hombreras de obsidiana con bordes dorados para misiones de máximo nivel.'},
+  {id:'eclipse_gloves',name:'Guanteletes Eclipse Áureo',slot:'gloves',price:240,asset:'eclipse_gloves',description:'Guanteletes negros con conductos de energía dorada de alta precisión.'},
+  {id:'eclipse_legs',name:'Grebas Eclipse Áureo',slot:'legs',price:280,asset:'eclipse_legs',description:'Grebas articuladas oscuras con refuerzos áureos y gran movilidad.'},
+  {id:'eclipse_boots',name:'Botas Eclipse Áureo',slot:'boots',price:220,asset:'eclipse_boots',description:'Botas de gravedad negras con estabilizadores dorados.'},
+  {id:'eclipse_shield',name:'Escudo Eclipse Áureo',slot:'shield',price:340,asset:'eclipse_shield',description:'Escudo de obsidiana y oro preparado para las misiones más exigentes.'},
+  {id:'eclipse_cannon',name:'Cañón Eclipse Áureo',slot:'weapon',price:380,asset:'eclipse_cannon',description:'Cañón estelar de gran tamaño con cuerpo negro, anillos dorados y núcleo luminoso.'}
+];
+
+const AVATAR={
+  schemaVersion:5,
+  canvas:{width:1024,height:1024},
+  base:{
+    id:'avatar_base',
+    src:'assets/avatar/base/avatar_base.png',
+    layer:10,
+    optional:false
+  },
+  slots:{
+    back:{layer:0,label:'Espalda'},
+    legs:{layer:20,label:'Piernas'},
+    boots:{layer:30,label:'Botas'},
+    chest:{layer:40,label:'Pecho'},
+    shoulders:{layer:50,label:'Hombreras'},
+    gloves:{layer:60,label:'Brazos y guantes'},
+    head:{layer:70,label:'Cabeza'},
+    helmet:{layer:80,label:'Casco'},
+    shield:{layer:90,label:'Escudo'},
+    weapon:{layer:100,label:'Arma'},
+    effects:{layer:110,label:'Efectos'}
+  },
+  rarities:Object.fromEntries(NOVA_TIERS.map(tier=>[tier.id,{label:tier.label,level:tier.level}])),
+  economy:{
+    defaultPriceMultiplier:1,
+    minimumPriceMultiplier:0.25,
+    maximumPriceMultiplier:3
+  },
+  collections:{
+    nova_guardian:{
+      name:'Guardián Nova',
+      description:'Tres niveles de equipamiento espacial para proteger las estrellas.',
+      itemCount:NOVA_TIERS.length*NOVA_PIECES.length
+    },
+    eclipse_aureo:{
+      name:'Eclipse Áureo',
+      description:'Equipamiento de nivel 4 en obsidiana negra y oro, con un cañón estelar exclusivo.',
+      itemCount:ECLIPSE_PIECES.length
+    }
+  },
+  items:[
+    ...NOVA_TIERS.flatMap(tier=>NOVA_PIECES.map(piece=>({
+      id:tier.id==='legendary'?piece.asset:`${piece.asset}_${tier.id}`,
+      name:`${piece.label} ${tier.nameSuffix}`,
+      description:piece.descriptions[tier.id],
+      slot:piece.slot,
+      rarity:tier.id,
+      level:tier.level,
+      price:piece.basePrice*tier.priceFactor,
+      collection:'nova_guardian',
+      shopImage:`assets/shop/nova_guardian/${tier.directory}${piece.asset}.png`,
+      avatarLayer:`assets/avatar/equipment/nova_guardian/${tier.directory}${piece.asset}.png`
+    }))),
+    ...ECLIPSE_PIECES.map(piece=>({
+      id:piece.id,
+      name:piece.name,
+      description:piece.description,
+      slot:piece.slot,
+      rarity:'legendary',
+      level:4,
+      price:piece.price,
+      collection:'eclipse_aureo',
+      shopImage:`assets/shop/eclipse_aureo/${piece.asset}.png`,
+      avatarLayer:`assets/avatar/equipment/eclipse_aureo/${piece.asset}.png`
+    }))
+  ]
+};
