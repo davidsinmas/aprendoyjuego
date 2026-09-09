@@ -1,13 +1,3 @@
-## V3.17.0 — 2026-09-09
-
-- Se incorpora el muestrario aprobado del Felino Explorador como fuente técnica para las capas paper-doll.
-- La primera categoría del Felino pasa a tener 10 piezas: casco, cuello, hombreras, pecho, guantes, mochila/brújula, piernas, botas, arma y escudo.
-- La cola deja de tratarse como equipamiento independiente y queda integrada en el avatar maestro.
-- Se generan capas independientes 1024×1024 transparentes para el avatar y se conectan al catálogo.
-- Arma y escudo disponen de recursos propios para tienda y equipamiento.
-- El autodiagnóstico se actualiza para exigir 10 piezas y 10 slots únicos del Felino.
-- La tienda muestra `Categoría 1 · Explorador` y permite mostrar piezas sin sprite de atlas mediante su imagen propia.
-
 ## V3.16.0 — 2026-09-08
 
 - Se añade un autodiagnóstico técnico de la tienda de Avatar ejecutable bajo demanda con `?avatar-test=1`.
