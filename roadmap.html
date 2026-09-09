@@ -1,92 +1,132 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#315c50">
-<title>Planning · Ludeiko</title>
-<style>
-:root{--bg:#eef3f0;--surface:#fff;--surface-2:#f7faf8;--text:#24312d;--muted:#68746f;--line:#d7dfdb;--accent:#315c50;--accent-2:#477568;--done:#718078;--late:#a64b3c;--shadow:0 18px 45px #24312d1c;--sheet-w:min(390px,92vw);--tab-w:58px}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{overflow-x:hidden}
-button,input{font:inherit}
-button{cursor:pointer}
-.app{min-height:100vh;position:relative;overflow:hidden}
-.topbar{min-height:86px;padding:18px max(20px,calc((100vw - 1220px)/2)) 14px;display:flex;align-items:center;justify-content:space-between;gap:18px;background:#ffffffd9;border-bottom:1px solid var(--line);backdrop-filter:blur(12px);position:relative;z-index:2}
-.brand h1{font-size:clamp(1.45rem,3vw,2rem);margin:0;letter-spacing:-.03em}
-.brand p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
-.menu-trigger{display:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:10px 13px;font-weight:700}
-.workspace{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:28px 0 54px;min-height:calc(100vh - 86px)}
-.content{min-width:0;transition:padding-left .65s cubic-bezier(.22,.8,.2,1)}
-.content-card{background:var(--surface);border:1px solid var(--line);border-radius:26px;box-shadow:0 8px 28px #24312d0c;min-height:650px;padding:clamp(22px,4vw,36px);position:relative;overflow:hidden}
-.content-card:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--accent),#79a497,var(--accent));opacity:.9}
-.stage-head{display:grid;grid-template-columns:1fr auto;gap:18px;border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:22px}
-.kicker{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:850;color:var(--accent)}
-.stage-head h2{margin:6px 0 7px;font-size:clamp(1.55rem,4vw,2.15rem);line-height:1.08;letter-spacing:-.035em}
-.stage-date{color:var(--muted);font-size:.92rem}
-.stage-description{margin:16px 0 0;max-width:760px;color:#4d5a55;line-height:1.6}
-.stage-state{align-self:start;border:1px solid var(--line);background:var(--surface-2);border-radius:15px;padding:11px 13px;text-align:center;min-width:96px}
-.stage-state strong{display:block;font-size:1.2rem}.stage-state span{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-top:2px}
-.progress-wrap{margin-bottom:22px}.progress-meta{display:flex;justify-content:space-between;gap:12px;font-size:.78rem;color:var(--muted);margin-bottom:7px}.progress{height:8px;border-radius:999px;background:#e3eae6;overflow:hidden}.progress i{display:block;height:100%;width:0;background:var(--accent);border-radius:inherit;transition:width .35s ease}
-.task-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
-.task{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);transition:transform .18s ease,border-color .18s ease,background .18s ease}.task:hover{transform:translateY(-1px);border-color:#b7c7c0;background:#fff}.task input{appearance:none;width:21px;height:21px;flex:0 0 auto;margin:0;border:2px solid #9aaba4;border-radius:6px;background:#fff;position:relative;cursor:pointer}.task input:checked{background:var(--accent);border-color:var(--accent)}.task input:checked:after{content:"";position:absolute;width:5px;height:10px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);left:6px;top:3px}.task label{font-size:.9rem;line-height:1.42;cursor:pointer}.task input:checked+label{text-decoration:line-through;color:var(--done)}
-.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:24px}.nav-btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:10px 14px;font-weight:750}.nav-btn:hover{border-color:#a8b9b2;background:var(--surface-2)}.nav-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.nav-btn:disabled{opacity:.4;cursor:not-allowed}
-.sheet{position:fixed;z-index:10;left:0;top:0;width:var(--sheet-w);height:100dvh;padding:18px 16px 18px 18px;transform:translateX(0);transition:transform .68s cubic-bezier(.22,.8,.2,1);filter:drop-shadow(16px 0 28px #18221e1c);pointer-events:auto}.sheet-inner{height:100%;background:linear-gradient(145deg,#fff 0%,#f5f8f6 100%);border:1px solid #cfdad5;border-radius:0 24px 24px 0;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:relative}.sheet:after{content:"";position:absolute;top:18px;bottom:18px;right:0;width:3px;border-radius:3px;background:#c7d4ce}
-.sheet.closed{transform:translateX(calc(-1 * (var(--sheet-w) - var(--tab-w))))}.sheet-tab{position:absolute;right:-58px;top:50%;transform:translateY(-50%);width:58px;min-height:118px;border:1px solid #c7d4ce;border-left:0;border-radius:0 16px 16px 0;background:#f7faf8;color:var(--accent);box-shadow:10px 8px 25px #24312d14;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-weight:850;letter-spacing:.05em}.sheet-tab span{font-size:.72rem}.sheet-header{padding:22px 20px 17px;border-bottom:1px solid var(--line)}.sheet-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.sheet-header h2{margin:0;font-size:1.08rem}.sheet-header p{margin:5px 0 0;color:var(--muted);font-size:.78rem;line-height:1.4}.close-sheet{border:0;background:transparent;color:var(--muted);font-size:1.3rem;line-height:1;padding:2px 4px}.sheet-summary{padding:13px 20px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px}.summary-item{background:#fff;border:1px solid var(--line);border-radius:11px;padding:9px 10px}.summary-item strong{display:block;font-size:1rem}.summary-item span{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;font-weight:800;letter-spacing:.05em;margin-top:2px}.stage-list{overflow:auto;padding:14px 12px 18px;display:grid;gap:8px;overscroll-behavior:contain}.stage{border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .2s}.stage button{appearance:none;width:100%;border:0;background:transparent;text-align:left;color:inherit;padding:12px 13px;display:block}.stage:hover{transform:translateX(2px);border-color:#b4c5be}.stage.selected{border-color:var(--accent);box-shadow:0 5px 17px #315c5020;transform:translateX(5px)}.stage-title{display:block;font-weight:800;font-size:.83rem;line-height:1.3}.stage-date{display:block;margin-top:4px;color:var(--muted);font-size:.72rem}.stage-desc{display:block;margin-top:5px;color:#596660;font-size:.72rem;line-height:1.35}.status{display:inline-block;margin-left:6px;color:var(--done);font-size:.6rem;font-weight:900;letter-spacing:.06em}.stage.done .stage-title,.stage.done .stage-date,.stage.done .stage-desc{text-decoration:line-through;color:var(--done)}.stage.late{border-color:#a64b3c73}.stage.late .stage-date{color:var(--late);font-weight:700}
-.backdrop{position:fixed;inset:0;background:#15231e44;z-index:9;opacity:0;pointer-events:none;transition:opacity .45s ease}.backdrop.visible{opacity:1;pointer-events:auto}
-.hint{margin:0 0 16px;color:var(--muted);font-size:.8rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:820px){:root{--sheet-w:min(400px,91vw);--tab-w:54px}.topbar{min-height:72px;padding:14px 16px}.menu-trigger{display:block}.workspace{width:calc(100% - 20px);padding:14px 0 32px;min-height:calc(100vh - 72px)}.content-card{min-height:calc(100vh - 110px);border-radius:20px;padding:20px}.sheet{padding:10px 10px 10px 0}.sheet-inner{border-radius:0 20px 20px 0}.sheet:after{top:10px;bottom:10px}.sheet-tab{min-height:104px}.backdrop.visible{display:block}.task-list{grid-template-columns:1fr}.stage-head{grid-template-columns:1fr}.stage-state{justify-self:start}.actions{position:sticky;bottom:8px;background:#ffffffec;border:1px solid var(--line);border-radius:14px;padding:8px;backdrop-filter:blur(8px)}}
-@media(max-width:520px){.brand p{display:none}.content-card{padding:18px}.stage-head h2{font-size:1.45rem}.task{padding:12px}.sheet-header{padding:18px 16px 14px}.sheet-summary{padding:11px 16px}.stage-list{padding:12px 9px 16px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#dfe7e3">
+  <title>Hoja de ruta · Ludeiko</title>
+  <style>
+    :root{--bg:#eef3f0;--card:#fff;--text:#24312d;--muted:#68746f;--line:#d7dfdb;--accent:#315c50;--done:#718078;--late:#a64b3c;--future:#7a5b18}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{width:min(820px,calc(100% - 28px));margin:0 auto;padding:32px 0 48px}
+    h1{margin:0;font-size:clamp(1.7rem,5vw,2.3rem);letter-spacing:-.03em}
+    .intro{margin:8px 0 26px;color:var(--muted);font-size:.98rem;line-height:1.5}
+    .roadmap{display:grid;gap:12px}
+    .stage{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(36,49,45,.05)}
+    .stage button{appearance:none;border:0;background:none;width:100%;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:14px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+    .stage-main{min-width:0}.stage-title{display:block;font-weight:750;font-size:1.05rem}.stage-date{display:block;margin-top:5px;color:var(--muted);font-size:.9rem}
+    .marker{align-self:center;color:var(--accent);font-size:1.2rem;transition:transform .2s}.details{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}.details>div{overflow:hidden}.details p{margin:0;padding:0 20px 19px;color:#4d5a55;line-height:1.55}
+    .stage.open .details{grid-template-rows:1fr}.stage.open .marker{transform:rotate(90deg)}
+    .stage.done .stage-title,.stage.done .stage-date{text-decoration:line-through;color:var(--done)}.stage.done .marker{color:var(--done)}
+    .stage.late{border-color:rgba(166,75,60,.45)}.stage.late .stage-date{color:var(--late);font-weight:650}
+    .status{display:inline-block;margin-left:8px;font-size:.75rem;font-weight:700;text-decoration:none!important}.future{color:var(--future)}
+    .legend{margin:0 0 18px;padding:12px 15px;background:rgba(255,255,255,.65);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:.88rem;line-height:1.45}
+    @media(max-width:520px){main{padding-top:24px}.stage button{padding:16px}.details p{padding:0 16px 17px}}
+  </style>
 </head>
 <body>
-<div class="app" id="app">
-<header class="topbar"><div class="brand"><h1>Planning de Ludeiko</h1><p>Hoja de ruta interactiva · selecciona una etapa para trabajar sobre ella</p></div><button class="menu-trigger" id="openMenu" type="button">Etapas</button></header>
-<div class="workspace"><main class="content"><section class="content-card" id="details" aria-live="polite"></section></main></div>
-<div class="backdrop" id="backdrop"></div>
-<aside class="sheet" id="sheet" aria-label="Menú de etapas"><div class="sheet-inner">
-<div class="sheet-header"><div class="sheet-header-row"><div><h2>Mapa de etapas</h2><p>Elige una etapa. La lámina se retira para dejar todo el espacio al trabajo.</p></div><button class="close-sheet" id="closeMenu" type="button" aria-label="Ocultar menú">×</button></div></div>
-<div class="sheet-summary"><div class="summary-item"><strong id="stageCount">18</strong><span>Etapas</span></div><div class="summary-item"><strong id="doneCount">2</strong><span>Cerradas</span></div></div>
-<nav class="stage-list" id="stageList" aria-label="Etapas del planning"></nav>
-</div><button class="sheet-tab" id="sheetTab" type="button" aria-label="Mostrar menú de etapas"><span>ETAPAS</span></button></aside>
-</div>
-<script>
-const stages=[
-{id:1,title:'Cerrar y estabilizar el acceso de familias',date:'5–7 septiembre 2026',done:true,desc:'Registro, confirmación, acceso y modo Padres.',detail:'Registro, confirmación, inicio de sesión y modo Padres. Safari y el PIN están validados. SMTP externo queda aplazado.',tasks:['Registro de familias','Confirmación y retorno correcto desde el correo','Inicio y cierre de sesión','Modo Padres','Teclado/PIN en Safari','SMTP externo aplazado a etapa 9']},
-{id:2,title:'Consolidar la sincronización entre dispositivos',date:'8–12 septiembre 2026',done:true,desc:'Progreso y cambios online/offline entre dispositivos.',detail:'La sincronización se ha validado con la misma cuenta en dos dispositivos, incluyendo recuperación tras trabajar sin conexión.',tasks:['Misma cuenta en dos dispositivos','Mismo progreso en ambos','Cambio en A visible en B','Cambio offline sincronizado al recuperar internet','Persistencia al cerrar y abrir']},
-{id:3,title:'Consolidar avatar, equipamiento y tienda',date:'13–19 septiembre 2026',desc:'Tienda basada en personaje → colección → categoría.',detail:'El jugador podrá escoger libremente su primer personaje y ese personaje será gratuito. Si quiere un segundo personaje, deberá desbloquearlo pagando diamantes. Cada personaje tendrá su propio avatar maestro y equipamiento compatible.',tasks:['Definir modelo personaje → colección → categoría','Permitir escoger el personaje gratuito inicial','El personaje escogido por el jugador es el gratuito; no fijar uno obligatorio','Mantener el personaje masculino actual como opción','Crear personaje femenino y avatar maestro','Crear personaje animal y avatar maestro','Definir coste en diamantes del segundo personaje y siguientes','Desbloqueo de personajes con diamantes','Equipamiento y armaduras independientes por personaje','Paper-doll independiente para cada personaje','Definir tres colecciones por personaje','Navegación Avatar → Colección → Categoría','Filtrado por personaje y colección','Impedir piezas incompatibles con otro personaje','Inventario independiente por personaje','Persistir y sincronizar personaje, desbloqueos y equipamiento','Mostrar siempre el personaje seleccionado/equipado','Migrar catálogo actual sin perder compras ni progreso','Revisar precios, rarezas, niveles y economía de diamantes','Integrar únicamente assets gráficos aprobados y alineados','Adaptar pantalla principal y recompensas al personaje','Probar tienda en móvil y escritorio']},
-{id:4,title:'Estabilizar y completar los juegos de acción',date:'20–26 septiembre 2026',desc:'Cerrar bugs y completar el juego de tanques y otros juegos de acción.',detail:'Resolver bloqueos y validar colisiones, bonus, obstáculos, rebotes, reinicios y controles.',tasks:['Corregir bloqueo al mover tanques','Corregir bloqueo al aparecer bonus','Validar obstáculos destructibles','Validar rebotes y salida de disparos','Validar bonus y pérdida por impacto','Validar reinicio y colisiones','Pruebas táctiles']},
-{id:5,title:'Ampliar los juegos para cubrir varias edades',date:'27 septiembre–4 octubre 2026',desc:'Más niveles y progresión adecuada para distintos tramos de edad.',detail:'Cada juego tendrá más contenido y una progresión de dificultad coherente.',tasks:['Definir tramos de edad','Diseñar más niveles por juego','Aumentar dificultad progresivamente','Ajustar XP y recompensas','Validar recorridos por edad','Pruebas con usuarios']},
-{id:6,title:'Adaptación automática según la edad',date:'5–11 octubre 2026',desc:'Adaptar inicialmente la dificultad según la edad del jugador.',detail:'La edad se utilizará para proponer una experiencia adecuada, con control familiar y sincronización.',tasks:['Solicitar edad','Definir rangos','Reglas de dificultad','Dificultad inicial automática','Ajuste desde Padres','Guardar y sincronizar configuración','Minimizar exposición de la edad']},
-{id:7,title:'Cerrar experiencia educativa y progresión',date:'12–18 octubre 2026',desc:'Unificar juegos, niveles, XP, diamantes, recompensas y avatar.',detail:'Revisar el recorrido completo y la coherencia educativa y motivacional.',tasks:['Revisar pantalla principal','Revisar juegos y niveles','Revisar XP','Revisar diamantes','Revisar tienda','Validar experiencia educativa','Mantener rimas desactivado mientras corresponda']},
-{id:8,title:'Identidad, nombre y preparación comercial',date:'19–25 octubre 2026',desc:'Cerrar nombre, identidad, dominio y presentación del producto.',detail:'Preparar identidad y materiales necesarios para presentar Ludeiko.',tasks:['Disponibilidad del nombre','Marca/nombre comercial','Dominio','Identidad visual','Iconos','Textos comerciales','Nomenclatura coherente']},
-{id:9,title:'Cuenta real, correo transaccional y recuperación',date:'26 octubre–1 noviembre 2026',desc:'SMTP propio y correos de producción.',detail:'Sustituir las limitaciones del correo de prueba por correo transaccional preparado para producción.',tasks:['Seleccionar proveedor SMTP','Configurar dominio remitente','Autenticación del dominio','Integrar SMTP con Supabase','Registro y confirmación','Recuperación de contraseña','Cambio de correo','Enlaces de retorno','Entregabilidad y límites']},
-{id:10,title:'Privacidad, condiciones y protección de menores',date:'2–8 noviembre 2026',desc:'Base legal y protección de datos para producto infantil.',detail:'Preparar privacidad, condiciones, consentimiento, cuentas familiares y minimización de datos.',tasks:['Política de privacidad','Condiciones','Tratamiento de datos de menores','Consentimientos','Minimización de datos','Almacenamiento','Analítica','Configuración familiar','Arquitectura de cuentas']},
-{id:11,title:'Estadísticas, evolución y uso',date:'9–15 noviembre 2026',desc:'Medir evolución educativa y uso del producto antes de la beta.',detail:'Crear una base de métricas que permita a las familias entender la evolución del jugador y al proyecto conocer qué contenidos funcionan. Las métricas deberán diseñarse con privacidad y sin recoger datos innecesarios.',tasks:['Definir modelo de eventos y métricas','Registrar XP, niveles y progresión','Registrar aciertos, errores e intentos por juego','Registrar partidas, sesiones y tiempo de juego','Registrar niveles y juegos más utilizados','Registrar uso de tienda, personajes y diamantes','Crear gráficas de evolución para Padres','Crear estadísticas internas de uso del producto','Crear comparativas por periodos','Definir métricas de retención y recurrencia','Validar exactitud de los datos','Definir minimización y privacidad de las métricas','Probar rendimiento de la recogida de datos']},
-{id:12,title:'Fase beta con cuentas gratuitas',date:'16–29 noviembre 2026',desc:'Probar el producto con usuarios reales.',detail:'Beta controlada para detectar errores, problemas de uso y oportunidades de mejora.',tasks:['Preparar cuentas beta','Definir grupo de usuarios','Probar altas','Probar juegos y progresión','Probar avatar y tienda','Probar estadísticas','Probar sincronización','Recoger incidencias','Recoger feedback','Priorizar correcciones']},
-{id:13,title:'Prueba multiplataforma y compatibilidad',date:'30 noviembre–6 diciembre 2026',desc:'Validar móvil, tablet, escritorio y navegadores.',detail:'Prueba sistemática de dispositivos, orientación, táctil, teclado, sonido, carga y persistencia.',tasks:['iPhone','iPad','Safari','Chrome','Firefox','Edge','Vertical/horizontal','Táctil','Teclado','Sonido','Rendimiento','Sesiones','Cambio de dispositivo']},
-{id:14,title:'Pulido final, rendimiento y seguridad',date:'7–13 diciembre 2026',desc:'Auditoría técnica final.',detail:'Revisar estructura, rutas, recursos, versiones, sincronización, consola, rendimiento y seguridad.',tasks:['Auditar estructura','Comprobar rutas','Comprobar recursos','Revisar almacenamiento/sync','Revisar consola','Optimizar imágenes','Optimizar carga','Revisar seguridad','Eliminar pruebas','Eliminar duplicados']},
-{id:15,title:'Preparar lanzamiento y marketing',date:'14–20 diciembre 2026',desc:'Preparar presentación, materiales y estrategia de lanzamiento.',detail:'Definir propuesta de valor, público, capturas, demostraciones, web y materiales de comunicación.',tasks:['Propuesta de valor','Público objetivo','Capturas/demos','Página de presentación','Materiales sociales','Estrategia','Contenido inicial','Instrucciones para familias']},
-{id:16,title:'Prelanzamiento y prueba final de producción',date:'21–27 diciembre 2026',desc:'Repetir todo el flujo en condiciones de producción.',detail:'Última prueba de aceptación antes de publicar.',tasks:['Cuenta real','Correo real','Selección de personaje','Edad','Juegos','Progresión','Avatar/tienda','Estadísticas','Sincronización','Recuperación']},
-{id:17,title:'Versión comercializable',date:'28–31 diciembre 2026',desc:'Publicar la versión estable preparada para comercialización.',detail:'Cerrar y publicar la versión estable, documentando el procedimiento de actualización.',tasks:['Cerrar versión estable','Verificar producción','Etiquetar release','Documentar actualización','Publicar','Comprobación postpublicación']},
-{id:18,title:'Seguimiento después del lanzamiento',date:'Desde enero 2027',desc:'Medir, corregir y evolucionar el producto.',detail:'Monitorizar incidencias, uso y feedback y planificar nuevas versiones sin perder estabilidad.',tasks:['Monitorizar incidencias','Revisar estadísticas','Revisar feedback','Analizar rendimiento','Priorizar mejoras','Planificar versiones','Control de regresiones']}
-];
-const storageKey='ludeiko-roadmap-subtasks-v5';let saved={};try{saved=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch(e){}let selected=3;
-const sheet=document.getElementById('sheet'),list=document.getElementById('stageList'),details=document.getElementById('details'),backdrop=document.getElementById('backdrop');
-function taskState(stage){return saved[stage.id]||{}}
-function completed(stage){const state=taskState(stage);return stage.tasks.reduce((n,_,i)=>n+(state[i]?1:0),0)}
-function renderList(){list.innerHTML=stages.map(s=>`<article class="stage ${s.done?'done ':''}${s.late?'late ':''}${s.id===selected?'selected':''}"><button type="button" data-id="${s.id}" aria-current="${s.id===selected?'true':'false'}"><span class="stage-title">${s.title}${s.done?'<span class="status">CERRADA</span>':''}</span><span class="stage-date">${s.date}</span><span class="stage-desc">${s.desc}</span></button></article>`).join('');document.getElementById('stageCount').textContent=stages.length;document.getElementById('doneCount').textContent=stages.filter(s=>s.done).length}
-function renderDetails(){const s=stages.find(x=>x.id===selected)||stages[0],state=taskState(s),done=completed(s),total=s.tasks.length,pct=total?Math.round(done/total*100):0;const prev=stages.findIndex(x=>x.id===s.id)-1,next=prev+2;details.innerHTML=`<div class="stage-head"><div><div class="kicker">Etapa ${s.id} de ${stages.length}${s.done?' · CERRADA':''}</div><h2>${s.title}</h2><div class="stage-date">${s.date}</div><p class="stage-description">${s.detail}</p></div><div class="stage-state"><strong>${pct}%</strong><span>completado</span></div></div><div class="progress-wrap"><div class="progress-meta"><span>${done} de ${total} tareas completadas</span><span>${pct}%</span></div><div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></div><p class="hint">Completa aquí los elementos necesarios para cerrar esta etapa. El progreso se guarda en este dispositivo.</p><ul class="task-list">${s.tasks.map((t,i)=>`<li class="task"><input type="checkbox" id="task-${s.id}-${i}" data-stage="${s.id}" data-task="${i}" ${state[i]?'checked':''}><label for="task-${s.id}-${i}">${t}</label></li>`).join('')}</ul><div class="actions"><button class="nav-btn" type="button" data-nav="${prev>=0?stages[prev].id:''}" ${prev<0?'disabled':''}>← Anterior</button><button class="nav-btn primary" type="button" data-nav="${next<stages.length?stages[next].id:''}" ${next>=stages.length?'disabled':''}>Siguiente →</button></div>`}
-function selectStage(id){selected=Number(id);renderList();renderDetails();closeMenu();window.scrollTo({top:0,behavior:'smooth'})}
-function openMenu(){sheet.classList.remove('closed');backdrop.classList.add('visible');document.getElementById('openMenu').setAttribute('aria-expanded','true')}
-function closeMenu(){sheet.classList.add('closed');backdrop.classList.remove('visible');document.getElementById('openMenu').setAttribute('aria-expanded','false')}
-list.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b)selectStage(b.dataset.id)});
-details.addEventListener('click',e=>{const b=e.target.closest('[data-nav]');if(b&&b.dataset.nav)selectStage(b.dataset.nav)});
-details.addEventListener('change',e=>{if(!e.target.matches('input[data-stage]'))return;const s=e.target.dataset.stage,t=e.target.dataset.task;saved[s]=saved[s]||{};saved[s][t]=e.target.checked;try{localStorage.setItem(storageKey,JSON.stringify(saved))}catch(err){}renderDetails()});
-document.getElementById('openMenu').addEventListener('click',openMenu);document.getElementById('closeMenu').addEventListener('click',closeMenu);document.getElementById('sheetTab').addEventListener('click',openMenu);backdrop.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-renderList();renderDetails();closeMenu();
-</script>
+  <main>
+    <h1>Hoja de ruta de Ludeiko</h1>
+    <p class="intro">Plan completo desde la estabilización técnica hasta una versión preparada para comercializar. Las fechas son objetivos de trabajo, no fechas de lanzamiento comprometidas. Pulsa cada etapa para consultar el alcance.</p>
+    <p class="legend"><b>Estado:</b> las etapas tachadas están cerradas. Las etapas posteriores siguen pendientes aunque tengan fecha prevista. El plan se actualizará conforme se validen hitos, aparezcan retrasos o cambien las prioridades.</p>
+    <section class="roadmap" aria-label="Hoja de ruta">
+
+      <article class="stage done">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">1. Cerrar y estabilizar el acceso de familias <span class="status">CERRADA</span></span><span class="stage-date">5–7 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Registro, confirmación de correo, inicio de sesión y acceso al modo Padres. Se ha comprobado el comportamiento de Safari y el teclado del PIN. Esta fase queda cerrada con el funcionamiento actual.<br><br><b>Trabajo aplazado:</b> incorporar más adelante un SMTP propio/externo para el correo transaccional, eliminando la dependencia del límite de correo de prueba de Supabase.</p></div></div>
+      </article>
+
+      <article class="stage done">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">2. Consolidar la sincronización entre dispositivos <span class="status">CERRADA</span></span><span class="stage-date">8–12 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Sincronización de progreso entre dispositivos, recuperación de sesión, cambios realizados sin conexión, recuperación al volver a tener internet y persistencia de los datos del modo Padres. Validada mediante pruebas reales con la misma cuenta en dos dispositivos.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">3. Consolidar avatar, equipamiento y tienda</span><span class="stage-date">13–19 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Auditar y consolidar el sistema actual de avatar, tienda y equipamiento. Separar definitivamente las imágenes de catálogo de las capas equipables. Mantener un avatar maestro con postura, escala, lienzo y origen fijos y preparar las piezas mediante un sistema tipo paper-doll, con orden de capas coherente. Convertir los objetos en datos estructurados para poder añadir muchos elementos sin reprogramar la interfaz. Revisar precios, rarezas, recompensas, inventario y persistencia.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">4. Estabilizar y completar los juegos de acción</span><span class="stage-date">20–26 septiembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Completar la estabilización de los juegos de acción, especialmente el juego de tanques: evitar bloqueos al mover los tanques y al aparecer bonus; conservar obstáculos, rebotes de disparos, destrucción progresiva, bonus y pérdida del bonus al recibir un impacto. Revisar también rendimiento, colisiones, reinicio de partidas y comportamiento en móvil.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">5. Ampliar los juegos para cubrir varias edades</span><span class="stage-date">27 septiembre–4 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Crear más niveles dentro de cada juego para que no exista un único recorrido pensado para una sola edad. Diseñar una progresión clara de dificultad, velocidad, cantidad de elementos, complejidad y exigencia educativa. Mantener recompensas y progreso coherentes entre niveles.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">6. Adaptación automática según la edad del jugador</span><span class="stage-date">5–11 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Incorporar durante el alta o configuración del jugador la edad necesaria para adaptar la experiencia. Definir rangos de edad y reglas de selección de dificultad para que los juegos propongan un nivel apropiado sin impedir que la familia pueda ajustar la dificultad desde el modo Padres. Revisar cómo se almacena y sincroniza esta configuración y evitar que la edad quede expuesta innecesariamente en la interfaz pública.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">7. Cerrar experiencia educativa y progresión</span><span class="stage-date">12–18 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Revisar el recorrido completo del niño: pantalla principal, avatar equipado, selección de juegos, niveles, ejercicios, XP, diamantes, recompensas, tienda y evolución. Comprobar que las decisiones educativas y las recompensas forman un sistema comprensible y motivador. Mantener desactivado el juego de las rimas mientras siga vigente esa decisión.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">8. Identidad, nombre y preparación comercial</span><span class="stage-date">19–25 octubre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Comprobar disponibilidad y uso del nombre de la aplicación y preparar, cuando corresponda, el registro del nombre/marca. Revisar dominio, identidad visual, iconos, textos comerciales y nombres de producto. Dejar definida la identidad que se utilizará de forma consistente en la aplicación, web, comunicaciones y marketing antes de la promoción pública.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">9. Cuenta real, correo transaccional y recuperación</span><span class="stage-date">26 octubre–1 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Configurar el SMTP externo previsto y sustituir el sistema de correo de prueba por correo transaccional preparado para producción. Probar registro, confirmación, recuperación de contraseña, cambios de correo, mensajes de error y enlaces de retorno. Revisar límites, entregabilidad y configuración de autenticación del dominio del correo.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">10. Privacidad, condiciones y protección de menores</span><span class="stage-date">2–8 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Preparar la documentación necesaria para una versión comercial: privacidad, condiciones de uso, gestión de cuentas, tratamiento de datos de menores, consentimiento y configuración familiar. Revisar qué datos se solicitan, cuáles son imprescindibles y cómo se almacenan. Validar que la arquitectura de cuentas y analítica es compatible con el público infantil y con la comercialización prevista.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">11. Fase beta con cuentas gratuitas</span><span class="stage-date">9–22 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Abrir una fase de pruebas controlada con cuentas gratuitas y usuarios reales. Comprobar altas, acceso, progreso, sincronización, pérdida de conexión, recuperación de cuentas, uso de varios dispositivos, juegos, niveles, avatar, tienda y modo Padres. Recoger errores y comentarios de forma estructurada y priorizar los problemas que impidan el uso normal.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">12. Prueba multiplataforma y compatibilidad</span><span class="stage-date">23–29 noviembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Prueba sistemática en móvil y escritorio, con especial atención a iPhone/iPad y Safari, además de los principales navegadores de ordenador. Revisar orientación, tamaños de pantalla, teclado, táctil, desplazamiento, sonido, rendimiento, carga de recursos, persistencia, sesiones y comportamiento al cambiar de dispositivo. Corregir problemas reales antes de la publicación.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">13. Pulido final, rendimiento y seguridad</span><span class="stage-date">30 noviembre–6 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Auditoría final del código y estructura del proyecto. Comprobar rutas, referencias HTML/CSS/JS, recursos, versiones, almacenamiento, sincronización y errores de consola. Optimizar imágenes y tiempos de carga. Revisar permisos, exposición de datos, sesiones y operaciones críticas. Eliminar archivos de prueba y duplicados y dejar una base limpia para producción.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">14. Preparar lanzamiento y marketing</span><span class="stage-date">7–13 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Preparar la presentación comercial: propuesta de valor, público objetivo, mensajes principales, capturas, demostraciones, página de presentación, materiales para redes y canales de comunicación. Definir estrategia de lanzamiento, campaña inicial, contenidos y forma de captar los primeros usuarios sin comprometer la experiencia del producto. Preparar también instrucciones sencillas para familias.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">15. Prelanzamiento y prueba final de producción</span><span class="stage-date">14–20 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Repetir el recorrido completo usando la configuración que tendrá el producto comercial: creación de cuenta, correo real, selección de jugador y edad, juegos, progresión, recompensas, avatar, tienda, sincronización y recuperación. Verificar que no quedan funciones experimentales ni mensajes de desarrollo. Realizar una última ronda de pruebas de aceptación antes de abrir al público.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">16. Versión comercializable</span><span class="stage-date">21–31 diciembre 2026</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Publicar la versión considerada apta para comercialización. Etiquetar la versión estable, conservar una referencia clara del estado publicado y documentar el procedimiento de actualización. A partir de aquí, separar las nuevas funcionalidades de las correcciones críticas para evitar que el producto comercial pierda estabilidad.</p></div></div>
+      </article>
+
+      <article class="stage">
+        <button type="button" aria-expanded="false"><span class="stage-main"><span class="stage-title">17. Seguimiento después del lanzamiento</span><span class="stage-date">Desde enero 2027</span></span><span class="marker">›</span></button>
+        <div class="details"><div><p>Monitorizar errores, funcionamiento del registro, sincronización, rendimiento y comentarios de las familias. Medir qué juegos y niveles se utilizan, detectar puntos de abandono y planificar nuevas edades, niveles, juegos, equipamiento y mejoras. Mantener una política de versiones estable y un ciclo de actualización controlado.</p></div></div>
+      </article>
+
+    </section>
+  </main>
+  <script>
+    document.querySelectorAll('.stage button').forEach(button=>{
+      button.addEventListener('click',()=>{
+        const stage=button.closest('.stage');
+        const open=stage.classList.toggle('open');
+        button.setAttribute('aria-expanded',open?'true':'false');
+      });
+    });
+  </script>
 </body>
 </html>

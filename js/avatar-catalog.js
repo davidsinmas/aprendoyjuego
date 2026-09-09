@@ -1,9 +1,0 @@
-/* Ludeiko V3.12.1 · catálogo: personaje → categoría → elemento. */
-(function(){'use strict';
-const existingItems=(typeof AVATAR!=='undefined'&&Array.isArray(AVATAR.items))?AVATAR.items:[];
-const items=existingItems.map(item=>({...item,categoria:item.rarity||'common',subcategoria:item.slot,personaje:'nova_guardian',rareza:item.rarity,precio:item.price,nivel:item.level,descripcion:item.description,imagenTienda:item.shopImage,capaAvatar:item.avatarLayer,ordenCapa:(typeof AVATAR!=='undefined'&&AVATAR.slots?.[item.slot])?AVATAR.slots[item.slot].layer:null,compatibleCon:['nova_guardian'],compatibleWith:['nova_guardian']}));
-const characters={nova_guardian:{id:'nova_guardian',name:'Guardián Nova',description:'El personaje espacial actual de Ludeiko.',masterSrc:'assets/avatar/base/avatar_base.png',price:0,available:true,assetStatus:'available',compatibleItemIds:items.map(i=>i.id)},personaje_femenino:{id:'personaje_femenino',name:'Personaje femenino',description:'Pendiente de avatar maestro aprobado.',masterSrc:null,price:250,available:false,assetStatus:'pending_asset',compatibleItemIds:[]},personaje_animal:{id:'personaje_animal',name:'Personaje animal',description:'Pendiente de avatar maestro aprobado.',masterSrc:null,price:350,available:false,assetStatus:'pending_asset',compatibleItemIds:[]}};
-const categories={all:{id:'all',name:'Todo'},common:{id:'common',name:'Común'},rare:{id:'rare',name:'Raro'},legendary:{id:'legendary',name:'Legendario'}};
-const elements={all:{id:'all',name:'Todo'},helmet:{id:'helmet',name:'Casco'},chest:{id:'chest',name:'Peto'},shoulders:{id:'shoulders',name:'Hombreras'},gloves:{id:'gloves',name:'Guanteletes'},legs:{id:'legs',name:'Grebas'},boots:{id:'boots',name:'Botas'},shield:{id:'shield',name:'Escudo'},weapon:{id:'weapon',name:'Arma'},back:{id:'back',name:'Espalda'},head:{id:'head',name:'Cabeza'},effects:{id:'effects',name:'Efectos'}};
-window.LudeikoAvatarCatalog={version:2,characters,categories,elements,items};
-})();

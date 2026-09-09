@@ -1,14 +1,3 @@
-## V3.13.0 — 2026-09-05
-
-- El planning pasa a una interfaz interactiva de tipo **lámina deslizante**.
-- El menú de etapas puede retirarse lateralmente casi por completo, dejando una pestaña para recuperarlo.
-- Al seleccionar una etapa, el menú se retira automáticamente y la etapa ocupa todo el espacio disponible.
-- Se mantiene la navegación anterior/siguiente entre etapas.
-- Cada etapa muestra progreso, tareas y estado de completitud.
-- Las tareas siguen guardándose localmente en el dispositivo.
-- La interacción se adapta a móvil, tablet y escritorio.
-- Se incorpora soporte para teclado y reducción de movimiento.
-
 ## V3.8.17 — 2026-09-03
 
 - El juego **Palabras** exige ahora que todas las palabras objetivo tengan **mínimo 3 sílabas**.
