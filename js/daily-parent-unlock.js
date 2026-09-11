@@ -1,4 +1,4 @@
-/* V3.9.2 — acceso a juegos de acción persistente tras completar los niveles diarios. */
+/* V3.12.0 — acceso a juegos de acción de un solo uso. */
 (function(){
   const todayKey=()=>new Date().toLocaleDateString('sv-SE');
 
@@ -10,57 +10,60 @@
     return D.parentActionAccess;
   }
 
-  function levelUnlockActive(){
-    const p=D.progresoNivelesDiarios;
-    const target=Math.max(10,Math.floor(Number(D.ajustes?.nivelesDiarios)||10));
-    return !!(p&&p.fecha===todayKey()&&Array.isArray(p.niveles)&&p.niveles.length>=target);
-  }
+  function levelModeActive(){return D.ajustes?.progresoDiario!=='challenges';}
 
-  function restoreLevelUnlock(){
-    if(!levelUnlockActive())return false;
-    D.actionAccess={date:todayKey(),available:true,consumed:false};
-    if(D.progresoNivelesDiarios)D.progresoNivelesDiarios.desbloqueado=true;
-    save(D);
-    return true;
+  function levelRewardAvailable(){
+    if(!levelModeActive())return false;
+    ensureActionAccess();
+    return D.actionAccess?.date===todayKey()&&!!D.actionAccess.available&&!D.actionAccess.consumed;
   }
 
   function parentUnlockActionGames(){
     if(!parentMode)return;
-    const access=parentAccess();
-    access.available=true;
+    parentAccess().available=true;
     save(D);
     parentDashboard();
   }
 
-  function actionAvailable(){
+  function consumeCurrentAccess(){
+    if(parentMode){
+      const access=parentAccess();
+      if(!access.available)return false;
+      access.available=false;
+      save(D);
+      return true;
+    }
     ensureActionAccess();
+    if(!D.actionAccess.available||D.actionAccess.consumed)return false;
+    D.actionAccess.available=false;
+    D.actionAccess.consumed=true;
+    D.dueloGuardianes.unlocked=false;
+    D.dueloGuardianes.unlockedBy=null;
+    D.defensaPlaneta.unlocked=false;
+    D.defensaPlaneta.unlockedBy=null;
+    save(D);
+    return true;
+  }
+
+  function actionAvailable(){
     if(parentMode)return !!parentAccess().available;
-    if(levelUnlockActive())restoreLevelUnlock();
+    if(levelModeActive())return levelRewardAvailable();
+    ensureActionAccess();
     return !!D.actionAccess?.available&&!D.actionAccess?.consumed;
   }
 
-  function consumeForActionGame(){
-    /* Tras completar los niveles diarios, los tres juegos de acción permanecen disponibles durante el día. */
-    if(parentMode||levelUnlockActive())return true;
-    return consumeActionGameAccess();
-  }
-
   function playGuardianFromAccess(){
-    if(!actionAvailable())return;
-    if(!consumeForActionGame())return;
+    if(!actionAvailable()||!consumeCurrentAccess())return;
     startGuardianDuel();
   }
 
   function playPlanetFromAccess(){
-    if(!actionAvailable())return;
-    if(!consumeForActionGame())return;
+    if(!actionAvailable()||!consumeCurrentAccess())return;
     openPlanetDefense();
   }
 
   function playTankFromAccess(){
-    if(!actionAvailable())return;
-    if(typeof window.tankPixelOpen!=='function')return;
-    if(!consumeForActionGame())return;
+    if(!actionAvailable()||typeof window.tankPixelOpen!=='function'||!consumeCurrentAccess())return;
     window.tankPixelOpen();
   }
 
@@ -72,24 +75,25 @@
   const previousAvailable=actionGamesAvailable;
   window.actionGamesAvailable=function(){
     if(parentMode)return !!parentAccess().available;
-    if(levelUnlockActive())return true;
+    if(levelModeActive())return levelRewardAvailable();
     return previousAvailable();
   };
 
+  function actionNote(unlocked){
+    if(parentMode)return unlocked?'Desbloqueado · una partida disponible':'Bloqueado · pulsa «Desbloquear» en Padres';
+    if(unlocked)return 'Objetivo conseguido · una partida disponible';
+    if(levelModeActive())return `Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear una partida`;
+    return 'Completa los retos de hoy para desbloquear una partida';
+  }
+
   window.guardianDuelCard=function(){
     const unlocked=actionAvailable();
-    const note=parentMode
-      ? (unlocked?'Desbloqueado · disponible en modo Padres':'Bloqueado · pulsa «Desbloquear» en Padres')
-      : (unlocked?'Objetivo conseguido · juegos de acción disponibles hoy':`Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear los juegos de acción`);
-    return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="playGuardianFromAccess()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
+    return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="playGuardianFromAccess()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${actionNote(unlocked)}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
   window.planetDefenseCard=function(){
     const unlocked=actionAvailable();
-    const note=parentMode
-      ? (unlocked?'Desbloqueado · disponible en modo Padres':'Bloqueado · pulsa «Desbloquear» en Padres')
-      : (unlocked?'Objetivo conseguido · juegos de acción disponibles hoy':`Completa ${D.ajustes?.nivelesDiarios||10} niveles para desbloquear los juegos de acción`);
-    return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="playPlanetFromAccess()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
+    return `<button class="guardian-home-card planet-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="playPlanetFromAccess()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'🌍':'🔒'}</span><span><b>Defensa del planeta</b><small>${actionNote(unlocked)}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
 
   const previousParentDashboard=parentDashboard;
@@ -100,13 +104,12 @@
     const old=document.querySelector('.parent-action-unlock');
     if(old)old.remove();
     const unlocked=parentAccess().available;
-    grid.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><h3>⚡ Juegos de acción</h3><p class="muted">Activa este permiso para probar Duelo de Guardianes, Defensa del planeta y Tank Pixel. El permiso permanece activo mientras estés en modo Padres y no se consume al entrar en un juego.</p><button type="button" class="btn ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'✓ JUEGOS DESBLOQUEADOS':'🔓 DESBLOQUEAR JUEGOS'}</button>${unlocked?'<small class="muted">Los tres juegos están disponibles. Entrar en uno no bloquea los demás.</small>':''}</div>`);
+    grid.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><h3>⚡ Juegos de acción</h3><p class="muted">Desbloquea manualmente una partida para probar Duelo de Guardianes, Defensa del planeta o Tank Pixel. Al iniciar cualquiera de ellos, el permiso se consume y vuelve a quedar bloqueado.</p><button type="button" class="btn ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'✓ UNA PARTIDA DISPONIBLE':'🔓 DESBLOQUEAR UNA PARTIDA'}</button></div>`);
   };
 
   const previousDisableParentMode=window.disableParentMode;
   window.disableParentMode=function(){
-    const access=parentAccess();
-    access.available=false;
+    parentAccess().available=false;
     save(D);
     if(typeof previousDisableParentMode==='function')previousDisableParentMode();
   };

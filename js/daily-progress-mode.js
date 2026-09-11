@@ -1,9 +1,4 @@
-/*
- * V3.8.11 — progreso diario por niveles.
- *
- * Los retos diarios originales NO se eliminan: se conservan y pueden volver a
- * activarse desde Zona de padres. El modo por defecto pasa a ser niveles.
- */
+/* V3.12.0 — progreso diario por niveles o retos. */
 (function(){
   const DEFAULT_MODE='levels';
   const DEFAULT_REQUIRED=10;
@@ -13,7 +8,7 @@
 
   function ensureSettings(){
     D.ajustes=D.ajustes&&typeof D.ajustes==='object'?D.ajustes:{};
-    if(D.ajustes.progresoDiario!=='levels'&&D.ajustes.progresoDiario!=='challenges')D.ajustes.progresoDiario=DEFAULT_MODE;
+    if(D.ajustes.progresoDiario!==MODE_LEVELS&&D.ajustes.progresoDiario!==MODE_CHALLENGES)D.ajustes.progresoDiario=DEFAULT_MODE;
     const raw=Number(D.ajustes.nivelesDiarios);
     D.ajustes.nivelesDiarios=Number.isFinite(raw)?Math.min(MAX_REQUIRED,Math.max(DEFAULT_REQUIRED,Math.floor(raw))):DEFAULT_REQUIRED;
     return D.ajustes;
@@ -37,13 +32,13 @@
   function levelProgressTarget(){return ensureSettings().nivelesDiarios;}
   function levelProgressMode(){return ensureSettings().progresoDiario;}
 
-  function unlockFromLevels(){
+  function grantLevelReward(){
     const p=ensureLevelProgress();
-    if(p.niveles.length>=levelProgressTarget()){
-      p.desbloqueado=true;
-      if(!parentMode)D.actionAccess={date:todayKey(),available:true,consumed:false};
-    }
+    if(p.desbloqueado||p.niveles.length<levelProgressTarget())return false;
+    p.desbloqueado=true;
+    if(!parentMode)D.actionAccess={date:todayKey(),available:true,consumed:false};
     save(D);
+    return true;
   }
 
   function markDailyLevel(levelId){
@@ -51,30 +46,36 @@
     const p=ensureLevelProgress();
     if(!p.niveles.includes(levelId)){
       p.niveles.push(levelId);
-      unlockFromLevels();
+      grantLevelReward();
+      save(D);
     }
-    save(D);
   }
 
   function dailyLevelsHTML(){
     const p=ensureLevelProgress(),count=p.niveles.length,target=levelProgressTarget(),complete=count>=target;
+    ensureActionAccess();
+    const available=!!D.actionAccess?.available&&!D.actionAccess?.consumed;
+    const used=complete&&p.desbloqueado&&!available;
     const pct=Math.min(100,Math.round(count/target*100));
-    return `<div class="daily-card level-progress-card"><div class="daily-title"><b>🎮 Niveles de hoy</b><span>${count}/${target}</span></div><div class="daily-level-progress-track"><span style="width:${pct}%"></span></div><p class="daily-level-progress-text">${complete?'🎁 ¡Objetivo conseguido! Los juegos de acción están desbloqueados.':`Completa ${target} niveles diferentes para desbloquear los juegos de acción.`}</p><div class="daily-prize">${complete?'⚡ Puedes jugar una partida de acción hoy.':'⭐ Cada nivel completado cuenta una sola vez por día.'}</div></div>`;
+    let text=`Completa ${target} niveles diferentes para desbloquear una partida de acción.`;
+    let prize='⭐ Cada nivel completado cuenta una sola vez por día.';
+    if(available){text='🎁 ¡Objetivo conseguido! Tienes una partida de acción disponible.';prize='⚡ El permiso se consumirá al iniciar un minijuego de acción.';}
+    else if(used){text='✓ Objetivo diario completado.';prize='La partida de acción de hoy ya se ha utilizado.';}
+    return `<div class="daily-card level-progress-card"><div class="daily-title"><b>🎮 Niveles de hoy</b><span>${count}/${target}</span></div><div class="daily-level-progress-track"><span style="width:${pct}%"></span></div><p class="daily-level-progress-text">${text}</p><div class="daily-prize">${prize}</div></div>`;
   }
 
   function dailyModeCard(){
     const mode=levelProgressMode(),target=levelProgressTarget();
-    return `<div class="parent-card daily-mode-settings"><h3>📅 Progreso diario</h3><p class="muted">Elige cómo se desbloquean los juegos de acción. Los <b>Retos diarios</b> originales se conservan y no se borran.</p><div class="daily-mode-options"><label class="daily-mode-option ${mode===MODE_LEVELS?'selected':''}"><input type="radio" name="dailyProgressMode" value="levels" ${mode===MODE_LEVELS?'checked':''} onchange="setDailyProgressMode('levels')"><span><b>🎮 Niveles</b><small>Contar niveles completados cada día.</small></span></label><label class="daily-mode-option ${mode===MODE_CHALLENGES?'selected':''}"><input type="radio" name="dailyProgressMode" value="challenges" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode('challenges')"><span><b>🎯 Retos</b><small>Usar el sistema de retos diarios original.</small></span></label></div><div class="daily-level-config"><label>Niveles necesarios para desbloquear</label><input id="dailyLevelsRequired" type="number" min="10" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar número de niveles</button><small class="muted">Mínimo 10 · máximo ${MAX_REQUIRED}. El cambio se aplica al próximo progreso diario.</small></div></div>`;
+    return `<div class="parent-card daily-mode-settings"><h3>📅 Progreso diario</h3><p class="muted">Elige cómo se desbloquean los juegos de acción.</p><div class="daily-mode-options"><label class="daily-mode-option ${mode===MODE_LEVELS?'selected':''}"><input type="radio" name="dailyProgressMode" value="levels" ${mode===MODE_LEVELS?'checked':''} onchange="setDailyProgressMode('levels')"><span><b>🎮 Niveles</b><small>Contar niveles diferentes completados cada día.</small></span></label><label class="daily-mode-option ${mode===MODE_CHALLENGES?'selected':''}"><input type="radio" name="dailyProgressMode" value="challenges" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode('challenges')"><span><b>🎯 Retos</b><small>Usar el sistema de retos diarios original.</small></span></label></div><div class="daily-level-config"><label>Niveles necesarios para desbloquear</label><input id="dailyLevelsRequired" type="number" min="10" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar número de niveles</button><small class="muted">Mínimo 10 · máximo ${MAX_REQUIRED}.</small></div></div>`;
   }
 
   function setDailyProgressMode(mode){
     if(mode!==MODE_LEVELS&&mode!==MODE_CHALLENGES)return;
     ensureSettings().progresoDiario=mode;
-    ensureLevelProgress();
     if(mode===MODE_LEVELS){
-      const p=ensureLevelProgress();
-      if(p.niveles.length>=levelProgressTarget())unlockFromLevels();
-      else D.actionAccess={date:todayKey(),available:false,consumed:false};
+      ensureLevelProgress();
+      D.actionAccess={date:todayKey(),available:false,consumed:false};
+      grantLevelReward();
     }else{
       ensureDaily();
       const complete=!!D.retosDiarios?.premio;
@@ -89,9 +90,9 @@
     if(!Number.isFinite(target)){alert('Introduce un número válido de niveles.');return;}
     ensureSettings().nivelesDiarios=Math.min(MAX_REQUIRED,Math.max(DEFAULT_REQUIRED,Math.floor(target)));
     const p=ensureLevelProgress();
-    p.desbloqueado=p.niveles.length>=ensureSettings().nivelesDiarios;
-    if(p.desbloqueado&&!parentMode)D.actionAccess={date:todayKey(),available:true,consumed:false};
-    else if(!parentMode)D.actionAccess={date:todayKey(),available:false,consumed:false};
+    const reached=p.niveles.length>=ensureSettings().nivelesDiarios;
+    if(!reached){p.desbloqueado=false;D.actionAccess={date:todayKey(),available:false,consumed:false};}
+    else if(!p.desbloqueado)grantLevelReward();
     save(D);parentDashboard();
   }
 
@@ -103,15 +104,9 @@
 
   const originalActionGamesAvailable=actionGamesAvailable;
   actionGamesAvailable=function(){
-    if(parentMode)return true;
+    if(parentMode)return originalActionGamesAvailable();
     if(levelProgressMode()===MODE_LEVELS){
-      const p=ensureLevelProgress();
-      if(p.niveles.length>=levelProgressTarget()){
-        p.desbloqueado=true;
-        if(!D.actionAccess||D.actionAccess.date!==todayKey()||!D.actionAccess.available&&!D.actionAccess.consumed)D.actionAccess={date:todayKey(),available:true,consumed:false};
-        save(D);
-      }
-      ensureActionAccess();
+      ensureLevelProgress();ensureActionAccess();
       return !!D.actionAccess.available&&!D.actionAccess.consumed;
     }
     return originalActionGamesAvailable();
@@ -124,6 +119,7 @@
     const note=parentMode?'Disponible mientras el modo Padres esté activo':unlocked?'Objetivo diario completado · una partida disponible':`Completa ${levelProgressTarget()} niveles para desbloquear una partida`;
     return `<button class="guardian-home-card ${unlocked?'unlocked':'locked'}" ${unlocked?'onclick="startGuardianDuel()"':'disabled aria-disabled="true"'}><span class="guardian-home-icon">${unlocked?'⚡':'🔒'}</span><span><b>Duelo de Guardianes</b><small>${note}</small></span><strong>${unlocked?'JUGAR →':'BLOQUEADO'}</strong></button>`;
   };
+
   const originalPlanetCard=planetDefenseCard;
   planetDefenseCard=function(){
     if(levelProgressMode()!==MODE_LEVELS)return originalPlanetCard();
@@ -170,7 +166,7 @@
 
   ensureSettings();
   ensureLevelProgress();
-  if(levelProgressMode()===MODE_LEVELS)unlockFromLevels();
+  grantLevelReward();
   save(D);
   home();
 })();
