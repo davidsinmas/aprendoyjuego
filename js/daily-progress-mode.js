@@ -1,7 +1,8 @@
-/* V3.12.0 — progreso diario por niveles o retos. */
+/* V3.12.1 — progreso diario por niveles o retos. */
 (function(){
   const DEFAULT_MODE='levels';
   const DEFAULT_REQUIRED=10;
+  const MIN_REQUIRED=5;
   const MAX_REQUIRED=100;
   const MODE_LEVELS='levels';
   const MODE_CHALLENGES='challenges';
@@ -10,7 +11,7 @@
     D.ajustes=D.ajustes&&typeof D.ajustes==='object'?D.ajustes:{};
     if(D.ajustes.progresoDiario!==MODE_LEVELS&&D.ajustes.progresoDiario!==MODE_CHALLENGES)D.ajustes.progresoDiario=DEFAULT_MODE;
     const raw=Number(D.ajustes.nivelesDiarios);
-    D.ajustes.nivelesDiarios=Number.isFinite(raw)?Math.min(MAX_REQUIRED,Math.max(DEFAULT_REQUIRED,Math.floor(raw))):DEFAULT_REQUIRED;
+    D.ajustes.nivelesDiarios=Number.isFinite(raw)?Math.min(MAX_REQUIRED,Math.max(MIN_REQUIRED,Math.floor(raw))):DEFAULT_REQUIRED;
     return D.ajustes;
   }
 
@@ -66,7 +67,7 @@
 
   function dailyModeCard(){
     const mode=levelProgressMode(),target=levelProgressTarget();
-    return `<div class="parent-card daily-mode-settings"><h3>📅 Progreso diario</h3><p class="muted">Elige cómo se desbloquean los juegos de acción.</p><div class="daily-mode-options"><label class="daily-mode-option ${mode===MODE_LEVELS?'selected':''}"><input type="radio" name="dailyProgressMode" value="levels" ${mode===MODE_LEVELS?'checked':''} onchange="setDailyProgressMode('levels')"><span><b>🎮 Niveles</b><small>Contar niveles diferentes completados cada día.</small></span></label><label class="daily-mode-option ${mode===MODE_CHALLENGES?'selected':''}"><input type="radio" name="dailyProgressMode" value="challenges" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode('challenges')"><span><b>🎯 Retos</b><small>Usar el sistema de retos diarios original.</small></span></label></div><div class="daily-level-config"><label>Niveles necesarios para desbloquear</label><input id="dailyLevelsRequired" type="number" min="10" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar número de niveles</button><small class="muted">Mínimo 10 · máximo ${MAX_REQUIRED}.</small></div></div>`;
+    return `<div class="parent-card daily-mode-settings"><h3>📅 Progreso diario</h3><p class="muted">Elige cómo se desbloquean los juegos de acción.</p><div class="daily-mode-options"><label class="daily-mode-option ${mode===MODE_LEVELS?'selected':''}"><input type="radio" name="dailyProgressMode" value="levels" ${mode===MODE_LEVELS?'checked':''} onchange="setDailyProgressMode('levels')"><span><b>🎮 Niveles</b><small>Contar niveles diferentes completados cada día.</small></span></label><label class="daily-mode-option ${mode===MODE_CHALLENGES?'selected':''}"><input type="radio" name="dailyProgressMode" value="challenges" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode('challenges')"><span><b>🎯 Retos</b><small>Usar el sistema de retos diarios original.</small></span></label></div><div class="daily-level-config"><label>Niveles necesarios para desbloquear</label><input id="dailyLevelsRequired" type="number" min="${MIN_REQUIRED}" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar número de niveles</button><small class="muted">Mínimo ${MIN_REQUIRED} · máximo ${MAX_REQUIRED}.</small></div></div>`;
   }
 
   function setDailyProgressMode(mode){
@@ -88,7 +89,7 @@
     const input=document.getElementById('dailyLevelsRequired');
     const raw=value??input?.value,target=Number(String(raw).replace(',','.'));
     if(!Number.isFinite(target)){alert('Introduce un número válido de niveles.');return;}
-    ensureSettings().nivelesDiarios=Math.min(MAX_REQUIRED,Math.max(DEFAULT_REQUIRED,Math.floor(target)));
+    ensureSettings().nivelesDiarios=Math.min(MAX_REQUIRED,Math.max(MIN_REQUIRED,Math.floor(target)));
     const p=ensureLevelProgress();
     const reached=p.niveles.length>=ensureSettings().nivelesDiarios;
     if(!reached){p.desbloqueado=false;D.actionAccess={date:todayKey(),available:false,consumed:false};}
