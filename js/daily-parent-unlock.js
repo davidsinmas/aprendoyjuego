@@ -1,6 +1,7 @@
-/* V3.12.0 — acceso a juegos de acción de un solo uso. */
+/* V3.12.2 — acceso a juegos de acción de un solo uso con sesión activa. */
 (function(){
   const todayKey=()=>new Date().toLocaleDateString('sv-SE');
+  let actionSession=null;
 
   function parentAccess(){
     if(!D.parentActionAccess||typeof D.parentActionAccess!=='object'||D.parentActionAccess.date!==todayKey()){
@@ -52,18 +53,36 @@
     return !!D.actionAccess?.available&&!D.actionAccess?.consumed;
   }
 
+  const previousGuardianAvailable=window.guardianDuelAvailable;
+  window.guardianDuelAvailable=function(){
+    if(actionSession==='guardian')return true;
+    return typeof previousGuardianAvailable==='function'?previousGuardianAvailable():actionAvailable();
+  };
+
+  const previousPlanetAvailable=window.planetDefenseAvailable;
+  window.planetDefenseAvailable=function(){
+    if(actionSession==='planet')return true;
+    return typeof previousPlanetAvailable==='function'?previousPlanetAvailable():actionAvailable();
+  };
+
   function playGuardianFromAccess(){
-    if(!actionAvailable()||!consumeCurrentAccess())return;
+    if(!actionAvailable())return;
+    actionSession='guardian';
+    if(!consumeCurrentAccess()){actionSession=null;return;}
     startGuardianDuel();
   }
 
   function playPlanetFromAccess(){
-    if(!actionAvailable()||!consumeCurrentAccess())return;
+    if(!actionAvailable())return;
+    actionSession='planet';
+    if(!consumeCurrentAccess()){actionSession=null;return;}
     openPlanetDefense();
   }
 
   function playTankFromAccess(){
-    if(!actionAvailable()||typeof window.tankPixelOpen!=='function'||!consumeCurrentAccess())return;
+    if(!actionAvailable()||typeof window.tankPixelOpen!=='function')return;
+    if(!consumeCurrentAccess())return;
+    actionSession='tank';
     window.tankPixelOpen();
   }
 
@@ -110,6 +129,7 @@
   const previousDisableParentMode=window.disableParentMode;
   window.disableParentMode=function(){
     parentAccess().available=false;
+    actionSession=null;
     save(D);
     if(typeof previousDisableParentMode==='function')previousDisableParentMode();
   };
