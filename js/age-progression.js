@@ -1,79 +1,89 @@
-/* V3.14.0 — progresión 4–8 años para todos los juegos educativos. */
+/* V3.15.0 — progresión educativa extensa de 4 a 8 años. */
 (function(){
   'use strict';
   const TYPES=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
-  const ageForLevel=level=>level<=3?4:level<=6?5:level<=9?6:level<=12?7:8;
+  const TOTAL_LEVELS=50;
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const ageForLevel=level=>clamp(4+Math.floor((level-1)/10),4,8);
   const age=()=>{const n=Number(D?.perfil?.edad);return Number.isInteger(n)&&n>=4&&n<=8?n:null;};
-  const add=(type,items)=>{const list=GAME.levels[type];if(!Array.isArray(list))return;for(const item of items)if(!list.some(x=>x.id===item.id))list.push(item);};
+  const level=(type,n,desc,extra={})=>({id:`${type}${n}`,level:n,name:`Nivel ${n}`,desc,ageMin:ageForLevel(n),...extra});
 
-  add('comparar',[
-    {id:'comparar11',level:11,name:'Nivel 11',desc:'Números hasta 150 · diferencias próximas',min:20,max:150,minGap:1,maxGap:8,closeChance:1},
-    {id:'comparar12',level:12,name:'Nivel 12',desc:'Números hasta 200 · diferencias próximas',min:50,max:200,minGap:1,maxGap:6,closeChance:1},
-    {id:'comparar13',level:13,name:'Nivel 13',desc:'Números hasta 300 · diferencias pequeñas',min:50,max:300,minGap:1,maxGap:5,closeChance:1},
-    {id:'comparar14',level:14,name:'Nivel 14',desc:'Números hasta 500 · números muy próximos',min:100,max:500,minGap:1,maxGap:4,closeChance:1},
-    {id:'comparar15',level:15,name:'Nivel 15',desc:'Números hasta 1000 · discriminación fina',min:100,max:1000,minGap:1,maxGap:3,closeChance:1}
-  ]);
-  add('palabras',[
-    {id:'palabras11',level:11,name:'Nivel 11',desc:'Completa palabras de 6–8 letras',mode:'missingLetter',minLen:6,maxLen:8},
-    {id:'palabras12',level:12,name:'Nivel 12',desc:'Distingue palabras parecidas más largas',mode:'similarWord',minLen:5,maxLen:8},
-    {id:'palabras13',level:13,name:'Nivel 13',desc:'Elige la palabra correcta entre 4 opciones',mode:'pictureWord4',minLen:5,maxLen:9},
-    {id:'palabras14',level:14,name:'Nivel 14',desc:'Completa letras en palabras largas',mode:'missingLetter',minLen:7,maxLen:10},
-    {id:'palabras15',level:15,name:'Nivel 15',desc:'Discriminación avanzada de palabras',mode:'similarWord',minLen:6,maxLen:10}
-  ]);
-  add('sopa',[
-    {id:'sopa11',level:11,name:'Nivel 11',desc:'9 × 9 · 7 palabras de hasta 8 letras',size:9,count:7,minLen:5,maxLen:8,dirs:['h','v','d']},
-    {id:'sopa12',level:12,name:'Nivel 12',desc:'10 × 10 · 7 palabras',size:10,count:7,minLen:5,maxLen:8,dirs:['h','v','d']},
-    {id:'sopa13',level:13,name:'Nivel 13',desc:'10 × 10 · 8 palabras',size:10,count:8,minLen:5,maxLen:9,dirs:['h','v','d']},
-    {id:'sopa14',level:14,name:'Nivel 14',desc:'11 × 11 · 8 palabras largas',size:11,count:8,minLen:6,maxLen:9,dirs:['h','v','d']},
-    {id:'sopa15',level:15,name:'Nivel 15',desc:'11 × 11 · 9 palabras · máxima dificultad',size:11,count:9,minLen:5,maxLen:10,dirs:['h','v','d']}
-  ]);
-  add('sonidoInicial',[
-    {id:'sonidoinicial11',level:11,name:'Nivel 11',desc:'5 opciones y palabras más largas',letters:'MPLSTNCBDFGRVZJQ',options:5,minLen:5,maxLen:9},
-    {id:'sonidoinicial12',level:12,name:'Nivel 12',desc:'Discriminación entre 5 sonidos',letters:'MPLSTNCBDFGRVZJQ',options:5,minLen:6,maxLen:9},
-    {id:'sonidoinicial13',level:13,name:'Nivel 13',desc:'Sonidos iniciales con vocabulario amplio',letters:'MPLSTNCBDFGRVZJQ',options:5,minLen:5,maxLen:10},
-    {id:'sonidoinicial14',level:14,name:'Nivel 14',desc:'6 opciones de sonido inicial',letters:'MPLSTNCBDFGRVZJQ',options:6,minLen:5,maxLen:10},
-    {id:'sonidoinicial15',level:15,name:'Nivel 15',desc:'Discriminación fina entre 6 opciones',letters:'MPLSTNCBDFGRVZJQ',options:6,minLen:6,maxLen:10}
-  ]);
-  add('sonidoFinal',[
-    {id:'sonidofinal11',level:11,name:'Nivel 11',desc:'5 opciones de sonido final',endings:'AOLNSRZE',options:5,minLen:5,maxLen:9},
-    {id:'sonidofinal12',level:12,name:'Nivel 12',desc:'Finales en palabras más largas',endings:'AOLNSRZE',options:5,minLen:6,maxLen:9},
-    {id:'sonidofinal13',level:13,name:'Nivel 13',desc:'Discriminación de finales próximos',endings:'AOLNSRZE',options:5,minLen:5,maxLen:10},
-    {id:'sonidofinal14',level:14,name:'Nivel 14',desc:'6 opciones de sonido final',endings:'AOLNSRZE',options:6,minLen:5,maxLen:10},
-    {id:'sonidofinal15',level:15,name:'Nivel 15',desc:'Discriminación fina entre 6 opciones',endings:'AOLNSRZE',options:6,minLen:6,maxLen:10}
-  ]);
-  add('construir',[
-    {id:'construir11',level:11,name:'Nivel 11',desc:'Palabras de 3–4 sílabas con distractores',minSyllables:3,maxSyllables:4,maxLen:10,distractors:2},
-    {id:'construir12',level:12,name:'Nivel 12',desc:'Palabras largas con 2 distractores',minSyllables:3,maxSyllables:4,maxLen:11,distractors:2},
-    {id:'construir13',level:13,name:'Nivel 13',desc:'Construcción de 4 sílabas',minSyllables:4,maxSyllables:4,maxLen:12,distractors:2},
-    {id:'construir14',level:14,name:'Nivel 14',desc:'4 sílabas con 3 distractores',minSyllables:4,maxSyllables:4,maxLen:12,distractors:3},
-    {id:'construir15',level:15,name:'Nivel 15',desc:'Construcción avanzada de palabras largas',minSyllables:3,maxSyllables:5,maxLen:12,distractors:3}
-  ]);
-  add('ordenarSilabas',[
-    {id:'ordenarsilabas11',level:11,name:'Nivel 11',desc:'Ordena palabras de 3–4 sílabas',minSyllables:3,maxSyllables:4,maxLen:10},
-    {id:'ordenarsilabas12',level:12,name:'Nivel 12',desc:'Palabras más largas de 3–4 sílabas',minSyllables:3,maxSyllables:4,maxLen:11},
-    {id:'ordenarsilabas13',level:13,name:'Nivel 13',desc:'Ordena palabras de 4 sílabas',minSyllables:4,maxSyllables:4,maxLen:12},
-    {id:'ordenarsilabas14',level:14,name:'Nivel 14',desc:'4 sílabas y vocabulario más amplio',minSyllables:4,maxSyllables:4,maxLen:12},
-    {id:'ordenarsilabas15',level:15,name:'Nivel 15',desc:'Ordenación avanzada de palabras largas',minSyllables:3,maxSyllables:5,maxLen:12}
-  ]);
-  add('rimas',[
-    {id:'rimas11',level:11,name:'Nivel 11',desc:'Rimas entre 4 opciones',groups:8,options:4,hard:true},
-    {id:'rimas12',level:12,name:'Nivel 12',desc:'Rimas con distractores parecidos',groups:9,options:4,hard:true},
-    {id:'rimas13',level:13,name:'Nivel 13',desc:'Rimas entre 5 opciones',groups:10,options:5,hard:true},
-    {id:'rimas14',level:14,name:'Nivel 14',desc:'Discriminación avanzada de rimas',groups:12,options:5,hard:true},
-    {id:'rimas15',level:15,name:'Nivel 15',desc:'Rimas de máxima dificultad',groups:99,options:5,hard:true}
-  ]);
-
-  for(const type of TYPES){
-    const list=GAME.levels[type]||[];
-    list.forEach((item,index)=>{item.level=index+1;item.name=`Nivel ${index+1}`;item.ageMin=ageForLevel(index+1);});
+  function mathLevels(type){
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10;
+      const bases={4:[5,4],5:[10,5],6:[20,9],7:[50,15],8:[100,25]}[a];
+      const aMax=bases[0]+Math.ceil(step*(a===4?0.6:a===5?1:a===6?2:a===7?5:10));
+      const bMax=Math.min(aMax-1,bases[1]+Math.ceil(step*(a===4?0.4:a===5?0.7:a===6?1:a===7?2:4)));
+      if(type==='suma')return level(type,n,`Números hasta ${aMax} · resultado hasta ${aMax+bMax}`,{aMax,bMax,resultMax:aMax+bMax});
+      return level(type,n,`Primer número hasta ${aMax} · segundo hasta ${bMax} · sin negativos`,{aMax,bMax});
+    });
   }
+
+  function compareLevels(){
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10;
+      const maxBase={4:10,5:20,6:50,7:200,8:500}[a],max=maxBase+Math.round(step*maxBase/5);
+      const close=step>=5,maxGap=close?Math.max(2,12-step):undefined;
+      return level('comparar',n,`Números hasta ${max}${close?' · diferencias próximas':''}`,{min:a>=7?10:1,max,minGap:1,...(maxGap?{maxGap,closeChance:.8}: {})});
+    });
+  }
+
+  function wordLevels(){
+    const modes=['pictureWord','pictureWord','completeSyllable','missingSyllable','missingLetter','order2','similarWord','order3','pictureWord4','similarWord'];
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10,mode=modes[step];
+      const minLen=clamp(3+(a-4)+(step>=6?1:0),3,7),maxLen=clamp(minLen+2+(step>=8?1:0),5,10);
+      return level('palabras',n,`Palabras de ${minLen}–${maxLen} letras · dificultad ${step+1}/10`,{mode,minLen,maxLen,minSyllables:step>=7?2:undefined,maxSyllables:step>=7?4:undefined});
+    });
+  }
+
+  function soupLevels(){
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10,size=clamp(5+(a-4)+Math.floor(step/3),5,11),count=clamp(2+(a-4)+Math.floor(step/2),2,9);
+      const dirs=step<3?['h']:step<6?['h','v']:['h','v','d'];
+      const minLen=clamp(3+(a>=7?1:0)+(step>=7?1:0),3,6),maxLen=clamp(size,4,10);
+      return level('sopa',n,`${size} × ${size} · ${count} palabras · ${dirs.length} direcciones`,{size,count,minLen,maxLen,dirs});
+    });
+  }
+
+  function soundLevels(type){
+    const initial='MPLSTNCBDFGRVZJQ',final='AOLNSRZE';
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10,options=clamp(3+Math.floor(step/3)+(a>=7?1:0),3,6),minLen=clamp(3+(a-4)+(step>=7?1:0),3,7),maxLen=clamp(minLen+3,6,10);
+      const extra=type==='sonidoInicial'?{letters:initial.slice(0,clamp(5+(a-4)*3+step,5,initial.length))}:{endings:final.slice(0,clamp(4+(a-4)+Math.floor(step/2),4,final.length))};
+      return level(type,n,`${options} opciones · palabras de ${minLen}–${maxLen} letras`,{options,minLen,maxLen,...extra});
+    });
+  }
+
+  function syllableLevels(type){
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10,minSyllables=step<3?2:step<7?2+(a>=6?1:0):3,maxSyllables=clamp(minSyllables+(step>=5?1:0),2,5),maxLen=clamp(6+(a-4)+Math.floor(step/2),6,12);
+      const distractors=type==='construir'?clamp(Math.floor(step/3)+(a>=7?1:0),0,3):0;
+      return level(type,n,`${minSyllables}–${maxSyllables} sílabas${distractors?` · ${distractors} distractores`:''}`,{minSyllables,maxSyllables,maxLen,...(type==='construir'?{distractors}: {})});
+    });
+  }
+
+  function rhymeLevels(){
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10,options=clamp(3+Math.floor(step/3)+(a>=7?1:0),3,5),groups=clamp(4+(a-4)*2+step,4,99),hard=step>=5||a>=7;
+      return level('rimas',n,`${options} opciones · ${hard?'distractores parecidos':'rimas básicas'}`,{groups,options,hard});
+    });
+  }
+
+  const generated={
+    suma:mathLevels('suma'),resta:mathLevels('resta'),comparar:compareLevels(),palabras:wordLevels(),sopa:soupLevels(),
+    sonidoInicial:soundLevels('sonidoInicial'),sonidoFinal:soundLevels('sonidoFinal'),construir:syllableLevels('construir'),ordenarSilabas:syllableLevels('ordenarSilabas'),rimas:rhymeLevels()
+  };
+  for(const type of TYPES)GAME.levels[type]=generated[type];
 
   const originalUnlocked=window.levelUnlocked||levelUnlocked;
   window.levelUnlocked=function(type,index){
     if(parentMode)return true;
     const playerAge=age(),list=GAME.levels[type]||[],item=list[index];
     if(!item)return false;
-    if(playerAge&&item.ageMin<=playerAge)return true;
+    const ageStart=playerAge?(playerAge-4)*10:0;
+    if(playerAge&&index===ageStart)return true;
+    if(playerAge&&index<ageStart)return true;
     return originalUnlocked(type,index);
   };
   try{levelUnlocked=window.levelUnlocked;}catch(e){}
@@ -83,10 +93,10 @@
     originalLevels(type);
     if(parentMode)return;
     const playerAge=age();if(!playerAge)return;
-    const list=GAME.levels[type]||[],rows=[...document.querySelectorAll('.level-row')];
-    rows.forEach((row,index)=>{if(list[index]&&list[index].ageMin<playerAge)row.remove();});
+    const list=GAME.levels[type]||[],rows=[...document.querySelectorAll('.level-row')],start=(playerAge-4)*10;
+    rows.forEach((row,index)=>{if(index<start)row.remove();});
     const help=document.querySelector('.level-help');
-    if(help)help.textContent=`Edad configurada: ${playerAge} años. Se muestran los niveles adecuados en adelante; los más fáciles quedan ocultos.`;
+    if(help)help.textContent=`Edad configurada: ${playerAge} años. Punto de inicio: nivel ${start+1}. Los niveles siguientes se desbloquean al avanzar.`;
   };
   try{levels=window.levels;}catch(e){}
 
@@ -94,7 +104,7 @@
     const input=document.getElementById('ageInput'),value=Number(input?.value);
     D.perfil=D.perfil&&typeof D.perfil==='object'?D.perfil:{nombre:'Jugador'};
     if(input?.value===''||!Number.isFinite(value)){delete D.perfil.edad;save(D);parentDashboard();return;}
-    D.perfil.edad=Math.min(8,Math.max(4,Math.round(value)));save(D);parentDashboard();
+    D.perfil.edad=clamp(Math.round(value),4,8);save(D);parentDashboard();
   };
 
   const originalParentDashboard=window.parentDashboard||parentDashboard;
@@ -102,12 +112,11 @@
     originalParentDashboard();
     const name=document.getElementById('nameInput');if(!name)return;
     const card=name.closest('.parent-card');if(!card||card.querySelector('#ageInput'))return;
-    const saveName=card.querySelector('button');
-    const block=document.createElement('div');
-    block.innerHTML=`<label style="margin-top:.75rem">Edad</label><div style="display:flex;gap:.5rem;align-items:center"><input id="ageInput" type="number" inputmode="numeric" min="4" max="8" step="1" value="${age()||''}" placeholder="4–8" style="max-width:7rem"><button type="button" class="btn secondary" onclick="setPlayerAge()">Guardar edad</button></div><small class="muted">La edad oculta ejercicios demasiado fáciles y abre el punto de inicio adecuado. Los niveles superiores se desbloquean al avanzar.</small>`;
+    const saveName=card.querySelector('button'),block=document.createElement('div');
+    block.innerHTML=`<label style="margin-top:.75rem">Edad</label><div style="display:flex;gap:.5rem;align-items:center"><input id="ageInput" type="number" inputmode="numeric" min="4" max="8" step="1" value="${age()||''}" placeholder="4–8" style="max-width:7rem"><button type="button" class="btn secondary" onclick="setPlayerAge()">Guardar edad</button></div><small class="muted">Cada edad dispone de un bloque de 10 niveles por juego. Los superiores se desbloquean progresivamente.</small>`;
     if(saveName)saveName.insertAdjacentElement('afterend',block);else card.appendChild(block);
   };
   try{parentDashboard=window.parentDashboard;}catch(e){}
 
-  window.LudeikoAgeProgression={ageForLevel,getAge:age};
+  window.LudeikoAgeProgression={ageForLevel,getAge:age,totalLevels:TOTAL_LEVELS};
 })();
