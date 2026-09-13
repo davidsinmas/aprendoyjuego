@@ -1,0 +1,15 @@
+{
+  "language": "es-ES",
+  "speaker": "female",
+  "voiceId": "TVZcExm6tc18D9qo57y7",
+  "model": "speech/elevenlabs-v3",
+  "speed": 1.18,
+  "stability": 0.5,
+  "format": "mp3_44100_128",
+  "sprites": {
+    "numbers.mp3": 201,
+    "words.mp3": 85,
+    "instructions.mp3": 15,
+    "pedagogy.mp3": 33
+  }
+}

@@ -65,7 +65,6 @@ const PEDAGOGY_TENS_INTRO=[
 ];
 
 let pedagogyState={step:1,questions:[],index:0,hits:0,locked:false,current:null};
-let pedagogyVoiceCache=null;
 
 function pedagogyUnitProgress(){
   if(!D.unidadesPedagogicas||typeof D.unidadesPedagogicas!=='object')D.unidadesPedagogicas={};
@@ -141,7 +140,7 @@ function pedagogyTensIntroVisual(page){
 
 function pedagogyTensIntro(page=0){
   const max=PEDAGOGY_TENS_INTRO.length-1,current=Math.min(max,Math.max(0,Number(page)||0)),info=PEDAGOGY_TENS_INTRO[current],last=current===max;
-  window.speechSynthesis?.cancel();
+  window.Narration?.stop();
   layout(`<div class="top"><button class="btn secondary back" onclick="${current?`pedagogyTensIntro(${current-1})`:'subtractionPedagogyUnit()'}">← ${current?'Anterior':'Misiones'}</button>${diamond()}</div>
     <div class="tens-intro-progress"><span>Aprendemos las decenas</span><b>${current+1} de ${PEDAGOGY_TENS_INTRO.length}</b></div>
     <div class="tens-intro-dots">${PEDAGOGY_TENS_INTRO.map((_,index)=>`<i class="${index===current?'current':index<current?'seen':''}"></i>`).join('')}</div>
@@ -159,33 +158,8 @@ function pedagogyNumberModel(number){
   return `<div class="number-model" aria-label="Una decena y ${units} unidades"><div class="ten-box">${ten}</div><span>+</span><div class="unit-box">${loose}</div></div>`;
 }
 
-function pedagogyVoiceScore(voice){
-  const name=String(voice?.name||''),lang=String(voice?.lang||''),signature=`${name} ${lang}`.toLowerCase();
-  let score=0;
-  if(/^es-es/i.test(lang))score+=50;else if(/^es/i.test(lang))score+=35;
-  if(/natural|premium|enhanced|mejorada|mónica|monica|paulina|luciana|helena|elvira|dalia|alvaro|álvaro|jorge|marisol|google español/i.test(signature))score+=35;
-  if(voice?.localService)score+=6;
-  if(/compact|espeak|basic/i.test(signature))score-=25;
-  return score;
-}
-
-function pedagogyBestSpanishVoice(){
-  const voices=window.speechSynthesis?.getVoices?.()||[];
-  const spanish=voices.filter(voice=>/^es([_-]|$)/i.test(voice.lang||''));
-  if(!spanish.length)return null;
-  const best=[...spanish].sort((a,b)=>pedagogyVoiceScore(b)-pedagogyVoiceScore(a))[0];
-  if(!pedagogyVoiceCache||pedagogyVoiceCache.name!==best.name)pedagogyVoiceCache=best;
-  return pedagogyVoiceCache;
-}
-
 function pedagogySpeak(text){
-  try{
-    if(!('speechSynthesis' in window))return;
-    window.speechSynthesis.cancel();
-    const utterance=new SpeechSynthesisUtterance(String(text));utterance.lang='es-ES';utterance.rate=.78;utterance.pitch=1;utterance.volume=.92;
-    const voice=pedagogyBestSpanishVoice();if(voice)utterance.voice=voice;
-    window.speechSynthesis.speak(utterance);
-  }catch(error){}
+  return window.Narration?.playText(String(text));
 }
 
 function pedagogySpeakTensIntro(page){

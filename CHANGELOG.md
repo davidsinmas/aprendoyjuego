@@ -1,3 +1,10 @@
+## V3.15.2 — 2026-09-13
+
+- Sustituye la síntesis de voz del navegador por locuciones femeninas naturales en español de España.
+- Añade un catálogo completo para números del 0 al 200, operaciones, vocabulario, instrucciones y unidad pedagógica.
+- Mantiene la voz, el ritmo rápido y el tono entusiasta aprobados en todas las actividades.
+- Empaqueta las locuciones en bloques de audio con marcas temporales para reducir el número de descargas.
+
 ## V3.15.1 — 2026-09-12
 
 - Sustituye los tonos de refuerzo por locuciones femeninas naturales en español de España.

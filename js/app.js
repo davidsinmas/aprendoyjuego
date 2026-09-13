@@ -441,12 +441,7 @@ function startCompare(n,daily=false){
   compareQuestion();
 }
 function speakCompareInstruction(target){
-  try{
-    if(!('speechSynthesis' in window))return;
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(target==='mayor'?'Toca el número mayor':'Toca el número menor');
-    u.lang='es-ES';u.rate=.9;u.pitch=1.05;window.speechSynthesis.speak(u);
-  }catch(e){}
+  return window.Narration?.playText(target==='mayor'?'Toca el número mayor':'Toca el número menor');
 }
 function compareQuestion(){
   state.locked=false;
@@ -491,12 +486,7 @@ function wordQuestion(){if(state.i>=state.total)return finishWords();state.locke
 function answerWord(v,b){if(state.locked)return;state.locked=true;if(String(v)===String(state.correct)){state.hits++;rewardProgressCorrect();b.classList.add('correct');document.getElementById('msg').textContent='¡Muy bien!';}else{playChime('bad');b.classList.add('wrong');document.getElementById('msg').textContent='La respuesta era '+state.correct;document.querySelectorAll('.answer').forEach(x=>{if(String(x.textContent).trim()===String(state.correct))x.classList.add('correct');});}setTimeout(wordQuestion,900);}
 function finishWords(){if(state.daily){finishDailyActivity('palabras');return;}const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton('palabras',state.level)}<button class="btn secondary" onclick='startWords(${JSON.stringify(state.level)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('palabras')">▦ Volver a niveles</button></div>`);window.GameSound?.play(!wasDone&&nextLevelButton('palabras',state.level)?'advance':'levelComplete');}
 function speakWord(text,prefix=''){
-  try{
-    if(!('speechSynthesis' in window))return;
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(prefix?`${prefix}. ${String(text).toLowerCase()}`:String(text).toLowerCase());
-    u.lang='es-ES';u.rate=.82;u.pitch=1.02;window.speechSynthesis.speak(u);
-  }catch(e){}
+  return window.Narration?.playWord(text,prefix);
 }
 function readingWordPool(n,type){
   return GAME.words.filter(w=>{
