@@ -7,7 +7,7 @@
   const CLOUD_TABLE='game_states',SETTINGS_TABLE='user_settings';
   const LOAD_MARKER='ludeiko_cloud_last_loaded_at_v2',DIRTY_MARKER='ludeiko_cloud_local_changed_at_v1';
   const SETTINGS_LOAD_MARKER='ludeiko_settings_last_loaded_at_v1',SETTINGS_DIRTY_MARKER='ludeiko_settings_local_changed_at_v1';
-  const GAME_VERSION='3.15.3',DATA_VERSION=20;
+  const GAME_VERSION='3.15.4',DATA_VERSION=20;
   const client=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   if(!client){console.warn('[Ludeiko] Supabase no disponible.');return;}
 
