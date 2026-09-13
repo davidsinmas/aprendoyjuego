@@ -4,6 +4,7 @@
 - Los cambios aparecen en los demás dispositivos mediante actualización en tiempo real.
 - Al volver a una pestaña o recuperar la conexión, primero descarga la configuración más reciente para evitar sobrescribirla con una copia antigua.
 - Añade un botón «Sincronizar ahora» y una comprobación automática cada 30 segundos como respaldo.
+- Divide los catálogos largos de voz en bloques completos y verificables para evitar cortes durante su publicación.
 
 ## V3.15.2 — 2026-09-13
 

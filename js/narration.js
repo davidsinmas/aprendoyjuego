@@ -2,1434 +2,1434 @@
   const BASE='assets/audio/narration/';
   const SEGMENTS={
   "number:0": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 0,
     "end": 0.305
   },
   "number:1": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 0.275,
     "end": 0.545
   },
   "number:2": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 0.715,
     "end": 1.585
   },
   "number:3": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 1.591,
     "end": 2.065
   },
   "number:4": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 2.055,
     "end": 2.625
   },
   "number:5": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 2.642,
     "end": 3.265
   },
   "number:6": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 3.303,
     "end": 3.905
   },
   "number:7": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 3.975,
     "end": 4.625
   },
   "number:8": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 4.735,
     "end": 5.425
   },
   "number:9": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 5.395,
     "end": 6.065
   },
   "number:10": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 6.035,
     "end": 6.465
   },
   "number:11": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 6.551,
     "end": 7.345
   },
   "number:12": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 7.415,
     "end": 8.145
   },
   "number:13": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 8.115,
     "end": 8.705
   },
   "number:14": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 8.735,
     "end": 9.585
   },
   "number:15": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 9.548,
     "end": 10.145
   },
   "number:16": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 10.155,
     "end": 11.265
   },
   "number:17": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 11.275,
     "end": 12.225
   },
   "number:18": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 12.295,
     "end": 13.425
   },
   "number:19": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 13.455,
     "end": 14.625
   },
   "number:20": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 14.642,
     "end": 15.265
   },
   "number:21": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 15.335,
     "end": 16.465
   },
   "number:22": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 16.535,
     "end": 17.745
   },
   "number:23": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 17.762,
     "end": 18.865
   },
   "number:24": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 18.935,
     "end": 20.065
   },
   "number:25": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 20.108,
     "end": 21.265
   },
   "number:26": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 21.308,
     "end": 22.545
   },
   "number:27": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 22.588,
     "end": 23.665
   },
   "number:28": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 23.735,
     "end": 25.025
   },
   "number:29": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 25.042,
     "end": 25.985
   },
   "number:30": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 26.075,
     "end": 27.025
   },
   "number:31": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 27.075,
     "end": 28.305
   },
   "number:32": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 28.335,
     "end": 29.505
   },
   "number:33": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 29.555,
     "end": 30.945
   },
   "number:34": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 30.955,
     "end": 32.225
   },
   "number:35": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 32.255,
     "end": 33.585
   },
   "number:36": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 33.615,
     "end": 34.865
   },
   "number:37": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 34.935,
     "end": 36.385
   },
   "number:38": {
-    "file": "numbers.mp3",
+    "file": "numbers-01.mp3",
     "start": 36.395,
     "end": 37.585
   },
   "number:39": {
-    "file": "numbers.mp3",
-    "start": 37.615,
-    "end": 38.865
+    "file": "numbers-02.mp3",
+    "start": 0,
+    "end": 1.25
   },
   "number:40": {
-    "file": "numbers.mp3",
-    "start": 38.908,
-    "end": 39.825
+    "file": "numbers-02.mp3",
+    "start": 1.293,
+    "end": 2.21
   },
   "number:41": {
-    "file": "numbers.mp3",
-    "start": 39.895,
-    "end": 41.265
+    "file": "numbers-02.mp3",
+    "start": 2.28,
+    "end": 3.65
   },
   "number:42": {
-    "file": "numbers.mp3",
-    "start": 41.308,
-    "end": 42.545
+    "file": "numbers-02.mp3",
+    "start": 3.693,
+    "end": 4.93
   },
   "number:43": {
-    "file": "numbers.mp3",
-    "start": 42.642,
-    "end": 44.065
+    "file": "numbers-02.mp3",
+    "start": 5.027,
+    "end": 6.45
   },
   "number:44": {
-    "file": "numbers.mp3",
-    "start": 44.108,
-    "end": 45.425
+    "file": "numbers-02.mp3",
+    "start": 6.493,
+    "end": 7.81
   },
   "number:45": {
-    "file": "numbers.mp3",
-    "start": 45.468,
-    "end": 46.785
+    "file": "numbers-02.mp3",
+    "start": 7.853,
+    "end": 9.17
   },
   "number:46": {
-    "file": "numbers.mp3",
-    "start": 46.828,
-    "end": 48.145
+    "file": "numbers-02.mp3",
+    "start": 9.213,
+    "end": 10.53
   },
   "number:47": {
-    "file": "numbers.mp3",
-    "start": 48.215,
-    "end": 49.665
+    "file": "numbers-02.mp3",
+    "start": 10.6,
+    "end": 12.05
   },
   "number:48": {
-    "file": "numbers.mp3",
-    "start": 49.682,
-    "end": 50.865
+    "file": "numbers-02.mp3",
+    "start": 12.067,
+    "end": 13.25
   },
   "number:49": {
-    "file": "numbers.mp3",
-    "start": 50.935,
-    "end": 52.225
+    "file": "numbers-02.mp3",
+    "start": 13.32,
+    "end": 14.61
   },
   "number:50": {
-    "file": "numbers.mp3",
-    "start": 52.375,
-    "end": 53.425
+    "file": "numbers-02.mp3",
+    "start": 14.76,
+    "end": 15.81
   },
   "number:51": {
-    "file": "numbers.mp3",
-    "start": 53.535,
-    "end": 54.705
+    "file": "numbers-02.mp3",
+    "start": 15.92,
+    "end": 17.09
   },
   "number:52": {
-    "file": "numbers.mp3",
-    "start": 54.855,
-    "end": 56.145
+    "file": "numbers-02.mp3",
+    "start": 17.24,
+    "end": 18.53
   },
   "number:53": {
-    "file": "numbers.mp3",
-    "start": 56.295,
-    "end": 57.825
+    "file": "numbers-02.mp3",
+    "start": 18.68,
+    "end": 20.21
   },
   "number:54": {
-    "file": "numbers.mp3",
-    "start": 57.895,
-    "end": 59.185
+    "file": "numbers-02.mp3",
+    "start": 20.28,
+    "end": 21.57
   },
   "number:55": {
-    "file": "numbers.mp3",
-    "start": 59.335,
-    "end": 60.865
+    "file": "numbers-02.mp3",
+    "start": 21.72,
+    "end": 23.25
   },
   "number:56": {
-    "file": "numbers.mp3",
-    "start": 60.935,
-    "end": 62.305
+    "file": "numbers-02.mp3",
+    "start": 23.32,
+    "end": 24.69
   },
   "number:57": {
-    "file": "numbers.mp3",
-    "start": 62.455,
-    "end": 63.985
+    "file": "numbers-02.mp3",
+    "start": 24.84,
+    "end": 26.37
   },
   "number:58": {
-    "file": "numbers.mp3",
-    "start": 64.055,
-    "end": 65.345
+    "file": "numbers-02.mp3",
+    "start": 26.44,
+    "end": 27.73
   },
   "number:59": {
-    "file": "numbers.mp3",
-    "start": 65.455,
-    "end": 66.785
+    "file": "numbers-02.mp3",
+    "start": 27.84,
+    "end": 29.17
   },
   "number:60": {
-    "file": "numbers.mp3",
-    "start": 66.835,
-    "end": 67.825
+    "file": "numbers-02.mp3",
+    "start": 29.22,
+    "end": 30.21
   },
   "number:61": {
-    "file": "numbers.mp3",
-    "start": 67.915,
-    "end": 69.345
+    "file": "numbers-02.mp3",
+    "start": 30.3,
+    "end": 31.73
   },
   "number:62": {
-    "file": "numbers.mp3",
-    "start": 69.395,
-    "end": 70.705
+    "file": "numbers-02.mp3",
+    "start": 31.78,
+    "end": 33.09
   },
   "number:63": {
-    "file": "numbers.mp3",
-    "start": 70.775,
-    "end": 72.305
+    "file": "numbers-02.mp3",
+    "start": 33.16,
+    "end": 34.69
   },
   "number:64": {
-    "file": "numbers.mp3",
-    "start": 72.355,
-    "end": 73.665
+    "file": "numbers-02.mp3",
+    "start": 34.74,
+    "end": 36.05
   },
   "number:65": {
-    "file": "numbers.mp3",
-    "start": 73.775,
-    "end": 75.425
+    "file": "numbers-02.mp3",
+    "start": 36.16,
+    "end": 37.81
   },
   "number:66": {
-    "file": "numbers.mp3",
-    "start": 75.495,
-    "end": 76.945
+    "file": "numbers-03.mp3",
+    "start": 0,
+    "end": 1.45
   },
   "number:67": {
-    "file": "numbers.mp3",
-    "start": 77.035,
-    "end": 78.625
+    "file": "numbers-03.mp3",
+    "start": 1.54,
+    "end": 3.13
   },
   "number:68": {
-    "file": "numbers.mp3",
-    "start": 78.695,
-    "end": 80.145
+    "file": "numbers-03.mp3",
+    "start": 3.2,
+    "end": 4.65
   },
   "number:69": {
-    "file": "numbers.mp3",
-    "start": 80.195,
-    "end": 81.585
+    "file": "numbers-03.mp3",
+    "start": 4.7,
+    "end": 6.09
   },
   "number:70": {
-    "file": "numbers.mp3",
-    "start": 81.655,
-    "end": 82.625
+    "file": "numbers-03.mp3",
+    "start": 6.16,
+    "end": 7.13
   },
   "number:71": {
-    "file": "numbers.mp3",
-    "start": 82.715,
-    "end": 84.145
+    "file": "numbers-03.mp3",
+    "start": 7.22,
+    "end": 8.65
   },
   "number:72": {
-    "file": "numbers.mp3",
-    "start": 84.195,
-    "end": 85.505
+    "file": "numbers-03.mp3",
+    "start": 8.7,
+    "end": 10.01
   },
   "number:73": {
-    "file": "numbers.mp3",
-    "start": 85.575,
-    "end": 87.105
+    "file": "numbers-03.mp3",
+    "start": 10.08,
+    "end": 11.61
   },
   "number:74": {
-    "file": "numbers.mp3",
-    "start": 87.155,
-    "end": 88.545
+    "file": "numbers-03.mp3",
+    "start": 11.66,
+    "end": 13.05
   },
   "number:75": {
-    "file": "numbers.mp3",
-    "start": 88.595,
-    "end": 90.145
+    "file": "numbers-03.mp3",
+    "start": 13.1,
+    "end": 14.65
   },
   "number:76": {
-    "file": "numbers.mp3",
-    "start": 90.175,
-    "end": 91.585
+    "file": "numbers-03.mp3",
+    "start": 14.68,
+    "end": 16.09
   },
   "number:77": {
-    "file": "numbers.mp3",
-    "start": 91.655,
-    "end": 93.105
+    "file": "numbers-03.mp3",
+    "start": 16.16,
+    "end": 17.61
   },
   "number:78": {
-    "file": "numbers.mp3",
-    "start": 93.175,
-    "end": 94.625
+    "file": "numbers-03.mp3",
+    "start": 17.68,
+    "end": 19.13
   },
   "number:79": {
-    "file": "numbers.mp3",
-    "start": 94.695,
-    "end": 96.225
+    "file": "numbers-03.mp3",
+    "start": 19.2,
+    "end": 20.73
   },
   "number:80": {
-    "file": "numbers.mp3",
-    "start": 96.295,
-    "end": 97.185
+    "file": "numbers-03.mp3",
+    "start": 20.8,
+    "end": 21.69
   },
   "number:81": {
-    "file": "numbers.mp3",
-    "start": 97.295,
-    "end": 98.705
+    "file": "numbers-03.mp3",
+    "start": 21.8,
+    "end": 23.21
   },
   "number:82": {
-    "file": "numbers.mp3",
-    "start": 98.795,
-    "end": 100.145
+    "file": "numbers-03.mp3",
+    "start": 23.3,
+    "end": 24.65
   },
   "number:83": {
-    "file": "numbers.mp3",
-    "start": 100.235,
-    "end": 101.745
+    "file": "numbers-03.mp3",
+    "start": 24.74,
+    "end": 26.25
   },
   "number:84": {
-    "file": "numbers.mp3",
-    "start": 101.795,
-    "end": 103.185
+    "file": "numbers-03.mp3",
+    "start": 26.3,
+    "end": 27.69
   },
   "number:85": {
-    "file": "numbers.mp3",
-    "start": 103.255,
-    "end": 104.785
+    "file": "numbers-03.mp3",
+    "start": 27.76,
+    "end": 29.29
   },
   "number:86": {
-    "file": "numbers.mp3",
-    "start": 104.815,
-    "end": 106.145
+    "file": "numbers-03.mp3",
+    "start": 29.32,
+    "end": 30.65
   },
   "number:87": {
-    "file": "numbers.mp3",
-    "start": 106.235,
-    "end": 107.825
+    "file": "numbers-03.mp3",
+    "start": 30.74,
+    "end": 32.33
   },
   "number:88": {
-    "file": "numbers.mp3",
-    "start": 107.875,
-    "end": 109.185
+    "file": "numbers-03.mp3",
+    "start": 32.38,
+    "end": 33.69
   },
   "number:89": {
-    "file": "numbers.mp3",
-    "start": 109.255,
-    "end": 110.705
+    "file": "numbers-03.mp3",
+    "start": 33.76,
+    "end": 35.21
   },
   "number:90": {
-    "file": "numbers.mp3",
-    "start": 110.802,
-    "end": 111.745
+    "file": "numbers-03.mp3",
+    "start": 35.307,
+    "end": 36.25
   },
   "number:91": {
-    "file": "numbers.mp3",
-    "start": 111.868,
-    "end": 113.265
+    "file": "numbers-03.mp3",
+    "start": 36.373,
+    "end": 37.77
   },
   "number:92": {
-    "file": "numbers.mp3",
-    "start": 113.335,
-    "end": 114.545
+    "file": "numbers-04.mp3",
+    "start": 0,
+    "end": 1.21
   },
   "number:93": {
-    "file": "numbers.mp3",
-    "start": 114.642,
-    "end": 116.145
+    "file": "numbers-04.mp3",
+    "start": 1.307,
+    "end": 2.81
   },
   "number:94": {
-    "file": "numbers.mp3",
-    "start": 116.188,
-    "end": 117.585
+    "file": "numbers-04.mp3",
+    "start": 2.853,
+    "end": 4.25
   },
   "number:95": {
-    "file": "numbers.mp3",
-    "start": 117.628,
-    "end": 119.105
+    "file": "numbers-04.mp3",
+    "start": 4.293,
+    "end": 5.77
   },
   "number:96": {
-    "file": "numbers.mp3",
-    "start": 119.122,
-    "end": 120.385
+    "file": "numbers-04.mp3",
+    "start": 5.787,
+    "end": 7.05
   },
   "number:97": {
-    "file": "numbers.mp3",
-    "start": 120.482,
-    "end": 121.985
+    "file": "numbers-04.mp3",
+    "start": 7.147,
+    "end": 8.65
   },
   "number:98": {
-    "file": "numbers.mp3",
-    "start": 122.055,
-    "end": 123.425
+    "file": "numbers-04.mp3",
+    "start": 8.72,
+    "end": 10.09
   },
   "number:99": {
-    "file": "numbers.mp3",
-    "start": 123.495,
-    "end": 124.865
+    "file": "numbers-04.mp3",
+    "start": 10.16,
+    "end": 11.53
   },
   "number:100": {
-    "file": "numbers.mp3",
-    "start": 124.975,
-    "end": 125.585
+    "file": "numbers-04.mp3",
+    "start": 11.64,
+    "end": 12.25
   },
   "number:101": {
-    "file": "numbers.mp3",
-    "start": 125.775,
-    "end": 126.865
+    "file": "numbers-04.mp3",
+    "start": 12.44,
+    "end": 13.53
   },
   "number:102": {
-    "file": "numbers.mp3",
-    "start": 127.055,
-    "end": 128.305
+    "file": "numbers-04.mp3",
+    "start": 13.72,
+    "end": 14.97
   },
   "number:103": {
-    "file": "numbers.mp3",
-    "start": 128.415,
-    "end": 129.505
+    "file": "numbers-04.mp3",
+    "start": 15.08,
+    "end": 16.17
   },
   "number:104": {
-    "file": "numbers.mp3",
-    "start": 129.695,
-    "end": 130.945
+    "file": "numbers-04.mp3",
+    "start": 16.36,
+    "end": 17.61
   },
   "number:105": {
-    "file": "numbers.mp3",
-    "start": 130.855,
-    "end": 131.681
+    "file": "numbers-04.mp3",
+    "start": 17.52,
+    "end": 18.346
   },
   "number:106": {
-    "file": "numbers.mp3",
-    "start": 131.655,
-    "end": 133.473
+    "file": "numbers-04.mp3",
+    "start": 18.32,
+    "end": 20.138
   },
   "number:107": {
-    "file": "numbers.mp3",
-    "start": 133.527,
-    "end": 134.965
+    "file": "numbers-04.mp3",
+    "start": 20.192,
+    "end": 21.63
   },
   "number:108": {
-    "file": "numbers.mp3",
-    "start": 134.975,
-    "end": 136.465
+    "file": "numbers-04.mp3",
+    "start": 21.64,
+    "end": 23.13
   },
   "number:109": {
-    "file": "numbers.mp3",
-    "start": 136.482,
-    "end": 137.685
+    "file": "numbers-04.mp3",
+    "start": 23.147,
+    "end": 24.35
   },
   "number:110": {
-    "file": "numbers.mp3",
-    "start": 137.655,
-    "end": 139.105
+    "file": "numbers-04.mp3",
+    "start": 24.32,
+    "end": 25.77
   },
   "number:111": {
-    "file": "numbers.mp3",
-    "start": 139.095,
-    "end": 140.737
+    "file": "numbers-04.mp3",
+    "start": 25.76,
+    "end": 27.402
   },
   "number:112": {
-    "file": "numbers.mp3",
-    "start": 140.743,
-    "end": 142.172
+    "file": "numbers-04.mp3",
+    "start": 27.408,
+    "end": 28.837
   },
   "number:113": {
-    "file": "numbers.mp3",
-    "start": 142.135,
-    "end": 143.605
+    "file": "numbers-04.mp3",
+    "start": 28.8,
+    "end": 30.27
   },
   "number:114": {
-    "file": "numbers.mp3",
-    "start": 143.575,
-    "end": 145.345
+    "file": "numbers-04.mp3",
+    "start": 30.24,
+    "end": 32.01
   },
   "number:115": {
-    "file": "numbers.mp3",
-    "start": 145.335,
-    "end": 146.745
+    "file": "numbers-04.mp3",
+    "start": 32,
+    "end": 33.41
   },
   "number:116": {
-    "file": "numbers.mp3",
-    "start": 146.775,
-    "end": 148.572
+    "file": "numbers-04.mp3",
+    "start": 33.44,
+    "end": 35.237
   },
   "number:117": {
-    "file": "numbers.mp3",
-    "start": 148.535,
-    "end": 150.405
+    "file": "numbers-04.mp3",
+    "start": 35.2,
+    "end": 37.07
   },
   "number:118": {
-    "file": "numbers.mp3",
-    "start": 150.415,
-    "end": 152.225
+    "file": "numbers-05.mp3",
+    "start": 0,
+    "end": 1.81
   },
   "number:119": {
-    "file": "numbers.mp3",
-    "start": 152.242,
-    "end": 153.845
+    "file": "numbers-05.mp3",
+    "start": 1.827,
+    "end": 3.43
   },
   "number:120": {
-    "file": "numbers.mp3",
-    "start": 153.815,
-    "end": 155.385
+    "file": "numbers-05.mp3",
+    "start": 3.4,
+    "end": 4.97
   },
   "number:121": {
-    "file": "numbers.mp3",
-    "start": 155.415,
-    "end": 157.105
+    "file": "numbers-05.mp3",
+    "start": 5,
+    "end": 6.69
   },
   "number:122": {
-    "file": "numbers.mp3",
-    "start": 157.148,
-    "end": 158.705
+    "file": "numbers-05.mp3",
+    "start": 6.733,
+    "end": 8.29
   },
   "number:123": {
-    "file": "numbers.mp3",
-    "start": 158.695,
-    "end": 160.518
+    "file": "numbers-05.mp3",
+    "start": 8.28,
+    "end": 10.103
   },
   "number:124": {
-    "file": "numbers.mp3",
-    "start": 160.535,
-    "end": 162.605
+    "file": "numbers-05.mp3",
+    "start": 10.12,
+    "end": 12.19
   },
   "number:125": {
-    "file": "numbers.mp3",
-    "start": 162.575,
-    "end": 164.185
+    "file": "numbers-05.mp3",
+    "start": 12.16,
+    "end": 13.77
   },
   "number:126": {
-    "file": "numbers.mp3",
-    "start": 164.135,
-    "end": 165.985
+    "file": "numbers-05.mp3",
+    "start": 13.72,
+    "end": 15.57
   },
   "number:127": {
-    "file": "numbers.mp3",
-    "start": 165.975,
-    "end": 167.825
+    "file": "numbers-05.mp3",
+    "start": 15.56,
+    "end": 17.41
   },
   "number:128": {
-    "file": "numbers.mp3",
-    "start": 167.815,
-    "end": 169.665
+    "file": "numbers-05.mp3",
+    "start": 17.4,
+    "end": 19.25
   },
   "number:129": {
-    "file": "numbers.mp3",
-    "start": 169.682,
-    "end": 171.205
+    "file": "numbers-05.mp3",
+    "start": 19.267,
+    "end": 20.79
   },
   "number:130": {
-    "file": "numbers.mp3",
-    "start": 171.175,
-    "end": 172.825
+    "file": "numbers-05.mp3",
+    "start": 20.76,
+    "end": 22.41
   },
   "number:131": {
-    "file": "numbers.mp3",
-    "start": 172.855,
-    "end": 174.605
+    "file": "numbers-05.mp3",
+    "start": 22.44,
+    "end": 24.19
   },
   "number:132": {
-    "file": "numbers.mp3",
-    "start": 174.575,
-    "end": 176.325
+    "file": "numbers-05.mp3",
+    "start": 24.16,
+    "end": 25.91
   },
   "number:133": {
-    "file": "numbers.mp3",
-    "start": 176.335,
-    "end": 178.257
+    "file": "numbers-05.mp3",
+    "start": 25.92,
+    "end": 27.842
   },
   "number:134": {
-    "file": "numbers.mp3",
-    "start": 178.263,
-    "end": 180.259
+    "file": "numbers-05.mp3",
+    "start": 27.848,
+    "end": 29.844
   },
   "number:135": {
-    "file": "numbers.mp3",
-    "start": 180.238,
-    "end": 182.065
+    "file": "numbers-05.mp3",
+    "start": 29.823,
+    "end": 31.65
   },
   "number:136": {
-    "file": "numbers.mp3",
-    "start": 182.028,
-    "end": 184.097
+    "file": "numbers-05.mp3",
+    "start": 31.613,
+    "end": 33.682
   },
   "number:137": {
-    "file": "numbers.mp3",
-    "start": 184.103,
-    "end": 185.925
+    "file": "numbers-05.mp3",
+    "start": 33.688,
+    "end": 35.51
   },
   "number:138": {
-    "file": "numbers.mp3",
-    "start": 185.935,
-    "end": 187.905
+    "file": "numbers-05.mp3",
+    "start": 35.52,
+    "end": 37.49
   },
   "number:139": {
-    "file": "numbers.mp3",
-    "start": 187.922,
-    "end": 189.625
+    "file": "numbers-06.mp3",
+    "start": 0,
+    "end": 1.703
   },
   "number:140": {
-    "file": "numbers.mp3",
-    "start": 189.575,
-    "end": 191.265
+    "file": "numbers-06.mp3",
+    "start": 1.653,
+    "end": 3.343
   },
   "number:141": {
-    "file": "numbers.mp3",
-    "start": 191.255,
-    "end": 193.085
+    "file": "numbers-06.mp3",
+    "start": 3.333,
+    "end": 5.163
   },
   "number:142": {
-    "file": "numbers.mp3",
-    "start": 193.055,
-    "end": 194.985
+    "file": "numbers-06.mp3",
+    "start": 5.133,
+    "end": 7.063
   },
   "number:143": {
-    "file": "numbers.mp3",
-    "start": 195.015,
-    "end": 196.785
+    "file": "numbers-06.mp3",
+    "start": 7.093,
+    "end": 8.863
   },
   "number:144": {
-    "file": "numbers.mp3",
-    "start": 196.775,
-    "end": 198.337
+    "file": "numbers-06.mp3",
+    "start": 8.853,
+    "end": 10.415
   },
   "number:145": {
-    "file": "numbers.mp3",
-    "start": 198.295,
-    "end": 200.545
+    "file": "numbers-06.mp3",
+    "start": 10.373,
+    "end": 12.623
   },
   "number:146": {
-    "file": "numbers.mp3",
-    "start": 200.522,
-    "end": 202.545
+    "file": "numbers-06.mp3",
+    "start": 12.6,
+    "end": 14.623
   },
   "number:147": {
-    "file": "numbers.mp3",
-    "start": 202.535,
-    "end": 204.705
+    "file": "numbers-06.mp3",
+    "start": 14.613,
+    "end": 16.783
   },
   "number:148": {
-    "file": "numbers.mp3",
-    "start": 204.735,
-    "end": 206.665
+    "file": "numbers-06.mp3",
+    "start": 16.813,
+    "end": 18.743
   },
   "number:149": {
-    "file": "numbers.mp3",
-    "start": 206.615,
-    "end": 208.625
+    "file": "numbers-06.mp3",
+    "start": 18.693,
+    "end": 20.703
   },
   "number:150": {
-    "file": "numbers.mp3",
-    "start": 208.595,
-    "end": 210.332
+    "file": "numbers-06.mp3",
+    "start": 20.673,
+    "end": 22.41
   },
   "number:151": {
-    "file": "numbers.mp3",
-    "start": 210.295,
-    "end": 212.225
+    "file": "numbers-06.mp3",
+    "start": 22.373,
+    "end": 24.303
   },
   "number:152": {
-    "file": "numbers.mp3",
-    "start": 212.215,
-    "end": 213.937
+    "file": "numbers-06.mp3",
+    "start": 24.293,
+    "end": 26.015
   },
   "number:153": {
-    "file": "numbers.mp3",
-    "start": 213.879,
-    "end": 215.921
+    "file": "numbers-06.mp3",
+    "start": 25.957,
+    "end": 27.999
   },
   "number:154": {
-    "file": "numbers.mp3",
-    "start": 215.863,
-    "end": 218.065
+    "file": "numbers-06.mp3",
+    "start": 27.941,
+    "end": 30.143
   },
   "number:155": {
-    "file": "numbers.mp3",
-    "start": 218.055,
-    "end": 219.857
+    "file": "numbers-06.mp3",
+    "start": 30.133,
+    "end": 31.935
   },
   "number:156": {
-    "file": "numbers.mp3",
-    "start": 219.815,
-    "end": 221.718
+    "file": "numbers-06.mp3",
+    "start": 31.893,
+    "end": 33.796
   },
   "number:157": {
-    "file": "numbers.mp3",
-    "start": 221.655,
-    "end": 223.633
+    "file": "numbers-06.mp3",
+    "start": 33.733,
+    "end": 35.711
   },
   "number:158": {
-    "file": "numbers.mp3",
-    "start": 223.591,
-    "end": 225.745
+    "file": "numbers-06.mp3",
+    "start": 35.669,
+    "end": 37.823
   },
   "number:159": {
-    "file": "numbers.mp3",
-    "start": 225.703,
-    "end": 227.793
+    "file": "numbers-07.mp3",
+    "start": 0,
+    "end": 2.09
   },
   "number:160": {
-    "file": "numbers.mp3",
-    "start": 227.751,
-    "end": 229.345
+    "file": "numbers-07.mp3",
+    "start": 2.048,
+    "end": 3.642
   },
   "number:161": {
-    "file": "numbers.mp3",
-    "start": 229.335,
-    "end": 231.265
+    "file": "numbers-07.mp3",
+    "start": 3.632,
+    "end": 5.562
   },
   "number:162": {
-    "file": "numbers.mp3",
-    "start": 231.255,
-    "end": 232.545
+    "file": "numbers-07.mp3",
+    "start": 5.552,
+    "end": 6.842
   },
   "number:163": {
-    "file": "numbers.mp3",
-    "start": 232.455,
-    "end": 234.505
+    "file": "numbers-07.mp3",
+    "start": 6.752,
+    "end": 8.802
   },
   "number:164": {
-    "file": "numbers.mp3",
-    "start": 234.415,
-    "end": 236.785
+    "file": "numbers-07.mp3",
+    "start": 8.712,
+    "end": 11.082
   },
   "number:165": {
-    "file": "numbers.mp3",
-    "start": 236.695,
-    "end": 238.156
+    "file": "numbers-07.mp3",
+    "start": 10.992,
+    "end": 12.453
   },
   "number:166": {
-    "file": "numbers.mp3",
-    "start": 238.135,
-    "end": 240.278
+    "file": "numbers-07.mp3",
+    "start": 12.432,
+    "end": 14.575
   },
   "number:167": {
-    "file": "numbers.mp3",
-    "start": 240.282,
-    "end": 242.241
+    "file": "numbers-07.mp3",
+    "start": 14.579,
+    "end": 16.538
   },
   "number:168": {
-    "file": "numbers.mp3",
-    "start": 242.215,
-    "end": 244.305
+    "file": "numbers-07.mp3",
+    "start": 16.512,
+    "end": 18.602
   },
   "number:169": {
-    "file": "numbers.mp3",
-    "start": 244.335,
-    "end": 246.465
+    "file": "numbers-07.mp3",
+    "start": 18.632,
+    "end": 20.762
   },
   "number:170": {
-    "file": "numbers.mp3",
-    "start": 246.455,
-    "end": 247.925
+    "file": "numbers-07.mp3",
+    "start": 20.752,
+    "end": 22.222
   },
   "number:171": {
-    "file": "numbers.mp3",
-    "start": 247.895,
-    "end": 249.845
+    "file": "numbers-07.mp3",
+    "start": 22.192,
+    "end": 24.142
   },
   "number:172": {
-    "file": "numbers.mp3",
-    "start": 249.855,
-    "end": 251.825
+    "file": "numbers-07.mp3",
+    "start": 24.152,
+    "end": 26.122
   },
   "number:173": {
-    "file": "numbers.mp3",
-    "start": 251.815,
-    "end": 253.905
+    "file": "numbers-07.mp3",
+    "start": 26.112,
+    "end": 28.202
   },
   "number:174": {
-    "file": "numbers.mp3",
-    "start": 253.935,
-    "end": 256.065
+    "file": "numbers-07.mp3",
+    "start": 28.232,
+    "end": 30.362
   },
   "number:175": {
-    "file": "numbers.mp3",
-    "start": 256.335,
-    "end": 258.076
+    "file": "numbers-07.mp3",
+    "start": 30.632,
+    "end": 32.373
   },
   "number:176": {
-    "file": "numbers.mp3",
-    "start": 258.055,
-    "end": 259.985
+    "file": "numbers-07.mp3",
+    "start": 32.352,
+    "end": 34.282
   },
   "number:177": {
-    "file": "numbers.mp3",
-    "start": 259.975,
-    "end": 262.257
+    "file": "numbers-07.mp3",
+    "start": 34.272,
+    "end": 36.554
   },
   "number:178": {
-    "file": "numbers.mp3",
-    "start": 262.295,
-    "end": 264.105
+    "file": "numbers-08.mp3",
+    "start": 0,
+    "end": 1.81
   },
   "number:179": {
-    "file": "numbers.mp3",
-    "start": 264.115,
-    "end": 266.358
+    "file": "numbers-08.mp3",
+    "start": 1.82,
+    "end": 4.063
   },
   "number:180": {
-    "file": "numbers.mp3",
-    "start": 266.375,
-    "end": 267.765
+    "file": "numbers-08.mp3",
+    "start": 4.08,
+    "end": 5.47
   },
   "number:181": {
-    "file": "numbers.mp3",
-    "start": 267.735,
-    "end": 269.665
+    "file": "numbers-08.mp3",
+    "start": 5.44,
+    "end": 7.37
   },
   "number:182": {
-    "file": "numbers.mp3",
-    "start": 269.575,
-    "end": 271.365
+    "file": "numbers-08.mp3",
+    "start": 7.28,
+    "end": 9.07
   },
   "number:183": {
-    "file": "numbers.mp3",
-    "start": 271.335,
-    "end": 273.385
+    "file": "numbers-08.mp3",
+    "start": 9.04,
+    "end": 11.09
   },
   "number:184": {
-    "file": "numbers.mp3",
-    "start": 273.335,
-    "end": 275.569
+    "file": "numbers-08.mp3",
+    "start": 11.04,
+    "end": 13.274
   },
   "number:185": {
-    "file": "numbers.mp3",
-    "start": 275.591,
-    "end": 277.551
+    "file": "numbers-08.mp3",
+    "start": 13.296,
+    "end": 15.256
   },
   "number:186": {
-    "file": "numbers.mp3",
-    "start": 277.529,
-    "end": 279.438
+    "file": "numbers-08.mp3",
+    "start": 15.234,
+    "end": 17.143
   },
   "number:187": {
-    "file": "numbers.mp3",
-    "start": 279.442,
-    "end": 281.505
+    "file": "numbers-08.mp3",
+    "start": 17.147,
+    "end": 19.21
   },
   "number:188": {
-    "file": "numbers.mp3",
-    "start": 281.495,
-    "end": 283.645
+    "file": "numbers-08.mp3",
+    "start": 19.2,
+    "end": 21.35
   },
   "number:189": {
-    "file": "numbers.mp3",
-    "start": 283.695,
-    "end": 285.705
+    "file": "numbers-08.mp3",
+    "start": 21.4,
+    "end": 23.41
   },
   "number:190": {
-    "file": "numbers.mp3",
-    "start": 285.735,
-    "end": 287.265
+    "file": "numbers-08.mp3",
+    "start": 23.44,
+    "end": 24.97
   },
   "number:191": {
-    "file": "numbers.mp3",
-    "start": 287.235,
-    "end": 289.212
+    "file": "numbers-08.mp3",
+    "start": 24.94,
+    "end": 26.917
   },
   "number:192": {
-    "file": "numbers.mp3",
-    "start": 289.175,
-    "end": 291.185
+    "file": "numbers-08.mp3",
+    "start": 26.88,
+    "end": 28.89
   },
   "number:193": {
-    "file": "numbers.mp3",
-    "start": 291.175,
-    "end": 293.065
+    "file": "numbers-08.mp3",
+    "start": 28.88,
+    "end": 30.77
   },
   "number:194": {
-    "file": "numbers.mp3",
-    "start": 293.015,
-    "end": 295.313
+    "file": "numbers-08.mp3",
+    "start": 30.72,
+    "end": 33.018
   },
   "number:195": {
-    "file": "numbers.mp3",
-    "start": 295.367,
-    "end": 297.151
+    "file": "numbers-08.mp3",
+    "start": 33.072,
+    "end": 34.856
   },
   "number:196": {
-    "file": "numbers.mp3",
-    "start": 297.129,
-    "end": 299.078
+    "file": "numbers-08.mp3",
+    "start": 34.834,
+    "end": 36.783
   },
   "number:197": {
-    "file": "numbers.mp3",
-    "start": 299.122,
-    "end": 301.089
+    "file": "numbers-09.mp3",
+    "start": 0,
+    "end": 1.967
   },
   "number:198": {
-    "file": "numbers.mp3",
-    "start": 301.063,
-    "end": 302.985
+    "file": "numbers-09.mp3",
+    "start": 1.941,
+    "end": 3.863
   },
   "number:199": {
-    "file": "numbers.mp3",
-    "start": 302.935,
-    "end": 305.238
+    "file": "numbers-09.mp3",
+    "start": 3.813,
+    "end": 6.116
   },
   "number:200": {
-    "file": "numbers.mp3",
-    "start": 305.175,
-    "end": 306.545
+    "file": "numbers-09.mp3",
+    "start": 6.053,
+    "end": 7.423
   },
   "word:ABEJA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 0,
     "end": 0.625
   },
   "word:ARBOL": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 0.855,
     "end": 1.665
   },
   "word:AVE": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 1.775,
     "end": 2.465
   },
   "word:AVION": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 2.588,
     "end": 3.345
   },
   "word:BANANA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 3.392,
     "end": 4.305
   },
   "word:BARCO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 4.415,
     "end": 5.265
   },
   "word:BESO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 5.395,
     "end": 6.225
   },
   "word:BICI": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 6.455,
     "end": 7.265
   },
   "word:BOTA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 7.415,
     "end": 8.145
   },
   "word:BUS": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 8.295,
     "end": 9.105
   },
   "word:CABALLO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 9.155,
     "end": 9.985
   },
   "word:CAMA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 10.175,
     "end": 10.865
   },
   "word:CAMELLO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 10.955,
     "end": 11.985
   },
   "word:CAMION": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 12.055,
     "end": 12.945
   },
   "word:CAMISA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 13.035,
     "end": 14.065
   },
   "word:CAMPANA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 14.155,
     "end": 15.185
   },
   "word:CANGURO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 15.335,
     "end": 16.305
   },
   "word:CARACOL": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 16.355,
     "end": 17.345
   },
   "word:CASA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 17.447,
     "end": 18.305
   },
   "word:CERDO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 18.415,
     "end": 19.345
   },
   "word:COCHE": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 19.468,
     "end": 20.305
   },
   "word:COL": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 20.455,
     "end": 21.265
   },
   "word:CONEJO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 21.351,
     "end": 22.385
   },
   "word:CUNA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 22.575,
     "end": 23.345
   },
   "word:ESPEJO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 23.495,
     "end": 24.465
   },
   "word:ESTRELLA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 24.555,
     "end": 25.665
   },
   "word:FLAN": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 25.815,
     "end": 26.705
   },
   "word:FLOR": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 26.823,
     "end": 27.745
   },
   "word:FRESA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 27.895,
     "end": 28.785
   },
   "word:FUEGO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 28.915,
     "end": 29.825
   },
   "word:GALLINA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 29.879,
     "end": 30.945
   },
   "word:GATO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 31.135,
     "end": 31.905
   },
   "word:GIRASOL": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 31.975,
     "end": 33.105
   },
   "word:HOJA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 33.282,
     "end": 34.145
   },
   "word:HUEVO": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 34.335,
     "end": 35.185
   },
   "word:ISLA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 35.362,
     "end": 36.145
   },
   "word:KOALA": {
-    "file": "words.mp3",
+    "file": "words-01.mp3",
     "start": 36.295,
     "end": 37.265
   },
   "word:LANA": {
-    "file": "words.mp3",
-    "start": 37.535,
-    "end": 38.305
+    "file": "words-02.mp3",
+    "start": 0,
+    "end": 0.77
   },
   "word:LAPIZ": {
-    "file": "words.mp3",
-    "start": 38.508,
-    "end": 39.505
+    "file": "words-02.mp3",
+    "start": 0.973,
+    "end": 1.97
   },
   "word:LECHE": {
-    "file": "words.mp3",
-    "start": 39.682,
-    "end": 40.625
+    "file": "words-02.mp3",
+    "start": 2.147,
+    "end": 3.09
   },
   "word:LEON": {
-    "file": "words.mp3",
-    "start": 40.775,
-    "end": 41.905
+    "file": "words-02.mp3",
+    "start": 3.24,
+    "end": 4.37
   },
   "word:LIBRO": {
-    "file": "words.mp3",
-    "start": 41.948,
-    "end": 42.705
+    "file": "words-02.mp3",
+    "start": 4.413,
+    "end": 5.17
   },
   "word:LLAVE": {
-    "file": "words.mp3",
-    "start": 42.882,
-    "end": 43.825
+    "file": "words-02.mp3",
+    "start": 5.347,
+    "end": 6.29
   },
   "word:LUNA": {
-    "file": "words.mp3",
-    "start": 44.095,
-    "end": 45.185
+    "file": "words-02.mp3",
+    "start": 6.56,
+    "end": 7.65
   },
   "word:MALETA": {
-    "file": "words.mp3",
-    "start": 45.228,
-    "end": 46.065
+    "file": "words-02.mp3",
+    "start": 7.693,
+    "end": 8.53
   },
   "word:MANO": {
-    "file": "words.mp3",
-    "start": 46.167,
-    "end": 47.025
+    "file": "words-02.mp3",
+    "start": 8.632,
+    "end": 9.49
   },
   "word:MANZANA": {
-    "file": "words.mp3",
-    "start": 47.115,
-    "end": 48.465
+    "file": "words-02.mp3",
+    "start": 9.58,
+    "end": 10.93
   },
   "word:MAR": {
-    "file": "words.mp3",
-    "start": 48.555,
-    "end": 49.185
+    "file": "words-02.mp3",
+    "start": 11.02,
+    "end": 11.65
   },
   "word:MONO": {
-    "file": "words.mp3",
-    "start": 49.319,
-    "end": 50.305
+    "file": "words-02.mp3",
+    "start": 11.784,
+    "end": 12.77
   },
   "word:NARANJA": {
-    "file": "words.mp3",
-    "start": 50.495,
-    "end": 51.505
+    "file": "words-02.mp3",
+    "start": 12.96,
+    "end": 13.97
   },
   "word:NIEVE": {
-    "file": "words.mp3",
-    "start": 51.595,
-    "end": 52.465
+    "file": "words-02.mp3",
+    "start": 14.06,
+    "end": 14.93
   },
   "word:NUBE": {
-    "file": "words.mp3",
-    "start": 52.695,
-    "end": 53.505
+    "file": "words-02.mp3",
+    "start": 15.16,
+    "end": 15.97
   },
   "word:OSO": {
-    "file": "words.mp3",
-    "start": 53.855,
-    "end": 54.545
+    "file": "words-02.mp3",
+    "start": 16.32,
+    "end": 17.01
   },
   "word:OVEJA": {
-    "file": "words.mp3",
-    "start": 54.775,
-    "end": 55.585
+    "file": "words-02.mp3",
+    "start": 17.24,
+    "end": 18.05
   },
   "word:PALOMA": {
-    "file": "words.mp3",
-    "start": 55.675,
-    "end": 56.705
+    "file": "words-02.mp3",
+    "start": 18.14,
+    "end": 19.17
   },
   "word:PAN": {
-    "file": "words.mp3",
-    "start": 56.835,
-    "end": 57.585
+    "file": "words-02.mp3",
+    "start": 19.3,
+    "end": 20.05
   },
   "word:PANDA": {
-    "file": "words.mp3",
-    "start": 57.668,
-    "end": 58.625
+    "file": "words-02.mp3",
+    "start": 20.133,
+    "end": 21.09
   },
   "word:PATO": {
-    "file": "words.mp3",
-    "start": 58.715,
-    "end": 59.505
+    "file": "words-02.mp3",
+    "start": 21.18,
+    "end": 21.97
   },
   "word:PELOTA": {
-    "file": "words.mp3",
-    "start": 59.595,
-    "end": 60.625
+    "file": "words-02.mp3",
+    "start": 22.06,
+    "end": 23.09
   },
   "word:PERA": {
-    "file": "words.mp3",
-    "start": 60.735,
-    "end": 61.585
+    "file": "words-02.mp3",
+    "start": 23.2,
+    "end": 24.05
   },
   "word:PERRO": {
-    "file": "words.mp3",
-    "start": 61.695,
-    "end": 62.625
+    "file": "words-02.mp3",
+    "start": 24.16,
+    "end": 25.09
   },
   "word:PEZ": {
-    "file": "words.mp3",
-    "start": 62.748,
-    "end": 63.505
+    "file": "words-02.mp3",
+    "start": 25.213,
+    "end": 25.97
   },
   "word:POLLO": {
-    "file": "words.mp3",
-    "start": 63.615,
-    "end": 64.465
+    "file": "words-02.mp3",
+    "start": 26.08,
+    "end": 26.93
   },
   "word:PRINCESA": {
-    "file": "words.mp3",
-    "start": 64.515,
-    "end": 65.745
+    "file": "words-02.mp3",
+    "start": 26.98,
+    "end": 28.21
   },
   "word:QUESO": {
-    "file": "words.mp3",
-    "start": 65.895,
-    "end": 67.185
+    "file": "words-02.mp3",
+    "start": 28.36,
+    "end": 29.65
   },
   "word:RANA": {
-    "file": "words.mp3",
-    "start": 67.295,
-    "end": 67.985
+    "file": "words-02.mp3",
+    "start": 29.76,
+    "end": 30.45
   },
   "word:RATON": {
-    "file": "words.mp3",
-    "start": 68.095,
-    "end": 69.105
+    "file": "words-02.mp3",
+    "start": 30.56,
+    "end": 31.57
   },
   "word:RELOJ": {
-    "file": "words.mp3",
-    "start": 69.255,
-    "end": 70.465
+    "file": "words-02.mp3",
+    "start": 31.72,
+    "end": 32.93
   },
   "word:ROJA": {
-    "file": "words.mp3",
-    "start": 70.588,
-    "end": 71.345
+    "file": "words-02.mp3",
+    "start": 33.053,
+    "end": 33.81
   },
   "word:SEMILLA": {
-    "file": "words.mp3",
-    "start": 71.455,
-    "end": 72.545
+    "file": "words-02.mp3",
+    "start": 33.92,
+    "end": 35.01
   },
   "word:SILLA": {
-    "file": "words.mp3",
-    "start": 72.775,
-    "end": 73.985
+    "file": "words-02.mp3",
+    "start": 35.24,
+    "end": 36.45
   },
   "word:SOL": {
-    "file": "words.mp3",
-    "start": 74.095,
-    "end": 74.785
+    "file": "words-02.mp3",
+    "start": 36.56,
+    "end": 37.25
   },
   "word:SOMBRERO": {
-    "file": "words.mp3",
-    "start": 74.895,
-    "end": 75.985
+    "file": "words-03.mp3",
+    "start": 0,
+    "end": 1.09
   },
   "word:SONRISA": {
-    "file": "words.mp3",
-    "start": 76.095,
-    "end": 77.585
+    "file": "words-03.mp3",
+    "start": 1.2,
+    "end": 2.69
   },
   "word:SOPA": {
-    "file": "words.mp3",
-    "start": 77.695,
-    "end": 78.385
+    "file": "words-03.mp3",
+    "start": 2.8,
+    "end": 3.49
   },
   "word:TAZA": {
-    "file": "words.mp3",
-    "start": 78.575,
-    "end": 79.345
+    "file": "words-03.mp3",
+    "start": 3.68,
+    "end": 4.45
   },
   "word:TIGRE": {
-    "file": "words.mp3",
-    "start": 79.535,
-    "end": 80.385
+    "file": "words-03.mp3",
+    "start": 4.64,
+    "end": 5.49
   },
   "word:TOMATE": {
-    "file": "words.mp3",
-    "start": 80.475,
-    "end": 81.505
+    "file": "words-03.mp3",
+    "start": 5.58,
+    "end": 6.61
   },
   "word:TORTUGA": {
-    "file": "words.mp3",
-    "start": 81.575,
-    "end": 82.625
+    "file": "words-03.mp3",
+    "start": 6.68,
+    "end": 7.73
   },
   "word:TREN": {
-    "file": "words.mp3",
-    "start": 82.727,
-    "end": 83.585
+    "file": "words-03.mp3",
+    "start": 7.832,
+    "end": 8.69
   },
   "word:UVA": {
-    "file": "words.mp3",
-    "start": 83.855,
-    "end": 84.865
+    "file": "words-03.mp3",
+    "start": 8.96,
+    "end": 9.97
   },
   "word:VACA": {
-    "file": "words.mp3",
-    "start": 84.915,
-    "end": 85.585
+    "file": "words-03.mp3",
+    "start": 10.02,
+    "end": 10.69
   },
   "word:VENTANA": {
-    "file": "words.mp3",
-    "start": 85.645,
-    "end": 86.785
+    "file": "words-03.mp3",
+    "start": 10.75,
+    "end": 11.89
   },
   "word:ZAPATO": {
-    "file": "words.mp3",
-    "start": 86.895,
-    "end": 87.985
+    "file": "words-03.mp3",
+    "start": 12,
+    "end": 13.09
   },
   "word:ZORRO": {
-    "file": "words.mp3",
-    "start": 88.215,
-    "end": 89.265
+    "file": "words-03.mp3",
+    "start": 13.32,
+    "end": 14.37
   },
   "text:toca el numero mayor": {
     "file": "instructions.mp3",
@@ -1507,169 +1507,169 @@
     "end": 36.625
   },
   "text:empezamos con unidades cada pieza suelta es una unidad vamos a contarlas despacio una dos tres cuatro cinco seis siete ocho y nueve todavia son unidades sueltas": {
-    "file": "pedagogy.mp3",
+    "file": "pedagogy-01.mp3",
     "start": 0,
     "end": 21.905
   },
   "text:tenemos nueve unidades ahora llega una pieza mas nueve mas una son diez acabamos de pasar del nueve al diez": {
-    "file": "pedagogy.mp3",
+    "file": "pedagogy-01.mp3",
     "start": 21.955,
     "end": 32.945
   },
   "text:como diez piezas sueltas son muchas las guardamos juntas en una caja dentro hay exactamente diez unidades a este grupo completo lo llamamos una decena una decena vale lo mismo que diez unidades": {
-    "file": "pedagogy.mp3",
-    "start": 33.015,
-    "end": 49.425
+    "file": "pedagogy-02.mp3",
+    "start": 0,
+    "end": 16.41
   },
   "text:la caja de la decena ya esta completa ahora aparece una unidad nueva y se queda fuera tenemos una decena que vale diez y una unidad mas diez mas uno son once": {
-    "file": "pedagogy.mp3",
-    "start": 49.628,
-    "end": 65.105
+    "file": "pedagogy-02.mp3",
+    "start": 16.613,
+    "end": 32.09
   },
   "text:seguimos despacio una decena y una unidad son once con otra unidad llegamos a doce despues trece y con cuatro unidades sueltas llegamos a catorce la decena sigue completa solo aumentan las unidades de fuera": {
-    "file": "pedagogy.mp3",
-    "start": 65.075,
-    "end": 84.225
+    "file": "pedagogy-03.mp3",
+    "start": 0,
+    "end": 19.15
   },
   "text:ya podemos mirar el catorce de otra forma el uno nos recuerda que hay una decena completa el cuatro nos dice que hay cuatro unidades sueltas por eso catorce es igual a diez mas cuatro ahora si vamos a practicar": {
-    "file": "pedagogy.mp3",
-    "start": 84.402,
-    "end": 103.225
+    "file": "pedagogy-04.mp3",
+    "start": 0,
+    "end": 18.823
   },
   "text:construye una decena vamos a descubrir poco a poco como diez unidades forman una decena y como nacen los numeros mayores de 10 ejemplo 14 es igual a 10 + 4": {
-    "file": "pedagogy.mp3",
-    "start": 103.209,
-    "end": 119.425
+    "file": "pedagogy-04.mp3",
+    "start": 18.807,
+    "end": 35.023
   },
   "text:aterriza en el 10 antes de seguir restando busca cuanto hay que quitar para llegar exactamente a 10 desde 16 quitamos 6 y aterrizamos en 10 ejemplo 16 menos 6 es igual a 10": {
-    "file": "pedagogy.mp3",
-    "start": 119.775,
-    "end": 140.145
+    "file": "pedagogy-05.mp3",
+    "start": 0,
+    "end": 20.37
   },
   "text:cruza el puente del 10 si hay que quitar mas divide la resta en dos saltos en 14 menos 6 primero quita 4 para llegar a 10 y despues quita los 2 que faltan ejemplo 14 menos 6 es igual a 14 menos 4 menos 2 es igual a 8": {
-    "file": "pedagogy.mp3",
-    "start": 140.295,
-    "end": 169.505
+    "file": "pedagogy-06.mp3",
+    "start": 0,
+    "end": 29.21
   },
   "text:resuelve historias ahora usa el puente del 10 en pequenas aventuras imagina los objetos quita los que se marchan y comprueba cuantos quedan ejemplo 15 luciernagas menos 7 que se van es igual a 8": {
-    "file": "pedagogy.mp3",
-    "start": 169.715,
-    "end": 190.145
+    "file": "pedagogy-07.mp3",
+    "start": 0,
+    "end": 20.43
   },
   "text:mision final demuestra lo aprendido con seis restas para superar la mision necesitas acertar al menos la mitad puedes repetirla cuando quieras ejemplo piensa llegar a 10 y continuar": {
-    "file": "pedagogy.mp3",
-    "start": 190.375,
-    "end": 207.665
+    "file": "pedagogy-07.mp3",
+    "start": 20.66,
+    "end": 37.95
   },
   "text:el 17 tiene una decena cuantas unidades sueltas tiene": {
-    "file": "pedagogy.mp3",
-    "start": 207.842,
-    "end": 212.945
+    "file": "pedagogy-08.mp3",
+    "start": 0,
+    "end": 5.103
   },
   "text:el 12 tiene una decena cuantas unidades sueltas tiene": {
-    "file": "pedagogy.mp3",
-    "start": 213.122,
-    "end": 217.905
+    "file": "pedagogy-08.mp3",
+    "start": 5.28,
+    "end": 10.063
   },
   "text:el 14 tiene una decena cuantas unidades sueltas tiene": {
-    "file": "pedagogy.mp3",
-    "start": 218.055,
-    "end": 223.025
+    "file": "pedagogy-08.mp3",
+    "start": 10.213,
+    "end": 15.183
   },
   "text:el 19 tiene una decena cuantas unidades sueltas tiene": {
-    "file": "pedagogy.mp3",
-    "start": 223.202,
-    "end": 228.625
+    "file": "pedagogy-08.mp3",
+    "start": 15.36,
+    "end": 20.783
   },
   "text:cuanto debes quitar a 18 para llegar a 10": {
-    "file": "pedagogy.mp3",
-    "start": 228.735,
-    "end": 231.905
+    "file": "pedagogy-08.mp3",
+    "start": 20.893,
+    "end": 24.063
   },
   "text:cuanto debes quitar a 15 para llegar a 10": {
-    "file": "pedagogy.mp3",
-    "start": 232.175,
-    "end": 235.185
+    "file": "pedagogy-08.mp3",
+    "start": 24.333,
+    "end": 27.343
   },
   "text:cuanto debes quitar a 16 para llegar a 10": {
-    "file": "pedagogy.mp3",
-    "start": 235.415,
-    "end": 238.625
+    "file": "pedagogy-08.mp3",
+    "start": 27.573,
+    "end": 30.783
   },
   "text:cuanto debes quitar a 13 para llegar a 10": {
-    "file": "pedagogy.mp3",
-    "start": 238.855,
-    "end": 241.745
+    "file": "pedagogy-08.mp3",
+    "start": 31.013,
+    "end": 33.903
   },
   "text:catorce menos seis primero quita 4 y despues 2 cuanto queda": {
-    "file": "pedagogy.mp3",
-    "start": 242.175,
-    "end": 249.665
+    "file": "pedagogy-09.mp3",
+    "start": 0,
+    "end": 7.49
   },
   "text:quince menos siete primero quita 5 y despues 2 cuanto queda": {
-    "file": "pedagogy.mp3",
-    "start": 249.948,
-    "end": 257.585
+    "file": "pedagogy-09.mp3",
+    "start": 7.773,
+    "end": 15.41
   },
   "text:dieciseis menos nueve primero quita 6 y despues 3 cuanto queda": {
-    "file": "pedagogy.mp3",
-    "start": 257.795,
-    "end": 265.905
+    "file": "pedagogy-09.mp3",
+    "start": 15.62,
+    "end": 23.73
   },
   "text:trece menos cinco primero quita 3 y despues 2 cuanto queda": {
-    "file": "pedagogy.mp3",
-    "start": 266.135,
-    "end": 273.985
+    "file": "pedagogy-09.mp3",
+    "start": 23.96,
+    "end": 31.81
   },
   "text:habia 13 galletas compartes 5 cuantas quedan": {
-    "file": "pedagogy.mp3",
-    "start": 274.195,
-    "end": 279.585
+    "file": "pedagogy-09.mp3",
+    "start": 32.02,
+    "end": 37.41
   },
   "text:habia 16 peces se esconden 7 cuantos puedes ver": {
-    "file": "pedagogy.mp3",
-    "start": 279.775,
-    "end": 285.505
+    "file": "pedagogy-10.mp3",
+    "start": 0,
+    "end": 5.73
   },
   "text:habia 15 luciernagas se fueron 7 cuantas quedan": {
-    "file": "pedagogy.mp3",
-    "start": 285.715,
-    "end": 291.425
+    "file": "pedagogy-10.mp3",
+    "start": 5.94,
+    "end": 11.65
   },
   "text:habia 18 cohetes despegan 9 cuantos quedan": {
-    "file": "pedagogy.mp3",
-    "start": 291.655,
-    "end": 297.345
+    "file": "pedagogy-10.mp3",
+    "start": 11.88,
+    "end": 17.57
   },
   "text:cuanto es doce menos cinco": {
-    "file": "pedagogy.mp3",
-    "start": 297.775,
-    "end": 300.065
+    "file": "pedagogy-10.mp3",
+    "start": 18,
+    "end": 20.29
   },
   "text:cuanto es catorce menos ocho": {
-    "file": "pedagogy.mp3",
-    "start": 300.375,
-    "end": 302.625
+    "file": "pedagogy-10.mp3",
+    "start": 20.6,
+    "end": 22.85
   },
   "text:cuanto es dieciocho menos nueve": {
-    "file": "pedagogy.mp3",
-    "start": 302.975,
-    "end": 305.585
+    "file": "pedagogy-10.mp3",
+    "start": 23.2,
+    "end": 25.81
   },
   "text:cuanto es dieciseis menos seis": {
-    "file": "pedagogy.mp3",
-    "start": 305.855,
-    "end": 308.545
+    "file": "pedagogy-10.mp3",
+    "start": 26.08,
+    "end": 28.77
   },
   "text:cuanto es diecinueve menos siete": {
-    "file": "pedagogy.mp3",
-    "start": 308.815,
-    "end": 311.505
+    "file": "pedagogy-10.mp3",
+    "start": 29.04,
+    "end": 31.73
   },
   "text:cuanto es diecisiete menos nueve": {
-    "file": "pedagogy.mp3",
-    "start": 311.815,
-    "end": 314.545
+    "file": "pedagogy-10.mp3",
+    "start": 32.04,
+    "end": 34.77
   }
 };
   const FILES=[...new Set(Object.values(SEGMENTS).map(segment=>segment.file))];
@@ -1754,4 +1754,3 @@
   for(const file of FILES)player(file);
   window.Narration={playText,playWord,stop,hasText:text=>Boolean(SEGMENTS[textKey(text)]),segments:SEGMENTS};
 })();
-

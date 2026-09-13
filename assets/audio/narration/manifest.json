@@ -7,9 +7,9 @@
   "stability": 0.5,
   "format": "mp3_44100_128",
   "sprites": {
-    "numbers.mp3": 201,
-    "words.mp3": 85,
-    "instructions.mp3": 15,
-    "pedagogy.mp3": 33
+    "numbers": {"segments": 201, "parts": 9},
+    "words": {"segments": 85, "parts": 3},
+    "instructions": {"segments": 15, "parts": 1},
+    "pedagogy": {"segments": 33, "parts": 10}
   }
 }
