@@ -1,4 +1,4 @@
-/* V3.15.5 — progreso y opciones sincronizados entre dispositivos. */
+/* V3.15.6 — progreso, opciones y renderizado único de la cuenta. */
 (function(){
   'use strict';
   const SUPABASE_URL='https://wqyvbsnmrpomxoqfxozb.supabase.co';
@@ -7,11 +7,11 @@
   const CLOUD_TABLE='game_states',SETTINGS_TABLE='user_settings';
   const LOAD_MARKER='ludeiko_cloud_last_loaded_at_v2',DIRTY_MARKER='ludeiko_cloud_local_changed_at_v1';
   const SETTINGS_LOAD_MARKER='ludeiko_settings_last_loaded_at_v1',SETTINGS_DIRTY_MARKER='ludeiko_settings_local_changed_at_v1';
-  const GAME_VERSION='3.15.5',DATA_VERSION=20;
+  const GAME_VERSION='3.15.6',DATA_VERSION=20;
   const client=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   if(!client){console.warn('[Ludeiko] Supabase no disponible.');return;}
 
-  let syncing=false,settingsSyncing=false,timer=null,initialized=false,reloading=false,lastSessionId='',retryTimer=null,settingsChannel=null;
+  let syncing=false,settingsSyncing=false,timer=null,initialized=false,reloading=false,lastSessionId='',retryTimer=null,settingsChannel=null,renderRevision=0;
   const originalSave=window.save,originalParentDashboard=window.parentDashboard;
   const state=()=>{try{return typeof D!=='undefined'&&D&&typeof D==='object'?D:null;}catch{return null;}};
   const now=()=>new Date().toISOString();
@@ -164,15 +164,18 @@
   }
 
   function card(session){
-    if(session){const email=session.user?.email||'cuenta familiar';return `<div class="parent-card ludeiko-cloud-card"><h3>☁️ Cuenta Ludeiko</h3><p class="muted">Sincronización activa. El progreso y todas las opciones se guardan en esta cuenta y se actualizan en tus otros dispositivos.</p><p><b>${esc(email)}</b></p><p class="muted" data-cloud-status>Sincronizado en todos tus dispositivos</p><button type="button" class="btn secondary" data-cloud-sync>Sincronizar ahora</button><button type="button" class="btn secondary" data-cloud-signout>Cerrar sesión</button></div>`;}
+    if(session){const email=session.user?.email||'cuenta familiar';return `<div class="parent-card ludeiko-cloud-card"><div class="parent-option-heading"><b>Cuenta Ludeiko</b><small>${esc(email)}</small></div><div class="parent-account-status" data-cloud-status>Sincronizado en todos tus dispositivos</div><div class="parent-button-row"><button type="button" class="btn secondary" data-cloud-sync>Sincronizar ahora</button><button type="button" class="btn secondary" data-cloud-signout>Cerrar sesión</button></div></div>`;}
     return `<div class="parent-card ludeiko-cloud-card"><h3>☁️ Sincronizar entre dispositivos</h3><p class="muted">Crea una cuenta familiar o inicia sesión para conservar el progreso, todas las opciones y los juegos activos al cambiar de móvil, tablet u ordenador.</p><form data-cloud-form><label style="display:block;margin:.5rem 0">Correo electrónico<input name="email" type="email" autocomplete="email" required style="display:block;width:100%;box-sizing:border-box;margin-top:.25rem"></label><label style="display:block;margin:.5rem 0">Contraseña<input name="password" type="password" autocomplete="current-password" minlength="6" required style="display:block;width:100%;box-sizing:border-box;margin-top:.25rem"></label><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem"><button type="submit" class="btn primary">Iniciar sesión</button><button type="button" class="btn secondary" data-cloud-signup>Crear cuenta</button></div><p class="muted" data-cloud-status>El juego seguirá funcionando aunque no inicies sesión.</p></form></div>`;
   }
   function render(){
-    const grid=document.querySelector('.parent-grid');if(!grid)return;
-    const old=grid.querySelector('.ludeiko-cloud-card');if(old)old.remove();
+    const revision=++renderRevision,grid=document.querySelector('.parent-grid');if(!grid)return;
+    grid.querySelectorAll('.ludeiko-cloud-card').forEach(element=>element.remove());
     client.auth.getSession().then(({data})=>{
       const current=document.querySelector('.parent-grid');if(!current)return;
-      current.insertAdjacentHTML('afterbegin',card(data?.session||null));bind(current);
+      if(revision!==renderRevision||current!==grid)return;
+      current.querySelectorAll('.ludeiko-cloud-card').forEach(element=>element.remove());
+      const target=current.querySelector('[data-parent-section="account"] .parent-section-body')||current;
+      target.insertAdjacentHTML('afterbegin',card(data?.session||null));bind(current);
     });
   }
   function bind(root){

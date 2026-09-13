@@ -1,4 +1,4 @@
-/* V3.15.5 — analítica anónima, opcional y sincronizada con la cuenta. */
+/* V3.15.6 — analítica anónima, opcional y sincronizada con la cuenta. */
 (function(){
   'use strict';
   const TABLE='telemetry_events';
@@ -78,12 +78,13 @@
   }
   function analyticsCard(){
     const on=enabled();
-    return `<div class="parent-card ludeiko-analytics-card"><h3>Estadísticas anónimas</h3><p class="muted">Ayuda a mejorar los juegos enviando únicamente actividad, nivel, aciertos, errores y duración. No se envían nombre, correo, ubicación ni respuestas escritas. Esta opción se sincroniza con tu cuenta Ludeiko.</p><button type="button" class="btn ${on?'secondary':'primary'}" onclick="ludeikoAnalytics.setConsent(${on?'false':'true'})">${on?'DESACTIVAR ESTADÍSTICAS':'ACTIVAR ESTADÍSTICAS'}</button><p class="muted">Estado: <b>${on?'activadas':'desactivadas'}</b></p></div>`;
+    return `<div class="parent-card ludeiko-analytics-card"><button type="button" class="parent-option-row parent-toggle-button ${on?'on':'off'}" onclick="ludeikoAnalytics.setConsent(${on?'false':'true'})" aria-pressed="${on}"><span class="parent-option-copy"><b>Estadísticas anónimas</b><small>Actividad, nivel, aciertos, errores y duración; nunca datos personales.</small></span><span class="parent-switch-ui" aria-hidden="true"><i></i></span></button></div>`;
   }
   function renderCard(){
     const grid=document.querySelector('.parent-grid');if(!grid)return;
     grid.querySelector('.ludeiko-analytics-card')?.remove();
-    grid.insertAdjacentHTML('beforeend',analyticsCard());
+    const target=grid.querySelector('[data-parent-section="account"] .parent-section-body')||grid;
+    target.insertAdjacentHTML('beforeend',analyticsCard());
   }
 
   function begin(gameType,level,daily=false,metadata={}){

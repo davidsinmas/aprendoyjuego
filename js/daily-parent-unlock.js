@@ -123,7 +123,8 @@
     const old=document.querySelector('.parent-action-unlock');
     if(old)old.remove();
     const unlocked=parentAccess().available;
-    grid.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><h3>⚡ Juegos de acción</h3><p class="muted">Desbloquea manualmente una partida para probar Duelo de Guardianes, Defensa del planeta o Tank Pixel. Al iniciar cualquiera de ellos, el permiso se consume y vuelve a quedar bloqueado.</p><button type="button" class="btn ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'✓ UNA PARTIDA DISPONIBLE':'🔓 DESBLOQUEAR UNA PARTIDA'}</button></div>`);
+    const target=grid.querySelector('[data-parent-section="actions"] .parent-section-body')||grid;
+    target.insertAdjacentHTML('afterbegin',`<div class="parent-card parent-action-unlock"><div class="parent-option-row"><span class="parent-option-copy"><b>⚡ Partida de acción manual</b><small>El permiso se consume al iniciar cualquier juego de acción.</small></span><button type="button" class="small ${unlocked?'secondary':'primary'}" onclick="parentUnlockActionGames()">${unlocked?'Disponible':'Desbloquear'}</button></div></div>`);
   };
 
   const previousDisableParentMode=window.disableParentMode;

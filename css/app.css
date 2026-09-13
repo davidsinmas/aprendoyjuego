@@ -148,3 +148,41 @@ body::after{
 
 /* V3.8.0 · Rendimiento de scroll en móvil */
 @media (hover:none), (pointer:coarse), (max-width:760px){body{position:relative;background-attachment:scroll}body::before,body::after{position:absolute}body::before{animation:none;opacity:.52}body::after{opacity:.2}.card{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(145deg,rgba(255,253,248,.99),rgba(235,248,255,.98))}.game-card{transition:none}}
+
+/* V3.15.6 · Zona de padres compacta */
+.parent-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.parent-section{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:rgba(247,243,236,.82)}
+.parent-section>h3{margin:0;padding:14px 16px 11px;font-size:1rem;letter-spacing:.01em}
+.parent-section-body{display:grid}
+.parent-section .parent-card{display:grid;gap:10px;align-content:start;margin:0;padding:13px 16px;border:0;border-top:1px solid var(--line);border-radius:0;background:rgba(255,253,248,.72);box-shadow:none}
+.parent-option-row{width:100%;min-height:36px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0;padding:0;border:0;background:transparent;color:var(--ink);text-align:left}
+button.parent-option-row{cursor:pointer}
+.parent-option-copy,.parent-option-heading{display:flex;flex-direction:column;gap:3px;min-width:0}
+.parent-option-copy b,.parent-option-heading b{font-size:.96rem}
+.parent-option-copy small,.parent-option-heading small,.parent-account-status{color:var(--muted);font-size:.82rem;font-weight:600;line-height:1.35}
+.parent-option-heading{flex-direction:row;align-items:baseline;justify-content:space-between;gap:12px}
+.parent-option-heading small{text-align:right}
+.parent-switch-ui,.parent-switch-input{position:relative;flex:0 0 auto;width:44px;height:25px;border:0;border-radius:999px;background:#b8b9b6;box-shadow:inset 0 1px 3px rgba(0,0,0,.18);transition:background .18s ease}
+.parent-switch-ui i,.parent-switch-input::before{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.24);transition:transform .18s ease}
+.parent-option-row.on .parent-switch-ui,.parent-switch-input:checked{background:#718f78}
+.parent-option-row.on .parent-switch-ui i,.parent-switch-input:checked::before{transform:translateX(19px)}
+.parent-section .parent-switch-input{appearance:none;-webkit-appearance:none;width:44px;min-width:44px;max-width:44px;height:25px;margin:0;padding:0;cursor:pointer}
+.parent-section .parent-switch-input:focus-visible,.parent-option-row:focus-visible{outline:3px solid rgba(85,101,93,.28);outline-offset:3px}
+.parent-game-list{display:grid;gap:0;margin:2px -16px -13px}
+.parent-game-list .parent-game-toggle{min-height:45px;padding:9px 16px;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);box-shadow:none}
+.parent-game-list .parent-game-toggle>span:first-child{font-weight:750}
+.parent-inline-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.parent-inline-control>label{grid-column:1/-1}
+.parent-section .parent-inline-control input{width:100%;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.parent-button-row,.parent-security-actions{display:flex;flex-wrap:wrap;gap:7px}
+.parent-section .btn,.parent-section .small{padding:10px 13px;border-radius:12px;font-size:.9rem;box-shadow:none}
+.parent-compact-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.parent-compact-fields label{display:grid;gap:5px}
+.parent-section .parent-compact-fields input{width:100%;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.ludeiko-cloud-card form{display:grid;gap:8px}
+.ludeiko-cloud-card form label{display:grid!important;gap:5px;margin:0!important}
+.ludeiko-cloud-card form input{margin:0!important;padding:10px 12px!important}
+.ludeiko-cloud-card form>div{margin-top:2px!important}
+.ludeiko-cloud-card h3{margin:0;font-size:.96rem}
+.ludeiko-cloud-card p{font-size:.85rem;line-height:1.4}
+@media(max-width:540px){.parent-option-heading{flex-direction:column;align-items:flex-start}.parent-option-heading small{text-align:left}.parent-compact-fields{grid-template-columns:1fr}.parent-button-row .btn,.parent-security-actions .btn{flex:1 1 auto}.parent-section>h3{padding-inline:13px}.parent-section .parent-card{padding-inline:13px}.parent-game-list{margin-inline:-13px}.parent-game-list .parent-game-toggle{padding-inline:13px}}

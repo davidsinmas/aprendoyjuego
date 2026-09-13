@@ -67,7 +67,7 @@
 
   function dailyModeCard(){
     const mode=levelProgressMode(),target=levelProgressTarget();
-    return `<div class="parent-card daily-mode-settings"><h3>📅 Progreso diario</h3><p class="muted">Elige cómo se desbloquean los juegos de acción.</p><div class="daily-mode-options"><label class="daily-mode-option ${mode===MODE_LEVELS?'selected':''}"><input type="radio" name="dailyProgressMode" value="levels" ${mode===MODE_LEVELS?'checked':''} onchange="setDailyProgressMode('levels')"><span><b>🎮 Niveles</b><small>Contar niveles diferentes completados cada día.</small></span></label><label class="daily-mode-option ${mode===MODE_CHALLENGES?'selected':''}"><input type="radio" name="dailyProgressMode" value="challenges" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode('challenges')"><span><b>🎯 Retos</b><small>Usar el sistema de retos diarios original.</small></span></label></div><div class="daily-level-config"><label>Niveles necesarios para desbloquear</label><input id="dailyLevelsRequired" type="number" min="${MIN_REQUIRED}" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar número de niveles</button><small class="muted">Mínimo ${MIN_REQUIRED} · máximo ${MAX_REQUIRED}.</small></div></div>`;
+    return `<div class="parent-card daily-mode-settings"><label class="parent-option-row"><span class="parent-option-copy"><b>Usar retos diarios en lugar de niveles</b><small>Define cómo se desbloquean los juegos de acción.</small></span><input class="parent-switch-input" type="checkbox" ${mode===MODE_CHALLENGES?'checked':''} onchange="setDailyProgressMode(this.checked?'challenges':'levels')" aria-label="Usar retos diarios en lugar de niveles"></label><div class="parent-inline-control"><label for="dailyLevelsRequired">Niveles diarios</label><input id="dailyLevelsRequired" type="number" min="${MIN_REQUIRED}" max="${MAX_REQUIRED}" step="1" value="${target}"><button class="btn secondary" onclick="setDailyLevelsRequired()">Guardar</button></div><small class="muted">Entre ${MIN_REQUIRED} y ${MAX_REQUIRED} niveles.</small></div>`;
   }
 
   function setDailyProgressMode(mode){
@@ -162,7 +162,8 @@
     if(!grid)return;
     const existing=document.querySelector('.daily-mode-settings');
     if(existing)existing.remove();
-    grid.insertAdjacentHTML('afterbegin',dailyModeCard());
+    const target=grid.querySelector('[data-parent-section="learning"] .parent-section-body')||grid;
+    target.insertAdjacentHTML('afterbegin',dailyModeCard());
   };
 
   ensureSettings();

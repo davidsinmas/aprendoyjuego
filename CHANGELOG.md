@@ -1,3 +1,10 @@
+## V3.15.6 — 2026-09-13
+
+- Agrupa la Zona de padres en cuatro secciones compactas sin eliminar opciones.
+- Convierte los ajustes de sí/no en filas sencillas con interruptor.
+- Evita que la tarjeta de sincronización de la cuenta aparezca duplicada.
+- Mantiene sin cambios el guardado, la sincronización y el funcionamiento de cada ajuste.
+
 ## V3.15.5 — 2026-09-13
 
 - Mantiene siempre visible la opción de estadísticas anónimas en la Zona de padres.
