@@ -1,3 +1,10 @@
+## V3.15.3 — 2026-09-13
+
+- Sincroniza todas las opciones de la Zona de padres mediante la cuenta Ludeiko conectada.
+- Los cambios aparecen en los demás dispositivos mediante actualización en tiempo real.
+- Al volver a una pestaña o recuperar la conexión, primero descarga la configuración más reciente para evitar sobrescribirla con una copia antigua.
+- Añade un botón «Sincronizar ahora» y una comprobación automática cada 30 segundos como respaldo.
+
 ## V3.15.2 — 2026-09-13
 
 - Sustituye la síntesis de voz del navegador por locuciones femeninas naturales en español de España.
