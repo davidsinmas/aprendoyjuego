@@ -1,3 +1,10 @@
+## V3.15.5 — 2026-09-13
+
+- Mantiene siempre visible la opción de estadísticas anónimas en la Zona de padres.
+- Sincroniza el consentimiento de estadísticas entre dispositivos mediante la cuenta Ludeiko.
+- Registra de forma anónima las actividades terminadas con juego, nivel, duración, aciertos y errores.
+- Reutiliza la sesión de Supabase ya abierta para evitar clientes de autenticación duplicados.
+
 ## V3.15.4 — 2026-09-13
 
 - Divide los catálogos largos de voz en bloques completos y verificables para evitar cortes durante su publicación.

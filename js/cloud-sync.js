@@ -1,4 +1,4 @@
-/* V3.15.3 — progreso y opciones sincronizados entre dispositivos. */
+/* V3.15.5 — progreso y opciones sincronizados entre dispositivos. */
 (function(){
   'use strict';
   const SUPABASE_URL='https://wqyvbsnmrpomxoqfxozb.supabase.co';
@@ -7,7 +7,7 @@
   const CLOUD_TABLE='game_states',SETTINGS_TABLE='user_settings';
   const LOAD_MARKER='ludeiko_cloud_last_loaded_at_v2',DIRTY_MARKER='ludeiko_cloud_local_changed_at_v1';
   const SETTINGS_LOAD_MARKER='ludeiko_settings_last_loaded_at_v1',SETTINGS_DIRTY_MARKER='ludeiko_settings_local_changed_at_v1';
-  const GAME_VERSION='3.15.4',DATA_VERSION=20;
+  const GAME_VERSION='3.15.5',DATA_VERSION=20;
   const client=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   if(!client){console.warn('[Ludeiko] Supabase no disponible.');return;}
 
@@ -80,10 +80,7 @@
 
   function refreshSettingsScreen(){
     window.dispatchEvent(new CustomEvent('ludeiko:settings-synced',{detail:{settings:settingsOf(state())}}));
-    if(document.querySelector('.parent-grid')&&typeof originalParentDashboard==='function'){
-      originalParentDashboard();
-      render();
-    }
+    if(document.querySelector('.parent-grid')&&typeof window.parentDashboard==='function')window.parentDashboard();
   }
 
   async function pullSettings(session,{createIfMissing=true}={}){
@@ -222,6 +219,6 @@
     }
   }).catch(e=>console.warn('[Ludeiko] Sesión:',e));
   setInterval(()=>{if(initialized&&navigator.onLine&&document.visibilityState==='visible')synchronize().catch(console.warn);},30000);
-  window.ludeikoCloud={isConfigured:true,getSession:()=>client.auth.getSession(),syncNow:()=>synchronize(),gameVersion:GAME_VERSION,dataVersion:DATA_VERSION};
+  window.ludeikoCloud={isConfigured:true,getSession:()=>client.auth.getSession(),getClient:()=>client,syncNow:()=>synchronize(),gameVersion:GAME_VERSION,dataVersion:DATA_VERSION};
 })();
 // Compatibilidad con el validador histórico del actualizador: versionDatos:20

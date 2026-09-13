@@ -1,13 +1,11 @@
-/* V3.13.0 — analítica anónima y opcional para mejorar Ludeiko. */
+/* V3.15.5 — analítica anónima, opcional y sincronizada con la cuenta. */
 (function(){
   'use strict';
-  const SUPABASE_URL='https://wqyvbsnmrpomxoqfxozb.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_cbA-5xXZH-VdJGiCxLB-PQ_M6loQAhs';
   const TABLE='telemetry_events';
   const CONSENT_KEY='ludeiko_analytics_consent_v1';
   const INSTALL_KEY='ludeiko_analytics_installation_v1';
   const SESSION_KEY='ludeiko_analytics_session_v1';
-  const client=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  const client=window.ludeikoCloud?.getClient?.();
   const uuid=()=>crypto?.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&3|8);return v.toString(16);});
   function getId(key,session=false){
     const store=session?sessionStorage:localStorage;
@@ -16,7 +14,31 @@
     return id;
   }
   const installationId=getId(INSTALL_KEY),sessionId=getId(SESSION_KEY,true);
-  const enabled=()=>localStorage.getItem(CONSENT_KEY)==='yes';
+  let activity=null,sessionTracked=false,consentMigration=false;
+
+  function settings(){
+    try{
+      if(typeof D==='undefined'||!D||typeof D!=='object')return null;
+      D.ajustes=D.ajustes&&typeof D.ajustes==='object'?D.ajustes:{};
+      return D.ajustes;
+    }catch{return null;}
+  }
+  function migrateConsent(){
+    const current=settings();
+    if(!current)return false;
+    const stored=localStorage.getItem(CONSENT_KEY);
+    if(typeof current.analyticsEnabled!=='boolean'){
+      current.analyticsEnabled=stored==='yes';
+      localStorage.setItem(CONSENT_KEY,current.analyticsEnabled?'yes':'no');
+      if(!consentMigration&&typeof window.save==='function'){
+        consentMigration=true;
+        window.save(D);
+        consentMigration=false;
+      }
+    }else localStorage.setItem(CONSENT_KEY,current.analyticsEnabled?'yes':'no');
+    return current.analyticsEnabled;
+  }
+  const enabled=()=>migrateConsent();
   function cleanText(v,max){if(v===undefined||v===null||v==='')return null;return String(v).slice(0,max);}
   function cleanNumber(v,max=10000){const n=Number(v);return Number.isFinite(n)?Math.max(0,Math.min(max,Math.round(n))):null;}
   function safeMetadata(meta){
@@ -42,22 +64,89 @@
     if(error){console.warn('[Ludeiko] Analítica:',error.message);return false;}
     return true;
   }
+  function trackSession(){
+    if(sessionTracked||!enabled())return;
+    sessionTracked=true;
+    track('session_start',{metadata:{platform:'web'}});
+  }
   function setConsent(value){
-    localStorage.setItem(CONSENT_KEY,value?'yes':'no');
-    if(value)track('analytics_enabled');
-    if(typeof window.parentDashboard==='function'&&typeof parentMode!=='undefined'&&parentMode)window.parentDashboard();
+    const on=!!value,current=settings();
+    localStorage.setItem(CONSENT_KEY,on?'yes':'no');
+    if(current){current.analyticsEnabled=on;if(typeof window.save==='function')window.save(D);}
+    if(on){track('analytics_enabled');trackSession();}
+    renderCard();
   }
   function analyticsCard(){
     const on=enabled();
-    return `<div class="parent-card ludeiko-analytics-card"><h3>Estadísticas anónimas</h3><p class="muted">Ayuda a mejorar los juegos enviando únicamente datos de uso y aprendizaje: actividad, nivel, aciertos, errores y duración. No se envían nombre, correo, ubicación ni respuestas escritas.</p><button type="button" class="btn ${on?'secondary':'primary'}" onclick="ludeikoAnalytics.setConsent(${on?'false':'true'})">${on?'DESACTIVAR ESTADÍSTICAS':'ACTIVAR ESTADÍSTICAS'}</button><p class="muted">Estado: <b>${on?'activadas':'desactivadas'}</b></p></div>`;
+    return `<div class="parent-card ludeiko-analytics-card"><h3>Estadísticas anónimas</h3><p class="muted">Ayuda a mejorar los juegos enviando únicamente actividad, nivel, aciertos, errores y duración. No se envían nombre, correo, ubicación ni respuestas escritas. Esta opción se sincroniza con tu cuenta Ludeiko.</p><button type="button" class="btn ${on?'secondary':'primary'}" onclick="ludeikoAnalytics.setConsent(${on?'false':'true'})">${on?'DESACTIVAR ESTADÍSTICAS':'ACTIVAR ESTADÍSTICAS'}</button><p class="muted">Estado: <b>${on?'activadas':'desactivadas'}</b></p></div>`;
   }
-  const previousParentDashboard=window.parentDashboard;
-  if(typeof previousParentDashboard==='function')window.parentDashboard=function(){
-    previousParentDashboard();
+  function renderCard(){
     const grid=document.querySelector('.parent-grid');if(!grid)return;
     grid.querySelector('.ludeiko-analytics-card')?.remove();
     grid.insertAdjacentHTML('beforeend',analyticsCard());
+  }
+
+  function begin(gameType,level,daily=false,metadata={}){
+    activity={gameType:cleanText(gameType,48),levelId:cleanText(level?.id??level,64),startedAt:Date.now(),daily:!!daily,metadata:safeMetadata(metadata)};
+  }
+  function finishActivity({gameType=null,levelId=null,correct=null,total=null,metadata={}}={}){
+    const current=activity||{},hits=cleanNumber(correct,10000),count=cleanNumber(total,10000);
+    track('activity_complete',{
+      gameType:gameType||current.gameType,levelId:levelId||current.levelId,
+      durationMs:current.startedAt?Date.now()-current.startedAt:null,correct:hits,
+      errors:hits!==null&&count!==null?Math.max(0,count-hits):null,
+      metadata:{...current.metadata,...safeMetadata(metadata),daily:!!current.daily}
+    });
+    activity=null;
+  }
+  function currentState(){try{return typeof state!=='undefined'?state:null;}catch{return null;}}
+  function wrapStart(name,details){
+    const original=window[name];if(typeof original!=='function')return;
+    window[name]=function(){const info=details.apply(this,arguments)||{};begin(info.gameType,info.level,info.daily,info.metadata);return original.apply(this,arguments);};
+  }
+  function wrapFinish(name){
+    const original=window[name];if(typeof original!=='function')return;
+    window[name]=function(){
+      const current=currentState();
+      if(current&&!current.daily)finishActivity({gameType:current.type,levelId:current.level?.id,correct:current.hits,total:current.total??current.qs?.length});
+      return original.apply(this,arguments);
+    };
+  }
+  wrapStart('startMath',(type,level,daily)=>({gameType:type,level,daily}));
+  wrapStart('startCompare',(level,daily)=>({gameType:'comparar',level,daily}));
+  wrapStart('startWords',(level,daily)=>({gameType:'palabras',level,daily}));
+  wrapStart('startReadingGame',(type,level,daily)=>({gameType:type,level,daily}));
+  wrapStart('startSoup',(level,daily)=>({gameType:'sopa',level,daily}));
+  ['finish','finishCompare','finishWords','finishReading','finishSoup'].forEach(wrapFinish);
+
+  const originalDaily=window.finishDailyActivity;
+  if(typeof originalDaily==='function')window.finishDailyActivity=function(type,title){
+    const current=currentState();
+    finishActivity({gameType:type,levelId:current?.level?.id,correct:current?.hits,total:current?.total??current?.qs?.length,metadata:{attempt:'daily'}});
+    return originalDaily.apply(this,arguments);
   };
-  window.ludeikoAnalytics={track,setConsent,isEnabled:enabled,installationId};
-  if(enabled())track('session_start',{metadata:{platform:'web'}});
+  const originalPedagogyStart=window.startPedagogyPractice;
+  if(typeof originalPedagogyStart==='function')window.startPedagogyPractice=function(step){begin('pedagogia_restas',`mision${step}`,false,{unit:'puente_del_10'});return originalPedagogyStart.apply(this,arguments);};
+  const originalPedagogyFinish=window.finishPedagogyStep;
+  if(typeof originalPedagogyFinish==='function')window.finishPedagogyStep=function(){
+    try{finishActivity({gameType:'pedagogia_restas',levelId:`mision${pedagogyState.step}`,correct:pedagogyState.hits,total:pedagogyState.questions.length,metadata:{unit:'puente_del_10'}});}catch(e){}
+    return originalPedagogyFinish.apply(this,arguments);
+  };
+  const originalDifferencesStart=window.startDifferencesGame;
+  if(typeof originalDifferencesStart==='function')window.startDifferencesGame=function(scene){const number=Number(scene)||D?.diferencias?.actual||1;begin('diferencias',`escena${number}`);return originalDifferencesStart.apply(this,arguments);};
+  const originalDifferencesFinish=window.finishDifferenceScene;
+  if(typeof originalDifferencesFinish==='function')window.finishDifferenceScene=function(){
+    try{finishActivity({gameType:'diferencias',levelId:`escena${differenceGame.scene}`,correct:differenceGame.found.size,total:6});}catch(e){}
+    return originalDifferencesFinish.apply(this,arguments);
+  };
+
+  const previousParentDashboard=window.parentDashboard;
+  if(typeof previousParentDashboard==='function')window.parentDashboard=function(){const result=previousParentDashboard.apply(this,arguments);renderCard();return result;};
+  window.addEventListener('ludeiko:settings-synced',()=>setTimeout(()=>{migrateConsent();renderCard();trackSession();},0));
+  const observer=new MutationObserver(()=>{if(document.querySelector('.parent-grid')&&!document.querySelector('.ludeiko-analytics-card'))renderCard();});
+  const app=document.getElementById('app');if(app)observer.observe(app,{childList:true,subtree:true});
+
+  window.ludeikoAnalytics={track,setConsent,isEnabled:enabled,installationId,renderCard};
+  migrateConsent();
+  trackSession();
 })();
