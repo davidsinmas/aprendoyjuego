@@ -1,3 +1,11 @@
+## V3.15.1 — 2026-09-12
+
+- Sustituye los tonos de refuerzo por locuciones femeninas naturales en español de España.
+- Añade mensajes breves para acierto, error y bonus sin ralentizar el ritmo de los ejercicios.
+- Añade locuciones específicas para avance de dificultad, nivel completado, objetivo diario, logro, subida de nivel, ronda, victoria y derrota.
+- Conserva los efectos procedurales de disparos, rebotes, impactos, cuenta atrás, meteoritos y escudos.
+- Mantiene los tonos anteriores como respaldo si un archivo de voz no pudiera reproducirse.
+
 ## V3.8.17 — 2026-09-03
 
 - El juego **Palabras** exige ahora que todas las palabras objetivo tengan **mínimo 3 sílabas**.

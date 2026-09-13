@@ -1,0 +1,21 @@
+{
+  "language": "es-ES",
+  "speaker": "female",
+  "voiceId": "TVZcExm6tc18D9qo57y7",
+  "model": "speech/elevenlabs-v3",
+  "clips": {
+    "correct": "¡Muy bien!",
+    "wrong": "¡Casi! Inténtalo otra vez.",
+    "advance": "¡Muy bien! Has encontrado la respuesta. Ahora vamos a probar algo un poquito más difícil.",
+    "corrected": "¡Muy bien corregido! Ahora sí.",
+    "rhyme": "¡Sí, riman! Muy bien.",
+    "level_complete": "¡Nivel completado! Lo has hecho genial.",
+    "daily_complete": "¡Objetivo conseguido! Ya tienes una partida de acción disponible.",
+    "achievement": "¡Nuevo logro! Sigue así.",
+    "level_up": "¡Enhorabuena! Has subido de nivel.",
+    "round": "¡Ronda superada! Vamos a por la siguiente.",
+    "win": "¡Has ganado! ¡Lo has hecho genial!",
+    "lose": "¡Buen intento! La próxima vez seguro que lo consigues.",
+    "bonus": "¡Bonus!"
+  }
+}
