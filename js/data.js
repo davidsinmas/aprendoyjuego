@@ -41,6 +41,18 @@ const GAME={
       {id:'comparar9',level:9,name:'Nivel 9',desc:'Números del 20 al 75 · diferencias pequeñas',min:20,max:75,minGap:1,maxGap:8,closeChance:.75},
       {id:'comparar10',level:10,name:'Nivel 10',desc:'Números del 1 al 100 · números muy próximos',min:1,max:100,minGap:1,maxGap:5,closeChance:1}
     ],
+    numeroFaltante:[
+      {id:'numeroFaltante1',level:1,name:'Nivel 1',desc:'Sumas hasta 5 · falta el primer número',max:5,operations:['suma'],positions:['a'],visual:true},
+      {id:'numeroFaltante2',level:2,name:'Nivel 2',desc:'Sumas hasta 5 · falta cualquiera de los sumandos',max:5,operations:['suma'],positions:['a','b'],visual:true},
+      {id:'numeroFaltante3',level:3,name:'Nivel 3',desc:'Sumas hasta 10 con apoyo visual',max:10,operations:['suma'],positions:['a','b'],visual:true},
+      {id:'numeroFaltante4',level:4,name:'Nivel 4',desc:'Restas hasta 10 · falta el número inicial',max:10,operations:['resta'],positions:['a'],visual:true},
+      {id:'numeroFaltante5',level:5,name:'Nivel 5',desc:'Restas hasta 10 · falta el número que quitamos',max:10,operations:['resta'],positions:['b'],visual:true},
+      {id:'numeroFaltante6',level:6,name:'Nivel 6',desc:'Sumas y restas hasta 10',max:10,operations:['suma','resta'],positions:['a','b'],visual:false},
+      {id:'numeroFaltante7',level:7,name:'Nivel 7',desc:'Sumas hasta 20',max:20,operations:['suma'],positions:['a','b'],visual:false},
+      {id:'numeroFaltante8',level:8,name:'Nivel 8',desc:'Restas hasta 20',max:20,operations:['resta'],positions:['a','b'],visual:false},
+      {id:'numeroFaltante9',level:9,name:'Nivel 9',desc:'Sumas y restas hasta 20',max:20,operations:['suma','resta'],positions:['a','b'],visual:false},
+      {id:'numeroFaltante10',level:10,name:'Nivel 10',desc:'Reto mixto hasta 30',max:30,operations:['suma','resta'],positions:['a','b'],visual:false}
+    ],
     palabras:[
       {id:'palabras1',level:1,name:'Nivel 1',desc:'Completa palabras fáciles de 2 sílabas',mode:'completeSyllable',minSyllables:2,maxSyllables:2,maxLen:5},
       {id:'palabras2',level:2,name:'Nivel 2',desc:'Elige la sílaba que falta',mode:'missingSyllable',minSyllables:2,maxSyllables:2,maxLen:5},
@@ -151,4 +163,3 @@ const GAME={
     {key:'AVE',words:[['LLAVE','🔑'],['AVE','🐦']]}
   ].map(g=>({...g,words:g.words.map(([word,icon])=>({word,icon}))}))
 };
-

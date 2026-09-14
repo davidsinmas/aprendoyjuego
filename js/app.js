@@ -3,39 +3,26 @@ const PARENT_PIN_STORE='aprendo_jugando_pin_padres_v1';
 const A=document.getElementById('app');
 const mix=a=>[...a].sort(()=>Math.random()-.5);
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const READING_TYPES=new Set(['sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas']);
-const DAILY_TYPES=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
+const EXERCISE_CATALOG=[
+  {type:'suma',icon:'＋',label:'Sumas',menuTitle:'Niveles de sumas',section:'math',dailyGroup:'numbers',dailyLabel:'5 sumas',time:'2 min',engine:'math',cardClass:'game-sum',detail:'10 ejercicios por nivel',activity:'10 ejercicios'},
+  {type:'resta',icon:'−',label:'Restas',menuTitle:'Niveles de restas',section:'math',dailyGroup:'numbers',dailyLabel:'5 restas',time:'2 min',engine:'math',cardClass:'game-sub',detail:'10 ejercicios por nivel',activity:'10 ejercicios'},
+  {type:'comparar',icon:'↕',label:'Mayor o menor',menuTitle:'Mayor o menor',section:'math',dailyGroup:'numbers',dailyLabel:'5 mayor o menor',time:'2 min',engine:'compare',cardClass:'game-compare',detail:'10 comparaciones por nivel',activity:'10 comparaciones'},
+  {type:'numeroFaltante',icon:'□',label:'El número que falta',menuTitle:'El número que falta',section:'math',dailyGroup:'numbers',dailyLabel:'5 números que faltan',time:'2 min',engine:'missingNumber',cardClass:'game-missing-number',detail:'Completa sumas y restas',activity:'10 ejercicios'},
+  {type:'palabras',icon:'Aa',label:'Palabras',menuTitle:'Niveles de palabras',section:'math',dailyGroup:'words',dailyLabel:'5 ejercicios de palabras',time:'3 min',engine:'words',cardClass:'game-letters',detail:'10 ejercicios por nivel',activity:'10 ejercicios'},
+  {type:'sopa',icon:'▦',label:'Sopa de letras',menuTitle:'Sopa de letras',section:'math',dailyGroup:'words',dailyLabel:'1 sopa de letras',time:'3 min',engine:'soup',cardClass:'game-soup',detail:'Tableros progresivos',activity:'soup'},
+  {type:'sonidoInicial',icon:'🔊',label:'Sonido inicial',menuTitle:'¿Con qué sonido empieza?',section:'reading',dailyGroup:'sounds',dailyLabel:'5 sonidos iniciales',time:'2 min',engine:'reading',cardClass:'game-sound-start',detail:'Escucha · elige la primera letra',activity:'10 ejercicios'},
+  {type:'sonidoFinal',icon:'👂',label:'Sonido final',menuTitle:'¿Con qué sonido termina?',section:'reading',dailyGroup:'sounds',dailyLabel:'5 sonidos finales',time:'2 min',engine:'reading',cardClass:'game-sound-end',detail:'Escucha · elige la última letra',activity:'10 ejercicios'},
+  {type:'construir',icon:'🧩',label:'Construye la palabra',menuTitle:'Construye la palabra',section:'reading',dailyGroup:'syllables',dailyLabel:'5 palabras para construir',time:'3 min',engine:'reading',cardClass:'game-build-word',detail:'Une sílabas con ayuda de audio',activity:'10 ejercicios'},
+  {type:'ordenarSilabas',icon:'🔀',label:'Ordena sílabas',menuTitle:'Ordena las sílabas',section:'reading',dailyGroup:'syllables',dailyLabel:'5 palabras para ordenar',time:'3 min',engine:'reading',cardClass:'game-order-syllables',detail:'Coloca las sílabas en orden',activity:'10 ejercicios'},
+  {type:'rimas',icon:'🎵',label:'Rimas',homeLabel:'Busca la rima',menuTitle:'Busca la rima',section:'reading',dailyGroup:'syllables',dailyLabel:'5 rimas',time:'3 min',engine:'reading',cardClass:'game-rhyme',detail:'Escucha y encuentra cuál rima',activity:'10 ejercicios'}
+];
+const EXERCISE_BY_TYPE=Object.fromEntries(EXERCISE_CATALOG.map(game=>[game.type,game]));
+const READING_TYPES=new Set(EXERCISE_CATALOG.filter(game=>game.engine==='reading').map(game=>game.type));
+const DAILY_TYPES=EXERCISE_CATALOG.map(game=>game.type);
 const DAILY_COUNT=7;
-const DAILY_GROUPS=[
-  ['suma','resta','comparar'],
-  ['palabras','sopa'],
-  ['sonidoInicial','sonidoFinal'],
-  ['construir','ordenarSilabas','rimas']
-];
-const DAILY_INFO={
-  suma:{icon:'＋',label:'5 sumas',time:'2 min'},
-  resta:{icon:'−',label:'5 restas',time:'2 min'},
-  comparar:{icon:'↕',label:'5 mayor o menor',time:'2 min'},
-  palabras:{icon:'Aa',label:'5 ejercicios de palabras',time:'3 min'},
-  sopa:{icon:'▦',label:'1 sopa de letras',time:'3 min'},
-  sonidoInicial:{icon:'🔊',label:'5 sonidos iniciales',time:'2 min'},
-  sonidoFinal:{icon:'👂',label:'5 sonidos finales',time:'2 min'},
-  construir:{icon:'🧩',label:'5 palabras para construir',time:'3 min'},
-  ordenarSilabas:{icon:'🔀',label:'5 palabras para ordenar',time:'3 min'},
-  rimas:{icon:'🎵',label:'5 rimas',time:'3 min'}
-};
-const GAME_CONTROLS=[
-  {type:'suma',icon:'＋',label:'Sumas'},
-  {type:'resta',icon:'−',label:'Restas'},
-  {type:'comparar',icon:'↕',label:'Mayor o menor'},
-  {type:'palabras',icon:'Aa',label:'Palabras'},
-  {type:'sopa',icon:'▦',label:'Sopa de letras'},
-  {type:'sonidoInicial',icon:'🔊',label:'Sonido inicial'},
-  {type:'sonidoFinal',icon:'👂',label:'Sonido final'},
-  {type:'construir',icon:'🧩',label:'Construye la palabra'},
-  {type:'ordenarSilabas',icon:'🔀',label:'Ordena sílabas'},
-  {type:'rimas',icon:'🎵',label:'Rimas'}
-];
+const DAILY_GROUPS=['numbers','words','sounds','syllables'].map(group=>EXERCISE_CATALOG.filter(game=>game.dailyGroup===group).map(game=>game.type));
+const DAILY_INFO=Object.fromEntries(EXERCISE_CATALOG.map(game=>[game.type,{icon:game.icon,label:game.dailyLabel,time:game.time}]));
+const GAME_CONTROLS=EXERCISE_CATALOG.map(({type,icon,label})=>({type,icon,label}));
 function ensureGameSettings(){
   D.ajustes=D.ajustes&&typeof D.ajustes==='object'?D.ajustes:{};
   const current=D.ajustes.juegosActivos&&typeof D.ajustes.juegosActivos==='object'?D.ajustes.juegosActivos:{};
@@ -147,6 +134,9 @@ function menuLevelStatus(type){
   if(!levels.length)return '';
   return highest>=levels.length-1?`🏆 Nivel ${levels.length} completado`:`⭐ Nivel actual: ${Math.min(levels.length,highest+2)} de ${levels.length}`;
 }
+function exerciseCardsHTML(section,{parentTest=false}={}){
+  return EXERCISE_CATALOG.filter(game=>game.section===section&&(parentTest||gameEnabled(game.type))).map(game=>`<button class="game-card ${game.cardClass}" onclick="levels('${game.type}')"><span class="game-icon">${game.icon}</span><b>${game.homeLabel||game.label}</b>${parentTest?'':`<small>${menuLevelStatus(game.type)}</small><small>${game.detail}</small>`}</button>`).join('');
+}
 function giveXP(amount){D.xp+=amount;while(D.xp>=xpNeeded(D.nivelJugador)){D.xp-=xpNeeded(D.nivelJugador);D.nivelJugador++;D.diamantes+=25;pendingLevelRewards.push('25 diamantes');}save(D);}
 function showPendingLevel(){if(!pendingLevelRewards.length)return false;const rewards=[...pendingLevelRewards];pendingLevelRewards=[];layout(`<div class="levelup"><div class="levelup-stars">✨ 🎉 ✨</div><h2>¡Has subido al nivel ${D.nivelJugador}!</h2><div class="gift-box">🎁</div><p>Has conseguido:</p><h3>${rewards.join('<br>')}</h3><button class="btn primary" onclick="home()">Continuar</button></div>`);window.GameSound?.play('levelUp');return true;}
 function dailyDone(type){ensureDaily();return !!D.retosDiarios.retos.find(r=>r.type===type)?.done;}
@@ -159,6 +149,16 @@ function dailyLevel(type){
     else break;
   }
   return levels[index];
+}
+function startExercise(type,level,daily=false){
+  const game=EXERCISE_BY_TYPE[type];
+  if(!game||!level)return;
+  if(game.engine==='math')startMath(type,level,daily);
+  else if(game.engine==='compare')startCompare(level,daily);
+  else if(game.engine==='missingNumber')startMissingNumber(level,daily);
+  else if(game.engine==='words')startWords(level,daily);
+  else if(game.engine==='soup')startSoup(level,daily);
+  else if(game.engine==='reading')startReadingGame(type,level,daily);
 }
 function dailyHTML(){
   ensureDaily();
@@ -176,11 +176,7 @@ function startDaily(type){
   if(!challenge||challenge.done)return;
   const n=dailyLevel(type);
   if(!n)return;
-  if(type==='suma'||type==='resta')startMath(type,n,true);
-  else if(type==='comparar')startCompare(n,true);
-  else if(type==='palabras')startWords(n,true);
-  else if(type==='sopa')startSoup(n,true);
-  else if(READING_TYPES.has(type))startReadingGame(type,n,true);
+  startExercise(type,n,true);
 }
 function markDaily(type){
   ensureDaily();
@@ -216,19 +212,11 @@ ${xpPanel()}
 ${pedagogyHomeCard()}
 <h3 class="section-title">Juegos</h3>
 <div class="game-grid">
-${gameEnabled('suma')?`<button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b><small>${menuLevelStatus('suma')}</small><small>10 ejercicios por nivel</small></button>`:''}
-${gameEnabled('resta')?`<button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b><small>${menuLevelStatus('resta')}</small><small>10 ejercicios por nivel</small></button>`:''}
-${gameEnabled('comparar')?`<button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b><small>${menuLevelStatus('comparar')}</small><small>10 comparaciones por nivel</small></button>`:''}
-${gameEnabled('palabras')?`<button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b><small>${menuLevelStatus('palabras')}</small><small>10 ejercicios por nivel</small></button>`:''}
-${gameEnabled('sopa')?`<button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopa de letras</b><small>${menuLevelStatus('sopa')}</small><small>Tableros progresivos</small></button>`:''}
+${exerciseCardsHTML('math')}
 </div>
 <h3 class="section-title">Aprender a leer</h3>
 <div class="game-grid reading-grid">
-${gameEnabled('sonidoInicial')?`<button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b><small>${menuLevelStatus('sonidoInicial')}</small><small>Escucha · elige la primera letra</small></button>`:''}
-${gameEnabled('sonidoFinal')?`<button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b><small>${menuLevelStatus('sonidoFinal')}</small><small>Escucha · elige la última letra</small></button>`:''}
-${gameEnabled('construir')?`<button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye la palabra</b><small>${menuLevelStatus('construir')}</small><small>Une sílabas con ayuda de audio</small></button>`:''}
-${gameEnabled('ordenarSilabas')?`<button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b><small>${menuLevelStatus('ordenarSilabas')}</small><small>Coloca las sílabas en orden</small></button>`:''}
-${gameEnabled('rimas')?`<button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Busca la rima</b><small>${menuLevelStatus('rimas')}</small><small>Escucha y encuentra cuál rima</small></button>`:''}
+${exerciseCardsHTML('reading')}
 </div>
 <div class="bottom-actions">${parentMode?'<button class="btn danger" onclick="disableParentMode()">🔒 Quitar modo Padres</button>':''}<button class="btn secondary" onclick="parents()">⚙️ Zona de padres</button></div>`);}
 let selectedShopItemId=null,shopFeedback='',avatarChecksPromise=null,shopCategoryFilter='all',shopRarityFilter='all',shopCollectionFilter='all';
@@ -371,29 +359,17 @@ function nextLevelButton(type,level){
 function startNextLevel(type,currentId){
   const list=GAME.levels[type]||[],index=list.findIndex(item=>item.id===currentId),next=list[index+1];
   if(!next){levels(type);return;}
-  if(type==='suma'||type==='resta')startMath(type,next);
-  else if(type==='comparar')startCompare(next);
-  else if(type==='palabras')startWords(next);
-  else if(type==='sopa')startSoup(next);
-  else if(READING_TYPES.has(type))startReadingGame(type,next);
+  startExercise(type,next);
 }
 function levels(t){
   if(!gameEnabled(t)&&!parentMode){home();return;}
   state.type=t;
-  const titles={suma:'Niveles de sumas',resta:'Niveles de restas',comparar:'Mayor o menor',palabras:'Niveles de palabras',sopa:'Sopa de letras',sonidoInicial:'¿Con qué sonido empieza?',sonidoFinal:'¿Con qué sonido termina?',construir:'Construye la palabra',ordenarSilabas:'Ordena las sílabas',rimas:'Busca la rima'};
-  const title=titles[t]||'Niveles';
-  const rows=GAME.levels[t].map((n,index)=>{
+  const game=EXERCISE_BY_TYPE[t],title=game?.menuTitle||'Niveles',list=GAME.levels[t]||[];
+  const rows=list.map((n,index)=>{
     const s=stats(n.id),done=s.partidas>0,unlocked=levelUnlocked(t,index),p=s.respuestas?Math.round(s.aciertos/s.respuestas*100):0,reward=levelDiamonds(n,done);
-    const activity=t==='sopa'?`${n.count} palabras · 1 tablero`:t==='comparar'?'10 comparaciones':'10 ejercicios';
+    const activity=game?.activity==='soup'?`${n.count} palabras · 1 tablero`:(game?.activity||'10 ejercicios');
     const description=t==='resta'&&!D.ajustes.restasMayoresDe10&&n.aMax>10?'🔒 Límite parental activo · números hasta 10':n.desc;
-    let action='';
-    if(unlocked){
-      if(t==='suma'||t==='resta')action=`<button class="small play" onclick='startMath(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
-      else if(t==='comparar')action=`<button class="small play" onclick='startCompare(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
-      else if(t==='palabras')action=`<button class="small play" onclick='startWords(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
-      else if(READING_TYPES.has(t))action=`<button class="small play" onclick='startReadingGame(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
-      else action=`<button class="small play" onclick='startSoup(${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`;
-    }else action='<button class="small locked-button" disabled>Bloqueado</button>';
+    const action=unlocked?`<button class="small play" onclick='startExercise(${JSON.stringify(t)},${JSON.stringify(n)})'>${done?'Repetir':'Jugar'}</button>`:'<button class="small locked-button" disabled>Bloqueado</button>';
     return `<div class="row level-row ${done?'level-done':''} ${unlocked?'':'level-locked'}"><div class="level-main"><div class="level-title"><b>${done?'✅ ':unlocked?'':'🔒 '}${n.name}</b>${done?'<span class="done-badge">HECHO</span>':''}</div><div class="muted">${description}</div><div class="level-meta"><span>${activity}</span><span>💎 ${reward} ${done?'al repetir':'primera vez'}</span>${done?`<span>Aciertos: ${p}%</span>`:''}</div></div><div class="actions">${action}</div></div>`;
   }).join('');
   layout(`<div class="top"><button class="btn secondary back" onclick="home()">← Volver</button>${diamond()}</div><h2>${title}</h2><p class="muted level-help">${parentMode?'🔓 Modo Padres: todos los niveles disponibles para pruebas.':'Completa un nivel una vez para desbloquear el siguiente. Puedes repetir cualquier nivel desbloqueado.'}</p><div class="levels">${rows}</div>`);
@@ -467,6 +443,66 @@ function finishCompare(){
   const s=stats(state.level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[state.level.id]=s;
   const reward=levelDiamonds(state.level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
   layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton('comparar',state.level)}<button class="btn secondary" onclick='startCompare(${JSON.stringify(state.level)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('comparar')">▦ Volver a niveles</button></div>`);
+}
+const missingNumberInstructionAudio=new Audio(`assets/audio/narration/missing-number.mp3?v=${encodeURIComponent(window.APP_VERSION||'')}`);
+missingNumberInstructionAudio.preload='auto';
+function speakMissingNumberInstruction(){
+  window.Narration?.stop?.();missingNumberInstructionAudio.currentTime=0;
+  const play=missingNumberInstructionAudio.play();
+  if(play?.catch)play.catch(()=>window.Narration?.playText('¿Qué número falta?'));
+}
+function makeMissingNumberQuestion(level){
+  const max=Math.max(5,Math.floor(Number(level.max)||10)),operations=level.operations?.length?level.operations:['suma'],positions=level.positions?.length?level.positions:['a','b'];
+  const operation=operations[rnd(0,operations.length-1)],blank=positions[rnd(0,positions.length-1)];
+  let a,b,r;
+  if(operation==='resta'){a=rnd(2,max);b=rnd(1,a-1);r=a-b;}
+  else{a=rnd(1,max-1);b=rnd(1,max-a);r=a+b;}
+  const correct=blank==='a'?a:b,symbol=operation==='suma'?'+':'−';
+  return{a,b,r,operation,blank,correct,prompt:`${blank==='a'?'□':a} ${symbol} ${blank==='b'?'□':b} = ${r}`};
+}
+function makeMissingNumberOptions(correct,max){
+  const values=new Set([correct]),offsets=mix([-1,1,-2,2,-3,3]);
+  for(const offset of offsets){const value=correct+offset;if(value>=0&&value<=max)values.add(value);if(values.size===3)break;}
+  while(values.size<3)values.add(rnd(0,max));
+  return mix([...values]);
+}
+function missingNumberVisual(question){
+  if(!state.level.visual||question.a>10)return'';
+  const dots=(count,className)=>Array.from({length:count},()=>`<i class="${className}"></i>`).join('');
+  if(question.operation==='suma'){
+    const known=question.blank==='a'?question.b:question.a,missing=question.correct;
+    return `<div class="missing-visual" aria-label="Apoyo para contar"><span>${dots(known,'known')}</span><b>+</b><span>${dots(missing,'missing')}</span></div><small class="muted center">Cuenta los círculos claros para descubrir lo que falta.</small>`;
+  }
+  return `<div class="missing-visual" aria-label="Apoyo para contar"><span>${dots(question.r,'known')}${dots(question.b,'removed')}</span></div><small class="muted center">Los círculos tachados son los que se quitan.</small>`;
+}
+function startMissingNumber(level,daily=false){
+  const total=daily?5:10,questions=[],seen=new Set();
+  for(let attempt=0;questions.length<total&&attempt<400;attempt++){
+    const question=makeMissingNumberQuestion(level),key=`${question.operation}:${question.a}:${question.b}:${question.blank}`;
+    if(seen.has(key))continue;seen.add(key);questions.push(question);
+  }
+  while(questions.length<total)questions.push(makeMissingNumberQuestion(level));
+  state={...state,type:'numeroFaltante',level,mode:'missingNumber',qs:mix(questions),i:0,hits:0,daily,total,locked:false};
+  missingNumberQuestion();
+}
+function missingNumberQuestion(){
+  if(state.i>=state.total)return finishMissingNumber();
+  state.locked=false;const question=state.qs[state.i],options=makeMissingNumberOptions(question.correct,Math.max(5,Number(state.level.max)||10));state.correct=question.correct;
+  layout(`<div class="top"><button class="btn secondary back" onclick="${state.daily?'home()':"levels('numeroFaltante')"}">← Salir</button>${diamond()}</div><div class="muted">Ejercicio ${state.i+1} de ${state.total}</div><div class="missing-number-instruction"><b>¿Qué número falta?</b><button type="button" class="listen-button" onclick="speakMissingNumberInstruction()" aria-label="Escuchar la pregunta">🔊</button></div><div class="question missing-number-equation">${question.prompt}</div>${missingNumberVisual(question)}<div class="answers">${options.map(value=>`<button class="answer" onclick="answerMissingNumber(${value},this)">${value}</button>`).join('')}</div><div id="msg" class="muted msg"></div>`);
+  state.i++;setTimeout(speakMissingNumberInstruction,140);
+}
+function answerMissingNumber(value,button){
+  if(state.locked)return;state.locked=true;
+  if(Number(value)===Number(state.correct)){state.hits++;rewardProgressCorrect();button.classList.add('correct');document.getElementById('msg').textContent='¡Muy bien!';}
+  else{playChime('bad');button.classList.add('wrong');document.getElementById('msg').textContent=`Faltaba el ${state.correct}`;document.querySelectorAll('.answer').forEach(item=>{if(Number(item.textContent)===Number(state.correct))item.classList.add('correct');});}
+  setTimeout(missingNumberQuestion,900);
+}
+function finishMissingNumber(){
+  if(state.daily){finishDailyActivity('numeroFaltante');return;}
+  const level=state.level,s=stats(level.id),wasDone=s.partidas>0;s.partidas++;s.aciertos+=state.hits;s.respuestas+=state.total;D.estadisticas[level.id]=s;
+  const reward=levelDiamonds(level,wasDone),perfect=state.hits===state.total,xp=5+(perfect?5:0);D.diamantes+=reward;giveXP(xp);checkAchievements();save(D);
+  layout(`<div class="top"><h2>¡Nivel completado!</h2>${diamond(true)}</div><div class="question score">${state.hits} de ${state.total}</div><p class="center reward-line">+${reward} 💎 · +${xp} XP</p><p class="center muted">${wasDone?'Premio de repetición':'¡Nivel marcado como hecho! El siguiente nivel ya está desbloqueado.'}</p><div class="grid">${nextLevelButton('numeroFaltante',level)}<button class="btn secondary" onclick='startMissingNumber(${JSON.stringify(level)})'>🔄 Jugar otra vez</button><button class="btn secondary" onclick="levels('numeroFaltante')">▦ Volver a niveles</button></div>`);
+  window.GameSound?.play(!wasDone&&nextLevelButton('numeroFaltante',level)?'advance':'levelComplete');
 }
 function wordPool(n){return GAME.words.filter(w=>{const len=w.word.length,sy=w.syllables.length;return (!n.minLen||len>=n.minLen)&&(!n.maxLen||len<=n.maxLen)&&(!n.minSyllables||sy>=n.minSyllables)&&(!n.maxSyllables||sy<=n.maxSyllables);});}
 function startWords(n,daily=false){const total=daily?5:GAME.wordTotal;let pool=wordPool(n);if(pool.length<total)pool=GAME.words.filter(w=>(!n.maxLen||w.word.length<=n.maxLen+1));state={...state,type:'palabras',level:n,mode:n.mode,qs:mix(pool).slice(0,total),i:0,hits:0,daily,total};wordQuestion();}
@@ -706,7 +742,7 @@ function parentDashboard(){
   </div></section>
   </div>`);
 }
-function parentTestLevels(){layout(`<div class="top"><button class="btn secondary back" onclick="parentDashboard()">← Padres</button><span class="parent-active">🔓 Pruebas</span></div><h2>Probar niveles</h2><p class="muted">Elige una actividad. Todos sus niveles estarán disponibles mientras el modo Padres siga activo.</p><div class="game-grid"><button class="game-card game-sum" onclick="levels('suma')"><span class="game-icon">＋</span><b>Sumas</b></button><button class="game-card game-sub" onclick="levels('resta')"><span class="game-icon">−</span><b>Restas</b></button><button class="game-card game-compare" onclick="levels('comparar')"><span class="game-icon">↕</span><b>Mayor o menor</b></button><button class="game-card game-letters" onclick="levels('palabras')"><span class="game-icon">Aa</span><b>Palabras</b></button><button class="game-card game-soup" onclick="levels('sopa')"><span class="game-icon">▦</span><b>Sopas</b></button><button class="game-card game-sound-start" onclick="levels('sonidoInicial')"><span class="game-icon">🔊</span><b>Sonido inicial</b></button><button class="game-card game-sound-end" onclick="levels('sonidoFinal')"><span class="game-icon">👂</span><b>Sonido final</b></button><button class="game-card game-build-word" onclick="levels('construir')"><span class="game-icon">🧩</span><b>Construye</b></button><button class="game-card game-order-syllables" onclick="levels('ordenarSilabas')"><span class="game-icon">🔀</span><b>Ordena sílabas</b></button><button class="game-card game-rhyme" onclick="levels('rimas')"><span class="game-icon">🎵</span><b>Rimas</b></button></div>`);}
+function parentTestLevels(){layout(`<div class="top"><button class="btn secondary back" onclick="parentDashboard()">← Padres</button><span class="parent-active">🔓 Pruebas</span></div><h2>Probar niveles</h2><p class="muted">Elige una actividad. Todos sus niveles estarán disponibles mientras el modo Padres siga activo.</p><div class="game-grid">${exerciseCardsHTML('math',{parentTest:true})}${exerciseCardsHTML('reading',{parentTest:true})}</div>`);}
 function disableParentMode(){parentMode=false;home();}
 function setParentProgress(){
   const level=Math.max(1,Math.floor(Number(document.getElementById('parentLevel')?.value)||1));

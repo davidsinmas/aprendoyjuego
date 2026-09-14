@@ -186,3 +186,17 @@ button.parent-option-row{cursor:pointer}
 .ludeiko-cloud-card h3{margin:0;font-size:.96rem}
 .ludeiko-cloud-card p{font-size:.85rem;line-height:1.4}
 @media(max-width:540px){.parent-option-heading{flex-direction:column;align-items:flex-start}.parent-option-heading small{text-align:left}.parent-compact-fields{grid-template-columns:1fr}.parent-button-row .btn,.parent-security-actions .btn{flex:1 1 auto}.parent-section>h3{padding-inline:13px}.parent-section .parent-card{padding-inline:13px}.parent-game-list{margin-inline:-13px}.parent-game-list .parent-game-toggle{padding-inline:13px}}
+
+/* V3.16.0 · El número que falta */
+.game-missing-number{background:linear-gradient(145deg,#e5e0f5,#d8e9f7)}
+.missing-number-instruction{display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0 0;font-size:1.15rem}
+.missing-number-instruction .listen-button{width:42px;height:42px;min-height:42px;font-size:1.05rem}
+.missing-number-equation{min-height:105px;margin-block:4px 8px;font-variant-numeric:tabular-nums}
+.missing-visual{display:flex;align-items:center;justify-content:center;gap:12px;min-height:62px;margin:0 auto 5px;padding:10px 14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.72)}
+.missing-visual>span{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:230px}
+.missing-visual i{position:relative;width:22px;height:22px;border-radius:50%;display:block}
+.missing-visual i.known{background:#789a80;box-shadow:inset 0 -3px rgba(0,0,0,.12)}
+.missing-visual i.missing{border:2px solid #9c8fc1;background:#f6f3ff}
+.missing-visual i.removed{border:2px solid #c67a7a;background:#f7e2e2}
+.missing-visual i.removed::after{content:"";position:absolute;left:2px;right:2px;top:8px;height:3px;border-radius:3px;background:#a65454;transform:rotate(-38deg)}
+@media(max-width:480px){.missing-number-equation{min-height:86px}.missing-visual{padding-inline:10px}.missing-visual i{width:19px;height:19px}}

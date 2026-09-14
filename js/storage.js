@@ -24,7 +24,7 @@ function blank(){
     diferencias:{actual:1,completadas:0},
     unidadesPedagogicas:{restasMas10:{paso:1,pasosCompletados:[],completada:false,mejorResultado:0}},
     logros:[],
-    ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false,juegosActivos:{suma:true,resta:true,comparar:true,palabras:true,sopa:true,sonidoInicial:true,sonidoFinal:true,construir:true,ordenarSilabas:true,rimas:true}},
+    ajustes:{multiplicadorPrecios:1,restasMayoresDe10:false,juegosActivos:{suma:true,resta:true,comparar:true,numeroFaltante:true,palabras:true,sopa:true,sonidoInicial:true,sonidoFinal:true,construir:true,ordenarSilabas:true,rimas:true}},
     avatar:{
       owned:[],
       equipped:{back:null,legs:null,boots:null,chest:null,shoulders:null,gloves:null,head:null,helmet:null,shield:null,weapon:null,effects:null}
@@ -83,7 +83,7 @@ function load(){
   const rawMultiplier=Number(d.ajustes.multiplicadorPrecios);
   d.ajustes.multiplicadorPrecios=Math.min(3,Math.max(0.25,Number.isFinite(rawMultiplier)?Math.round(rawMultiplier*4)/4:1));
   d.ajustes.restasMayoresDe10=d.ajustes.restasMayoresDe10===true;
-  const gameTypes=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
+  const gameTypes=['suma','resta','comparar','numeroFaltante','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
   const storedGames=d.ajustes.juegosActivos&&typeof d.ajustes.juegosActivos==='object'?d.ajustes.juegosActivos:{};
   d.ajustes.juegosActivos={};
   for(const type of gameTypes)d.ajustes.juegosActivos[type]=storedGames[type]!==false;

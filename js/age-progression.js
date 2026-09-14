@@ -1,7 +1,7 @@
 /* V3.15.0 — progresión educativa extensa de 4 a 8 años. */
 (function(){
   'use strict';
-  const TYPES=['suma','resta','comparar','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
+  const TYPES=['suma','resta','comparar','numeroFaltante','palabras','sopa','sonidoInicial','sonidoFinal','construir','ordenarSilabas','rimas'];
   const TOTAL_LEVELS=50;
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const ageForLevel=level=>clamp(4+Math.floor((level-1)/10),4,8);
@@ -25,6 +25,17 @@
       const maxBase={4:10,5:20,6:50,7:200,8:500}[a],max=maxBase+Math.round(step*maxBase/5);
       const close=step>=5,maxGap=close?Math.max(2,12-step):undefined;
       return level('comparar',n,`Números hasta ${max}${close?' · diferencias próximas':''}`,{min:a>=7?10:1,max,minGap:1,...(maxGap?{maxGap,closeChance:.8}: {})});
+    });
+  }
+
+  function missingNumberLevels(){
+    const ranges={4:[5,10],5:[10,20],6:[20,50],7:[50,100],8:[100,999]};
+    return Array.from({length:TOTAL_LEVELS},(_,i)=>{
+      const n=i+1,a=ageForLevel(n),step=(n-1)%10,[start,end]=ranges[a],max=Math.round(start+(end-start)*step/9);
+      const operations=step<3?['suma']:step<6?['resta']:['suma','resta'];
+      const positions=step<2?['a']:step<4?['b']:['a','b'],visual=a<=5&&step<6;
+      const operationLabel=operations.length===2?'sumas y restas':operations[0]==='suma'?'sumas':'restas';
+      return level('numeroFaltante',n,`${operationLabel} hasta ${max}${visual?' · con apoyo visual':''}`,{max,operations,positions,visual});
     });
   }
 
@@ -71,7 +82,7 @@
   }
 
   const generated={
-    suma:mathLevels('suma'),resta:mathLevels('resta'),comparar:compareLevels(),palabras:wordLevels(),sopa:soupLevels(),
+    suma:mathLevels('suma'),resta:mathLevels('resta'),comparar:compareLevels(),numeroFaltante:missingNumberLevels(),palabras:wordLevels(),sopa:soupLevels(),
     sonidoInicial:soundLevels('sonidoInicial'),sonidoFinal:soundLevels('sonidoFinal'),construir:syllableLevels('construir'),ordenarSilabas:syllableLevels('ordenarSilabas'),rimas:rhymeLevels()
   };
   for(const type of TYPES)GAME.levels[type]=generated[type];

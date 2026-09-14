@@ -1,3 +1,12 @@
+## V3.16.0 — 2026-09-14
+
+- Añade el juego educativo **El número que falta** con sumas y restas incompletas.
+- Incorpora 50 niveles adaptados a las edades de 4 a 8 años y apoyo visual en los primeros niveles.
+- Integra el ejercicio con progreso, recompensas, retos diarios, adaptación, estadísticas y Zona de padres.
+- Añade la locución femenina española «¿Qué número falta?» con la misma voz y ritmo de las locuciones actuales.
+- Centraliza el catálogo de ejercicios para que Inicio, niveles, retos y opciones compartan una única definición.
+- Mantiene la sincronización actual sin cambios de base de datos ni pérdida de progreso anterior.
+
 ## V3.15.6 — 2026-09-13
 
 - Agrupa la Zona de padres en cuatro secciones compactas sin eliminar opciones.

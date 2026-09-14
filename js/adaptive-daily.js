@@ -219,6 +219,12 @@
     return baseFinishCompare();
   };
 
+  const baseFinishMissingNumber=finishMissingNumber;
+  finishMissingNumber=function(){
+    if(!state.daily)recordSkillPerformance('numeroFaltante',state.hits,state.total,false);
+    return baseFinishMissingNumber();
+  };
+
   const baseFinishWords=finishWords;
   finishWords=function(){
     if(!state.daily)recordSkillPerformance('palabras',state.hits,state.total,false);

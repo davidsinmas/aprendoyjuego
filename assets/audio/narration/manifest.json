@@ -11,5 +11,8 @@
     "words": {"segments": 85, "parts": 3},
     "instructions": {"segments": 15, "parts": 1},
     "pedagogy": {"segments": 33, "parts": 10}
+  },
+  "standalone": {
+    "missingNumber": "missing-number.mp3"
   }
 }

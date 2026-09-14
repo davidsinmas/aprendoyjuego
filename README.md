@@ -7,6 +7,7 @@ Juego educativo web infantil publicado mediante GitHub Pages.
 - Sumas
 - Restas
 - Mayor o menor
+- El número que falta
 - Palabras
 - Sopa de letras
 - Sonido inicial
@@ -17,6 +18,8 @@ Juego educativo web infantil publicado mediante GitHub Pages.
 - Encuentra las diferencias (50 escenas numeradas con 6 cambios cada una)
 
 Las actividades educativas tienen progresión por niveles, recompensas y registro de progreso. Al completar un nivel se puede abrir directamente el siguiente sin regresar al selector.
+
+**El número que falta** trabaja la composición y descomposición numérica y la relación entre suma y resta mediante igualdades como `□ + 3 = 7` o `9 − □ = 4`. Los primeros niveles incluyen apoyos para contar y la dificultad se adapta a la edad configurada.
 
 Encuentra las diferencias mantiene la misma dificultad intermedia en sus 50 escenas. Al terminar una se abre la siguiente y el navegador guarda automáticamente la escena alcanzada.
 

@@ -115,10 +115,11 @@
   }
   wrapStart('startMath',(type,level,daily)=>({gameType:type,level,daily}));
   wrapStart('startCompare',(level,daily)=>({gameType:'comparar',level,daily}));
+  wrapStart('startMissingNumber',(level,daily)=>({gameType:'numeroFaltante',level,daily}));
   wrapStart('startWords',(level,daily)=>({gameType:'palabras',level,daily}));
   wrapStart('startReadingGame',(type,level,daily)=>({gameType:type,level,daily}));
   wrapStart('startSoup',(level,daily)=>({gameType:'sopa',level,daily}));
-  ['finish','finishCompare','finishWords','finishReading','finishSoup'].forEach(wrapFinish);
+  ['finish','finishCompare','finishMissingNumber','finishWords','finishReading','finishSoup'].forEach(wrapFinish);
 
   const originalDaily=window.finishDailyActivity;
   if(typeof originalDaily==='function')window.finishDailyActivity=function(type,title){
