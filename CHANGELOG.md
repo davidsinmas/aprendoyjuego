@@ -1,3 +1,9 @@
+## V3.16.1 — 2026-09-14
+
+- Corrige **Encuentra las diferencias** para que las zonas de respuesta no aparezcan visibles al iniciar la escena.
+- Restaura la carga de `css/differences.css`, que define las áreas clicables como transparentes hasta que el jugador encuentra cada diferencia.
+- No modifica la lógica, las escenas, el progreso ni los intentos del juego.
+
 ## V3.16.0 — 2026-09-14
 
 - Añade el juego educativo **El número que falta** con sumas y restas incompletas.
