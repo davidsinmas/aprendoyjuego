@@ -1,3 +1,7 @@
+## V3.17.8 — 2026-09-16
+- Amplía las plantillas manuscritas con variantes de trazo fino y grueso, en mayúsculas y minúsculas.
+- Corrige falsos negativos al validar letras infantiles bien formadas, manteniendo límites contra garabatos.
+
 ## V3.16.1 — 2026-09-14
 
 ## V3.17.7 — 2026-09-16
