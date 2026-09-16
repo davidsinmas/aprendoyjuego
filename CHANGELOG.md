@@ -1,5 +1,8 @@
 ## V3.16.1 — 2026-09-14
 
+## V3.17.7 — 2026-09-16
+- Escribe la letra acepta mayúsculas y minúsculas, mejora la tolerancia del reconocimiento infantil y limita cada letra a dos intentos antes de continuar.
+
 ## V3.17.6 — 2026-09-16
 - Mejora el reconocimiento de letras manuscritas: plantillas adecuadas para mayúsculas, tolerancia a variaciones infantiles y audio de escritura servido desde el propio proyecto.
 
