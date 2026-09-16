@@ -1,5 +1,8 @@
 ## V3.16.1 — 2026-09-14
 
+## V3.17.6 — 2026-09-16
+- Mejora el reconocimiento de letras manuscritas: plantillas adecuadas para mayúsculas, tolerancia a variaciones infantiles y audio de escritura servido desde el propio proyecto.
+
 - Corrige **Encuentra las diferencias** para que las zonas de respuesta no aparezcan visibles al iniciar la escena.
 - Restaura la carga de `css/differences.css`, que define las áreas clicables como transparentes hasta que el jugador encuentra cada diferencia.
 - No modifica la lógica, las escenas, el progreso ni los intentos del juego.
