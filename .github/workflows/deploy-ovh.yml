@@ -25,6 +25,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      OVH_SFTP_HOST: ftp.cluster131.hosting.ovh.net
+      OVH_SFTP_USER: calisom
+      OVH_SFTP_PORT: '22'
+      OVH_REMOTE_DIR: ludeiko
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,27 +56,18 @@ jobs:
       - name: Comprobar configuración OVH
         shell: bash
         env:
-          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
-          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
           OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
-          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
-          OVH_REMOTE_DIR: ${{ vars.LUDEIKO_REMOTE_DIR || 'ludeiko' }}
         run: |
           set -euo pipefail
-          test -n "$OVH_SFTP_HOST" || { echo 'Falta OVH_SFTP_HOST'; exit 1; }
-          test -n "$OVH_SFTP_USER" || { echo 'Falta OVH_SFTP_USER'; exit 1; }
           test -n "$OVH_SFTP_PASSWORD" || { echo 'Falta OVH_SFTP_PASSWORD'; exit 1; }
           [[ "$OVH_SFTP_PORT" =~ ^[0-9]+$ ]] || { echo 'OVH_SFTP_PORT no es numérico'; exit 1; }
-          [[ "$OVH_REMOTE_DIR" =~ ^\.?/?ludeiko/?$ ]] || { echo 'LUDEIKO_REMOTE_DIR debe apuntar únicamente a ./ludeiko'; exit 1; }
+          [[ "$OVH_REMOTE_DIR" =~ ^\.?/?ludeiko/?$ ]] || { echo 'OVH_REMOTE_DIR debe apuntar únicamente a ludeiko'; exit 1; }
 
       - name: Instalar cliente SFTP
         run: sudo apt-get update && sudo apt-get install -y python3-paramiko
 
       - name: Registrar clave del servidor OVH
         shell: bash
-        env:
-          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
-          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.ssh"
@@ -82,11 +78,7 @@ jobs:
       - name: Desplegar web estática en ./ludeiko
         shell: bash
         env:
-          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
-          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
           OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
-          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
-          OVH_REMOTE_DIR: ${{ vars.LUDEIKO_REMOTE_DIR || 'ludeiko' }}
         run: |
           /usr/bin/python3 - <<'PY'
           import os
@@ -99,7 +91,6 @@ jobs:
           password = os.environ['OVH_SFTP_PASSWORD']
           port = int(os.environ.get('OVH_SFTP_PORT', '22'))
           remote_dir = os.environ.get('OVH_REMOTE_DIR', 'ludeiko').strip('/').removeprefix('./')
-          root = Path('.').resolve()
           public_roots = [Path('assets'), Path('css'), Path('js')]
           public_files = [Path('index.html'), Path('version.json'), Path('roadmap.html'), Path('.nojekyll')]
 
@@ -134,7 +125,6 @@ jobs:
               sftp.rename(temp, remote_path)
               print('Publicado:', remote_path)
 
-          # Primero recursos; version.json se publica al final como sello de despliegue.
           for directory in public_roots:
               for path in sorted(directory.rglob('*')):
                   if path.is_file():
@@ -153,7 +143,7 @@ jobs:
       - name: Verificar versión publicada
         shell: bash
         env:
-          PUBLIC_URL: ${{ vars.LUDEIKO_PUBLIC_URL || 'https://ludeiko.calisoftprojects.com' }}
+          PUBLIC_URL: https://ludeiko.calisoftprojects.com
         run: |
           set -euo pipefail
           EXPECTED="$(python3 -c "import json; print(json.load(open('version.json', encoding='utf-8'))['version'])")"
