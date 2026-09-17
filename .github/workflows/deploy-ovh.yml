@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: aprendoyjuego-ovh
+  group: aprendoyjuego-ovh-v2
   cancel-in-progress: true
 
 jobs:
@@ -104,7 +104,6 @@ jobs:
           port = int(os.environ.get('OVH_SFTP_PORT', '22'))
           remote_dir = os.environ.get('OVH_REMOTE_DIR', 'ludeiko').strip('/').removeprefix('./')
 
-          # El código es ligero y se publica completo para evitar estados mixtos.
           files = []
           for root in (Path('css'), Path('js')):
               files.extend(path for path in sorted(root.rglob('*')) if path.is_file())
@@ -112,7 +111,6 @@ jobs:
               if path.exists():
                   files.append(path)
 
-          # Los assets pueden ser grandes: solo se envían cuando cambian en este push.
           try:
               changed = subprocess.check_output(
                   ['git', 'diff', '--name-only', 'HEAD^', 'HEAD', '--', 'assets'],
@@ -125,7 +123,6 @@ jobs:
               if path.is_file():
                   files.append(path)
 
-          # version.json siempre al final: actúa como marcador de publicación completa.
           version_file = Path('version.json')
 
           client = paramiko.SSHClient()
@@ -166,7 +163,6 @@ jobs:
               sftp.put(str(path), remote, confirm=True)
 
           try:
-              # Sin duplicados, manteniendo orden estable.
               seen = set()
               for path in files:
                   key = path.as_posix()
