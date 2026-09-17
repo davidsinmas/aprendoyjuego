@@ -25,11 +25,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      OVH_SFTP_HOST: ftp.cluster131.hosting.ovh.net
-      OVH_SFTP_USER: calisom
-      OVH_SFTP_PORT: '22'
-      OVH_REMOTE_DIR: ludeiko
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,9 +51,15 @@ jobs:
       - name: Comprobar configuración OVH
         shell: bash
         env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
           OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
+          OVH_REMOTE_DIR: ludeiko
         run: |
           set -euo pipefail
+          test -n "$OVH_SFTP_HOST" || { echo 'Falta OVH_SFTP_HOST'; exit 1; }
+          test -n "$OVH_SFTP_USER" || { echo 'Falta OVH_SFTP_USER'; exit 1; }
           test -n "$OVH_SFTP_PASSWORD" || { echo 'Falta OVH_SFTP_PASSWORD'; exit 1; }
           [[ "$OVH_SFTP_PORT" =~ ^[0-9]+$ ]] || { echo 'OVH_SFTP_PORT no es numérico'; exit 1; }
           [[ "$OVH_REMOTE_DIR" =~ ^\.?/?ludeiko/?$ ]] || { echo 'OVH_REMOTE_DIR debe apuntar únicamente a ludeiko'; exit 1; }
@@ -68,6 +69,9 @@ jobs:
 
       - name: Registrar clave del servidor OVH
         shell: bash
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.ssh"
@@ -78,7 +82,11 @@ jobs:
       - name: Desplegar web estática en ./ludeiko
         shell: bash
         env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
           OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
+          OVH_REMOTE_DIR: ludeiko
         run: |
           /usr/bin/python3 - <<'PY'
           import os
@@ -97,7 +105,15 @@ jobs:
           client = paramiko.SSHClient()
           client.load_system_host_keys()
           client.set_missing_host_key_policy(paramiko.RejectPolicy())
-          client.connect(hostname=host, port=port, username=user, password=password, timeout=20, banner_timeout=20, auth_timeout=20)
+          client.connect(
+              hostname=host,
+              port=port,
+              username=user,
+              password=password,
+              timeout=20,
+              banner_timeout=20,
+              auth_timeout=20,
+          )
           sftp = client.open_sftp()
 
           try:
