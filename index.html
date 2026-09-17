@@ -26,7 +26,7 @@
     }catch(e){}
     window.APP_VERSION=version;
     window.LUDEIKO_RECOVERY_MODE=recoveryMode;
-    const styles=['css/app.css','css/levels.css','css/avatar.css','css/home-avatar.css','css/duel.css','css/planet.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css','css/scroll-fix.css','css/daily-progress.css','css/avatar-sticky.css','css/differences.css','css/handwriting.css'];
+    const styles=['css/app.css','css/words.css','css/levels.css','css/avatar.css','css/home-avatar.css','css/duel.css','css/planet.css','css/pedagogy.css','css/responsive-lock.css','css/exercise-fit.css','css/scroll-fix.css','css/daily-progress.css','css/avatar-sticky.css','css/differences.css','css/handwriting.css'];
     for(const href of styles){const link=document.createElement('link');link.rel='stylesheet';link.href=href+'?v='+encodeURIComponent(version);document.head.appendChild(link);}
     let scripts=['js/data.js','js/avatar-data.js','js/storage.js','js/narration.js','js/avatar.js','js/duel.js','js/planet.js','js/planet-enhancements.js','js/pedagogy.js','js/app.js','js/screen-fit.js','js/exercise-fit.js','js/math-tuning.js','js/sound.js','js/speech-fix.js','js/audio-assets.js','js/handwriting.js','js/adaptive-daily.js','js/differences.js','js/differences-polish.js','js/differences-errors.js','js/tank-pixel.js','js/word-syllable-fix.js','js/daily-progress-mode.js','js/daily-parent-unlock.js','js/home-avatar-rimas.js','js/cloud-sync.js','js/password-recovery.js','js/analytics.js','js/math-levels-v311.js','js/age-progression.js'];
     if(recoveryMode)scripts=scripts.filter(src=>src!=='js/cloud-sync.js'&&src!=='js/password-recovery.js'&&src!=='js/analytics.js');
