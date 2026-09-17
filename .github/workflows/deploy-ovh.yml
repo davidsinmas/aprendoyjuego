@@ -18,13 +18,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: aprendoyjuego-ovh-v2
+  group: aprendoyjuego-ovh-v3
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,9 +37,8 @@ jobs:
           set -euo pipefail
           test -f index.html
           test -f version.json
-          test -d assets
-          test -d css
-          test -d js
+          test -f js/handwriting.js
+          test -f css/word-layout-v3179.css
           python3 - <<'PY'
           import json, re
           from pathlib import Path
@@ -48,7 +47,7 @@ jobs:
               raise SystemExit('version.json no contiene una versión válida')
           print('Versión a desplegar:', value)
           PY
-          find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check js/handwriting.js
 
       - name: Comprobar configuración OVH
         shell: bash
@@ -57,17 +56,15 @@ jobs:
           OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
           OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
           OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
-          OVH_REMOTE_DIR: ludeiko
         run: |
           set -euo pipefail
-          test -n "$OVH_SFTP_HOST" || { echo 'Falta OVH_SFTP_HOST'; exit 1; }
-          test -n "$OVH_SFTP_USER" || { echo 'Falta OVH_SFTP_USER'; exit 1; }
-          test -n "$OVH_SFTP_PASSWORD" || { echo 'Falta OVH_SFTP_PASSWORD'; exit 1; }
-          [[ "$OVH_SFTP_PORT" =~ ^[0-9]+$ ]] || { echo 'OVH_SFTP_PORT no es numérico'; exit 1; }
-          [[ "$OVH_REMOTE_DIR" =~ ^\.?/?ludeiko/?$ ]] || { echo 'OVH_REMOTE_DIR debe apuntar únicamente a ludeiko'; exit 1; }
+          test -n "$OVH_SFTP_HOST"
+          test -n "$OVH_SFTP_USER"
+          test -n "$OVH_SFTP_PASSWORD"
+          [[ "$OVH_SFTP_PORT" =~ ^[0-9]+$ ]]
 
       - name: Instalar cliente SFTP
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq python3-paramiko
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
 
       - name: Registrar clave del servidor OVH
         shell: bash
@@ -81,100 +78,30 @@ jobs:
           ssh-keyscan -T 15 -p "$OVH_SFTP_PORT" -H "$OVH_SFTP_HOST" >> "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
 
-      - name: Desplegar web estática en ./ludeiko
+      - name: Publicar V3.17.9 en OVH
         shell: bash
         env:
           OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
           OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
-          OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          SSHPASS: ${{ secrets.OVH_SFTP_PASSWORD }}
           OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
-          OVH_REMOTE_DIR: ludeiko
         run: |
           set -euo pipefail
-          /usr/bin/python3 - <<'PY'
-          import os
-          import posixpath
-          import subprocess
-          from pathlib import Path, PurePosixPath
-          import paramiko
-
-          host = os.environ['OVH_SFTP_HOST']
-          user = os.environ['OVH_SFTP_USER']
-          password = os.environ['OVH_SFTP_PASSWORD']
-          port = int(os.environ.get('OVH_SFTP_PORT', '22'))
-          remote_dir = os.environ.get('OVH_REMOTE_DIR', 'ludeiko').strip('/').removeprefix('./')
-
-          files = []
-          for root in (Path('css'), Path('js')):
-              files.extend(path for path in sorted(root.rglob('*')) if path.is_file())
-          for path in (Path('index.html'), Path('roadmap.html'), Path('.nojekyll')):
-              if path.exists():
-                  files.append(path)
-
-          try:
-              changed = subprocess.check_output(
-                  ['git', 'diff', '--name-only', 'HEAD^', 'HEAD', '--', 'assets'],
-                  text=True,
-              ).splitlines()
-          except Exception:
-              changed = []
-          for name in changed:
-              path = Path(name)
-              if path.is_file():
-                  files.append(path)
-
-          version_file = Path('version.json')
-
-          client = paramiko.SSHClient()
-          client.load_system_host_keys()
-          client.set_missing_host_key_policy(paramiko.RejectPolicy())
-          client.connect(
-              hostname=host,
-              port=port,
-              username=user,
-              password=password,
-              timeout=20,
-              banner_timeout=20,
-              auth_timeout=20,
-          )
-          sftp = client.open_sftp()
-          sftp.get_channel().settimeout(30)
-
-          try:
-              sftp.chdir(remote_dir)
-          except OSError as exc:
-              raise SystemExit(f'No existe o no es accesible la carpeta remota {remote_dir!r}: {exc}')
-
-          def ensure_dir(relative_parent):
-              current = ''
-              for part in PurePosixPath(relative_parent).parts:
-                  if part in ('', '.'):
-                      continue
-                  current = posixpath.join(current, part)
-                  try:
-                      sftp.stat(current)
-                  except OSError:
-                      sftp.mkdir(current)
-
-          def upload(path):
-              remote = path.as_posix()
-              ensure_dir(PurePosixPath(remote).parent)
-              print(f'Publicando: {remote}', flush=True)
-              sftp.put(str(path), remote, confirm=True)
-
-          try:
-              seen = set()
-              for path in files:
-                  key = path.as_posix()
-                  if key in seen:
-                      continue
-                  seen.add(key)
-                  upload(path)
-              upload(version_file)
-          finally:
-              sftp.close()
-              client.close()
-          PY
+          cat > /tmp/ludeiko.sftp <<'EOF'
+          cd ludeiko
+          put index.html index.html
+          put js/handwriting.js js/handwriting.js
+          put css/word-layout-v3179.css css/word-layout-v3179.css
+          put version.json version.json
+          bye
+          EOF
+          timeout 90s sshpass -e sftp \
+            -oBatchMode=no \
+            -oStrictHostKeyChecking=yes \
+            -oConnectTimeout=20 \
+            -P "$OVH_SFTP_PORT" \
+            -b /tmp/ludeiko.sftp \
+            "$OVH_SFTP_USER@$OVH_SFTP_HOST"
 
       - name: Verificar versión publicada
         shell: bash
@@ -183,8 +110,8 @@ jobs:
         run: |
           set -euo pipefail
           EXPECTED="$(python3 -c "import json; print(json.load(open('version.json', encoding='utf-8'))['version'])")"
-          URL="${PUBLIC_URL%/}/version.json?ts=$(date +%s)"
           for attempt in 1 2 3 4 5; do
+            URL="${PUBLIC_URL%/}/version.json?ts=$(date +%s)-$attempt"
             if curl --fail --silent --show-error --connect-timeout 15 --max-time 30 -H 'Cache-Control: no-cache' "$URL" -o /tmp/remote-version.json; then
               REMOTE="$(python3 -c "import json; print(json.load(open('/tmp/remote-version.json', encoding='utf-8'))['version'])")"
               if [ "$REMOTE" = "$EXPECTED" ]; then
@@ -195,5 +122,4 @@ jobs:
             fi
             sleep 3
           done
-          echo 'La verificación pública no coincide con la versión desplegada.'
           exit 1
