@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: aprendoyjuego-ovh-v3
+  group: aprendoyjuego-ovh-v4
   cancel-in-progress: true
 
 jobs:
@@ -38,7 +38,7 @@ jobs:
           test -f index.html
           test -f version.json
           test -f js/handwriting.js
-          test -f css/word-layout-v3179.css
+          test -f css/words.css
           python3 - <<'PY'
           import json, re
           from pathlib import Path
@@ -91,7 +91,7 @@ jobs:
           cd ludeiko
           put index.html index.html
           put js/handwriting.js js/handwriting.js
-          put css/word-layout-v3179.css css/word-layout-v3179.css
+          put css/words.css css/words.css
           put version.json version.json
           bye
           EOF
