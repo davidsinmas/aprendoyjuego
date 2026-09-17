@@ -24,10 +24,12 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Validar versión y recursos
         shell: bash
@@ -65,7 +67,7 @@ jobs:
           [[ "$OVH_REMOTE_DIR" =~ ^\.?/?ludeiko/?$ ]] || { echo 'OVH_REMOTE_DIR debe apuntar únicamente a ludeiko'; exit 1; }
 
       - name: Instalar cliente SFTP
-        run: sudo apt-get update && sudo apt-get install -y python3-paramiko
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq python3-paramiko
 
       - name: Registrar clave del servidor OVH
         shell: bash
@@ -88,10 +90,12 @@ jobs:
           OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
           OVH_REMOTE_DIR: ludeiko
         run: |
+          set -euo pipefail
           /usr/bin/python3 - <<'PY'
           import os
           import posixpath
-          from pathlib import Path
+          import subprocess
+          from pathlib import Path, PurePosixPath
           import paramiko
 
           host = os.environ['OVH_SFTP_HOST']
@@ -99,8 +103,30 @@ jobs:
           password = os.environ['OVH_SFTP_PASSWORD']
           port = int(os.environ.get('OVH_SFTP_PORT', '22'))
           remote_dir = os.environ.get('OVH_REMOTE_DIR', 'ludeiko').strip('/').removeprefix('./')
-          public_roots = [Path('assets'), Path('css'), Path('js')]
-          public_files = [Path('index.html'), Path('version.json'), Path('roadmap.html'), Path('.nojekyll')]
+
+          # El código es ligero y se publica completo para evitar estados mixtos.
+          files = []
+          for root in (Path('css'), Path('js')):
+              files.extend(path for path in sorted(root.rglob('*')) if path.is_file())
+          for path in (Path('index.html'), Path('roadmap.html'), Path('.nojekyll')):
+              if path.exists():
+                  files.append(path)
+
+          # Los assets pueden ser grandes: solo se envían cuando cambian en este push.
+          try:
+              changed = subprocess.check_output(
+                  ['git', 'diff', '--name-only', 'HEAD^', 'HEAD', '--', 'assets'],
+                  text=True,
+              ).splitlines()
+          except Exception:
+              changed = []
+          for name in changed:
+              path = Path(name)
+              if path.is_file():
+                  files.append(path)
+
+          # version.json siempre al final: actúa como marcador de publicación completa.
+          version_file = Path('version.json')
 
           client = paramiko.SSHClient()
           client.load_system_host_keys()
@@ -115,45 +141,43 @@ jobs:
               auth_timeout=20,
           )
           sftp = client.open_sftp()
+          sftp.get_channel().settimeout(30)
 
           try:
               sftp.chdir(remote_dir)
           except OSError as exc:
               raise SystemExit(f'No existe o no es accesible la carpeta remota {remote_dir!r}: {exc}')
 
-          def ensure_dir(relative):
+          def ensure_dir(relative_parent):
               current = ''
-              for part in relative.parts:
+              for part in PurePosixPath(relative_parent).parts:
+                  if part in ('', '.'):
+                      continue
                   current = posixpath.join(current, part)
                   try:
                       sftp.stat(current)
                   except OSError:
                       sftp.mkdir(current)
 
-          def upload(local_path, remote_path):
-              ensure_dir(Path(remote_path).parent)
-              temp = remote_path + '.deploy-tmp'
-              sftp.put(str(local_path), temp)
-              try:
-                  sftp.remove(remote_path)
-              except OSError:
-                  pass
-              sftp.rename(temp, remote_path)
-              print('Publicado:', remote_path)
+          def upload(path):
+              remote = path.as_posix()
+              ensure_dir(PurePosixPath(remote).parent)
+              print(f'Publicando: {remote}', flush=True)
+              sftp.put(str(path), remote, confirm=True)
 
-          for directory in public_roots:
-              for path in sorted(directory.rglob('*')):
-                  if path.is_file():
-                      upload(path, path.as_posix())
-
-          for path in public_files:
-              if path.name == 'version.json' or not path.exists():
-                  continue
-              upload(path, path.as_posix())
-
-          upload(Path('version.json'), 'version.json')
-          sftp.close()
-          client.close()
+          try:
+              # Sin duplicados, manteniendo orden estable.
+              seen = set()
+              for path in files:
+                  key = path.as_posix()
+                  if key in seen:
+                      continue
+                  seen.add(key)
+                  upload(path)
+              upload(version_file)
+          finally:
+              sftp.close()
+              client.close()
           PY
 
       - name: Verificar versión publicada
@@ -163,9 +187,9 @@ jobs:
         run: |
           set -euo pipefail
           EXPECTED="$(python3 -c "import json; print(json.load(open('version.json', encoding='utf-8'))['version'])")"
-          URL="${PUBLIC_URL%/}/version.json"
+          URL="${PUBLIC_URL%/}/version.json?ts=$(date +%s)"
           for attempt in 1 2 3 4 5; do
-            if curl --fail --silent --show-error --connect-timeout 15 --max-time 45 "$URL" -o /tmp/remote-version.json; then
+            if curl --fail --silent --show-error --connect-timeout 15 --max-time 30 -H 'Cache-Control: no-cache' "$URL" -o /tmp/remote-version.json; then
               REMOTE="$(python3 -c "import json; print(json.load(open('/tmp/remote-version.json', encoding='utf-8'))['version'])")"
               if [ "$REMOTE" = "$EXPECTED" ]; then
                 echo "OVH actualizado correctamente a V$REMOTE"
@@ -173,7 +197,7 @@ jobs:
               fi
               echo "Intento $attempt: OVH devuelve V$REMOTE; esperado V$EXPECTED"
             fi
-            sleep 5
+            sleep 3
           done
           echo 'La verificación pública no coincide con la versión desplegada.'
           exit 1
