@@ -144,29 +144,57 @@ jobs:
             -b /tmp/ludeiko.sftp \
             "$OVH_SFTP_USER@$OVH_SFTP_HOST"
 
-      - name: Verificar versión y audio publicados
+      - name: Verificar publicación crítica
         shell: bash
         env:
           PUBLIC_URL: https://ludeiko.calisoftprojects.com
         run: |
           set -euo pipefail
           EXPECTED="$(python3 -c "import json; print(json.load(open('version.json', encoding='utf-8'))['version'])")"
-          AUDIO_URL="${PUBLIC_URL%/}/assets/audio/narration/handwriting-letters.mp3?ts=$(date +%s)"
+          TS="$(date +%s)"
+
+          AUDIO_URL="${PUBLIC_URL%/}/assets/audio/narration/handwriting-letters.mp3?ts=$TS"
           curl --fail --silent --show-error --connect-timeout 15 --max-time 45 -H 'Cache-Control: no-cache' --range 0-1023 "$AUDIO_URL" -o /tmp/handwriting-audio-check
           test -s /tmp/handwriting-audio-check
           echo "Audio de Escucha y escribe accesible en OVH"
 
+          JS_URL="${PUBLIC_URL%/}/js/handwriting.js?ts=$TS"
+          curl --fail --silent --show-error --connect-timeout 15 --max-time 45 -H 'Cache-Control: no-cache' "$JS_URL" -o /tmp/public-handwriting.js
+          node --check /tmp/public-handwriting.js
+          if ! cmp -s js/handwriting.js /tmp/public-handwriting.js; then
+            echo 'OVH no está sirviendo el handwriting.js de este despliegue.'
+            echo "Local:  $(sha256sum js/handwriting.js | cut -d' ' -f1)"
+            echo "Público: $(sha256sum /tmp/public-handwriting.js | cut -d' ' -f1)"
+            exit 1
+          fi
+          echo "handwriting.js público coincide byte a byte con el repositorio"
+
+          VERSION_OK=0
           for attempt in 1 2 3 4 5; do
-            URL="${PUBLIC_URL%/}/version.json?ts=$(date +%s)-$attempt"
+            URL="${PUBLIC_URL%/}/version.json?ts=$TS-$attempt"
             if curl --fail --silent --show-error --connect-timeout 15 --max-time 30 -H 'Cache-Control: no-cache' "$URL" -o /tmp/remote-version.json; then
               REMOTE="$(python3 -c "import json; print(json.load(open('/tmp/remote-version.json', encoding='utf-8'))['version'])")"
               if [ "$REMOTE" = "$EXPECTED" ]; then
                 echo "OVH actualizado correctamente a V$REMOTE"
-                exit 0
+                VERSION_OK=1
+                break
               fi
               echo "Intento $attempt: OVH devuelve V$REMOTE; esperado V$EXPECTED"
             fi
             sleep 3
           done
-          echo 'La verificación pública no coincide con la versión desplegada.'
-          exit 1
+          if [ "$VERSION_OK" -ne 1 ]; then
+            echo 'La verificación pública no coincide con la versión desplegada.'
+            exit 1
+          fi
+
+          BROWSER="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$BROWSER" ]; then
+            echo 'No hay navegador Chromium disponible para la prueba funcional.'
+            exit 1
+          fi
+          SMOKE_URL="${PUBLIC_URL%/}/?handwriting-smoke=1&v=${EXPECTED}&ts=$TS"
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-extensions --disable-sync --user-data-dir=/tmp/ludeiko-chrome --virtual-time-budget=8000 --dump-dom "$SMOKE_URL" > /tmp/handwriting-smoke.html
+          grep -q 'data-handwriting-smoke="pass"' /tmp/handwriting-smoke.html
+          grep -q 'content="I:pass,O:pass,A:pass,M:pass,S:pass,B:pass,R:pass"' /tmp/handwriting-smoke.html
+          echo 'Reconocimiento público validado: I, O, A, M, S, B y R (correcta, aproximada e incorrecta)'
