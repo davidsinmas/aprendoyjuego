@@ -40,6 +40,7 @@ jobs:
           test -f version.json
           test -d css
           test -d js
+          test -s assets/audio/narration/handwriting-letters.mp3
           python3 - <<'PY'
           import json, re
           from pathlib import Path
@@ -115,6 +116,12 @@ jobs:
               done
             fi
 
+            # Recurso crítico de Escucha y escribe: siempre debe existir en OVH.
+            echo '-mkdir "assets"'
+            echo '-mkdir "assets/audio"'
+            echo '-mkdir "assets/audio/narration"'
+            echo 'put "assets/audio/narration/handwriting-letters.mp3" "assets/audio/narration/handwriting-letters.mp3"'
+
             # version.json se publica al final y actúa como marcador de despliegue completo.
             echo 'put "version.json" "version.json"'
             echo "bye"
@@ -137,13 +144,18 @@ jobs:
             -b /tmp/ludeiko.sftp \
             "$OVH_SFTP_USER@$OVH_SFTP_HOST"
 
-      - name: Verificar versión publicada
+      - name: Verificar versión y audio publicados
         shell: bash
         env:
           PUBLIC_URL: https://ludeiko.calisoftprojects.com
         run: |
           set -euo pipefail
           EXPECTED="$(python3 -c "import json; print(json.load(open('version.json', encoding='utf-8'))['version'])")"
+          AUDIO_URL="${PUBLIC_URL%/}/assets/audio/narration/handwriting-letters.mp3?ts=$(date +%s)"
+          curl --fail --silent --show-error --connect-timeout 15 --max-time 45 -H 'Cache-Control: no-cache' --range 0-1023 "$AUDIO_URL" -o /tmp/handwriting-audio-check
+          test -s /tmp/handwriting-audio-check
+          echo "Audio de Escucha y escribe accesible en OVH"
+
           for attempt in 1 2 3 4 5; do
             URL="${PUBLIC_URL%/}/version.json?ts=$(date +%s)-$attempt"
             if curl --fail --silent --show-error --connect-timeout 15 --max-time 30 -H 'Cache-Control: no-cache' "$URL" -o /tmp/remote-version.json; then
