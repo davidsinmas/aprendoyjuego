@@ -18,13 +18,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: aprendoyjuego-ovh-v4
+  group: aprendoyjuego-ovh-stable
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,8 +38,8 @@ jobs:
           set -euo pipefail
           test -f index.html
           test -f version.json
-          test -f js/handwriting.js
-          test -f css/words.css
+          test -d css
+          test -d js
           python3 - <<'PY'
           import json, re
           from pathlib import Path
@@ -47,7 +48,7 @@ jobs:
               raise SystemExit('version.json no contiene una versión válida')
           print('Versión a desplegar:', value)
           PY
-          node --check js/handwriting.js
+          find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
 
       - name: Comprobar configuración OVH
         shell: bash
@@ -78,7 +79,48 @@ jobs:
           ssh-keyscan -T 15 -p "$OVH_SFTP_PORT" -H "$OVH_SFTP_HOST" >> "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
 
-      - name: Publicar V3.17.9 en OVH
+      - name: Preparar despliegue
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "cd ludeiko"
+
+            find css js -type d -print | sort | while IFS= read -r dir; do
+              printf -- '-mkdir "%s"\n' "$dir"
+            done
+
+            find css js -type f -print | sort | while IFS= read -r file; do
+              printf 'put "%s" "%s"\n' "$file" "$file"
+            done
+
+            for file in index.html roadmap.html .nojekyll; do
+              if [ -f "$file" ]; then
+                printf 'put "%s" "%s"\n' "$file" "$file"
+              fi
+            done
+
+            if git rev-parse HEAD^ >/dev/null 2>&1; then
+              git diff --name-only HEAD^ HEAD -- assets | while IFS= read -r file; do
+                [ -f "$file" ] || continue
+                parent="$(dirname "$file")"
+                current=""
+                IFS='/' read -ra parts <<< "$parent"
+                for part in "${parts[@]}"; do
+                  [ -n "$part" ] || continue
+                  current="${current:+$current/}$part"
+                  printf -- '-mkdir "%s"\n' "$current"
+                done
+                printf 'put "%s" "%s"\n' "$file" "$file"
+              done
+            fi
+
+            # version.json se publica al final y actúa como marcador de despliegue completo.
+            echo 'put "version.json" "version.json"'
+            echo "bye"
+          } > /tmp/ludeiko.sftp
+
+      - name: Publicar en OVH
         shell: bash
         env:
           OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
@@ -87,15 +129,7 @@ jobs:
           OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
         run: |
           set -euo pipefail
-          cat > /tmp/ludeiko.sftp <<'EOF'
-          cd ludeiko
-          put index.html index.html
-          put js/handwriting.js js/handwriting.js
-          put css/words.css css/words.css
-          put version.json version.json
-          bye
-          EOF
-          timeout 90s sshpass -e sftp \
+          timeout 120s sshpass -e sftp \
             -oBatchMode=no \
             -oStrictHostKeyChecking=yes \
             -oConnectTimeout=20 \
@@ -122,4 +156,5 @@ jobs:
             fi
             sleep 3
           done
+          echo 'La verificación pública no coincide con la versión desplegada.'
           exit 1
