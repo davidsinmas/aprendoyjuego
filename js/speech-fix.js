@@ -40,12 +40,21 @@
       const index=current?.i??-1,question=index>=0&&index<current.total?current.qs[index]:null,mode=current?.mode;
       const result=originalWordQuestion();
       if(question&&current.type==='palabras'){
-        const prefix=index===0?(wordInstructions[mode]||'Escucha la palabra'):'';
+        const instruction=wordInstructions[mode]||'Escucha la palabra';
+        const visualChoice=mode==='pictureWord'||mode==='pictureWord4'||mode==='similarWord';
+        const prefix=index===0?instruction:'';
         const icon=document.querySelector('.word-exercise-icon'),button=document.createElement('button');
-        button.type='button';button.className='listen-button word-listen-button';button.textContent='🔊';button.setAttribute('aria-label',`Escuchar ${question.word}`);
-        button.onclick=()=>window.speakWord(question.word,prefix);
+        button.type='button';button.className='listen-button word-listen-button';button.textContent='🔊';
+        if(visualChoice){
+          button.setAttribute('aria-label','Escuchar instrucción');
+          button.onclick=()=>window.Narration?.playText(instruction);
+          if(index===0)setTimeout(()=>window.Narration?.playText(instruction),140);
+        }else{
+          button.setAttribute('aria-label',`Escuchar ${question.word}`);
+          button.onclick=()=>window.speakWord(question.word,prefix);
+          setTimeout(()=>window.speakWord(question.word,prefix),140);
+        }
         if(icon)icon.insertAdjacentElement('afterend',button);
-        setTimeout(()=>window.speakWord(question.word,prefix),140);
       }
       return result;
     };
