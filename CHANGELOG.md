@@ -1,3 +1,11 @@
+## V3.17.13 — 2026-09-18
+- Restaura la arquitectura estable de audio de **Escucha y escribe**: el MP3 se precarga sin crear `AudioContext` y el audio se desbloquea dentro del primer gesto real del usuario, compatible con las restricciones de Safari/iOS.
+- Elimina la evaluación masiva introducida durante las mejoras de reconocimiento: cada intento se compara solo con la letra esperada, sus letras confundibles y un pequeño conjunto estructural de control.
+- Reduce las variantes de plantilla y precalienta las necesarias en tiempo ocioso para que **Comprobar** responda sin bloquear el navegador.
+- Mantiene tolerancia infantil para mayúsculas/minúsculas y pequeñas deformaciones, pero exige que la letra esperada no encaje claramente peor que otra forma.
+- Un fallo ya no fuerza el salto de letra tras dos intentos: el niño puede borrar, volver a escuchar y repetir hasta acertar.
+- Añade diagnóstico reproducible para I, O, A, M, S, B y R y verificación de que OVH sirve exactamente el `handwriting.js` desplegado.
+
 ## V3.17.8 — 2026-09-16
 - Amplía las plantillas manuscritas con variantes de trazo fino y grueso, en mayúsculas y minúsculas.
 - Corrige falsos negativos al validar letras infantiles bien formadas, manteniendo límites contra garabatos.
