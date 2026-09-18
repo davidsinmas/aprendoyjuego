@@ -116,13 +116,11 @@ jobs:
               done
             fi
 
-            # Recurso crítico de Escucha y escribe: siempre debe existir en OVH.
             echo '-mkdir "assets"'
             echo '-mkdir "assets/audio"'
             echo '-mkdir "assets/audio/narration"'
             echo 'put "assets/audio/narration/handwriting-letters.mp3" "assets/audio/narration/handwriting-letters.mp3"'
 
-            # version.json se publica al final y actúa como marcador de despliegue completo.
             echo 'put "version.json" "version.json"'
             echo "bye"
           } > /tmp/ludeiko.sftp
@@ -194,7 +192,18 @@ jobs:
             exit 1
           fi
           SMOKE_URL="${PUBLIC_URL%/}/?handwriting-smoke=1&v=${EXPECTED}&ts=$TS"
-          timeout 60s "$BROWSER" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --disable-extensions --disable-sync --user-data-dir=/tmp/ludeiko-chrome --virtual-time-budget=8000 --dump-dom "$SMOKE_URL" > /tmp/handwriting-smoke.html
+          set +e
+          timeout 60s "$BROWSER" --headless=new --no-sandbox --mute-audio --disable-gpu --disable-dev-shm-usage --disable-extensions --disable-sync --user-data-dir=/tmp/ludeiko-chrome --virtual-time-budget=8000 --dump-dom "$SMOKE_URL" > /tmp/handwriting-smoke.html
+          CHROME_STATUS=$?
+          set -e
+          echo "Estado Chromium: $CHROME_STATUS"
+          echo 'Resultado diagnóstico:'
+          grep -o 'data-handwriting-smoke="[^"]*"' /tmp/handwriting-smoke.html || true
+          grep -o '<meta name="ludeiko-handwriting-smoke"[^>]*>' /tmp/handwriting-smoke.html || true
+          if [ "$CHROME_STATUS" -ne 0 ]; then
+            echo 'Chromium no pudo completar la prueba pública.'
+            exit 1
+          fi
           grep -q 'data-handwriting-smoke="pass"' /tmp/handwriting-smoke.html
           grep -q 'content="I:pass,O:pass,A:pass,M:pass,S:pass,B:pass,R:pass"' /tmp/handwriting-smoke.html
-          echo 'Reconocimiento público validado: I, O, A, M, S, B y R (correcta, aproximada e incorrecta)'
+          echo 'Reconocimiento público validado: I, O, A, M, S, B y R (correcta, aproximada, incorrecta y garabato)'
