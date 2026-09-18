@@ -53,7 +53,7 @@
   const LETTER_VOICE_URL=window.LudeikoAudioAssets?.handwritingLetters||'assets/audio/narration/handwriting-letters.mp3';
   const LETTER_AUDIO_ORDER=[...ALPHABET];
   const RECOGNITION_SIZE=40;
-  const STRUCTURAL_SENTINELS='IOAMSBRTCV';
+  const STRUCTURAL_SENTINELS='IOAMSBRTCVXWZN';
   const CONFUSABLES={
     A:'RHV',B:'PRD',C:'OGQ',D:'OBP',E:'FBL',F:'ETP',G:'COQ',H:'NKA',I:'LTJ',J:'ILT',K:'RXH',L:'ITJ',
     M:'NWV',N:'MHW','Ñ':'NM',O:'CQD',P:'BRD',Q:'OGC',R:'PBK',S:'CGZ',T:'IFL',U:'VJO',V:'UWY',W:'MVU',X:'KY',Y:'VTX',Z:'SN'
@@ -136,7 +136,7 @@
     const context=letterVoice.context;if(!context)return false;
     letterVoice.decode=(async()=>{
       const bytes=letterVoice.bytes||await prefetchLetterVoice();
-      if(!bytes)return false;
+      if(!bytes){letterVoice.decode=null;return false;}
       letterVoice.buffer=await context.decodeAudioData(bytes.slice(0));
       letterVoice.segments=detectLetterSegments(letterVoice.buffer,LETTER_AUDIO_ORDER.length);
       if(letterVoice.segments.length!==LETTER_AUDIO_ORDER.length)throw new Error('Número de segmentos de voz incorrecto');
@@ -245,20 +245,27 @@
     return out;
   }
 
-  function templateCanvas(letter,font,mode='stroke'){
+  function templateCanvas(letter,font,weight=400){
     const canvas=document.createElement('canvas');canvas.width=180;canvas.height=180;
     const ctx=canvas.getContext('2d');if(!ctx)return canvas;
-    const weight=mode==='fill'?700:400;ctx.font=`${weight} 132px ${font}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.lineJoin='round';
-    if(mode==='fill')ctx.fillText(letter,90,94);else{ctx.lineWidth=10;ctx.strokeText(letter,90,94);}return canvas;
+    ctx.font=`${weight} 132px ${font}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.fillText(letter,90,94);return canvas;
+  }
+
+  function primitiveTemplate(letter){
+    if(letter!=='I')return null;
+    const canvas=document.createElement('canvas');canvas.width=180;canvas.height=180;const ctx=canvas.getContext('2d');if(!ctx)return null;
+    ctx.strokeStyle='#000';ctx.lineWidth=12;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(90,20);ctx.lineTo(90,160);ctx.stroke();return canvas;
   }
 
   function templateVariants(letter){
     if(hw.templates.has(letter))return hw.templates.get(letter);
     const variants=[],fonts=['Arial','Trebuchet MS','Verdana'],forms=[letter,letter.toLocaleLowerCase('es-ES')];
-    for(const form of forms)for(const font of fonts)for(const mode of ['stroke','fill']){
-      const normalized=normalizedBitmap(templateCanvas(form,font,mode));
+    for(const form of forms)for(const font of fonts)for(const weight of [400,700]){
+      const normalized=normalizedBitmap(templateCanvas(form,font,weight));
       if(normalized)variants.push({...normalized,dilated:dilateMask(normalized.mask,normalized.size,2)});
     }
+    const primitive=primitiveTemplate(letter),normalizedPrimitive=primitive&&normalizedBitmap(primitive);
+    if(normalizedPrimitive)variants.push({...normalizedPrimitive,dilated:dilateMask(normalizedPrimitive.mask,normalizedPrimitive.size,2)});
     hw.templates.set(letter,variants);return variants;
   }
 
@@ -280,16 +287,17 @@
   }
 
   function recognitionLimits(level=Number(state.level?.level||1)){
-    if(level<=6)return{minimum:.43,competitorMargin:.08};
-    if(level<=16)return{minimum:.46,competitorMargin:.07};
-    return{minimum:.49,competitorMargin:.06};
+    if(level<=6)return{minimum:.43,competitorMargin:.05};
+    if(level<=16)return{minimum:.46,competitorMargin:.04};
+    return{minimum:.49,competitorMargin:.03};
   }
 
   function candidateLetters(expected){return[...new Set([expected,...(CONFUSABLES[expected]||''),...STRUCTURAL_SENTINELS])];}
 
   function recognizeExpected(canvas,expected,level){
     const user=normalizedBitmap(canvas);if(!user)return{accepted:false,expectedScore:0,bestScore:0,bestLetter:null,reason:'empty'};
-    if(user.inkRatio>.58||user.aspect<.12||user.aspect>5.5)return{accepted:false,expectedScore:0,bestScore:0,bestLetter:null,reason:'shape'};
+    const minAspect='ILTJ'.includes(expected)?.035:.10;
+    if(user.inkRatio>.58||user.aspect<minAspect||user.aspect>5.5)return{accepted:false,expectedScore:0,bestScore:0,bestLetter:null,reason:'shape'};
     const userDilated=dilateMask(user.mask,user.size,2),expectedScore=bestLetterScore(user,expected,userDilated);
     let bestLetter=expected,bestScore=expectedScore;
     for(const letter of candidateLetters(expected)){
@@ -338,22 +346,27 @@
     },0));
   }
 
-  function diagnosticCanvas(letter,{rotation=0,scaleX=1,scaleY=1,mode='fill'}={}){
+  function diagnosticCanvas(letter,{rotation=0,scaleX=1,scaleY=1,weight=700}={}){
     const canvas=document.createElement('canvas');canvas.width=180;canvas.height=180;const ctx=canvas.getContext('2d');if(!ctx)return canvas;
     ctx.translate(90,90);ctx.rotate(rotation);ctx.scale(scaleX,scaleY);ctx.translate(-90,-90);
-    const weight=mode==='fill'?700:400;ctx.font=`${weight} 132px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.lineJoin='round';
-    if(mode==='fill')ctx.fillText(letter,90,94);else{ctx.lineWidth=10;ctx.strokeText(letter,90,94);}return canvas;
+    ctx.font=`${weight} 132px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.fillText(letter,90,94);return canvas;
+  }
+
+  function diagnosticCrossCanvas(){
+    const canvas=document.createElement('canvas');canvas.width=180;canvas.height=180;const ctx=canvas.getContext('2d');if(!ctx)return canvas;
+    ctx.strokeStyle='#000';ctx.lineWidth=14;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(30,30);ctx.lineTo(150,150);ctx.moveTo(150,30);ctx.lineTo(30,150);ctx.stroke();return canvas;
   }
 
   function runRecognitionDiagnostics(){
     const wrongFor={I:'O',O:'I',A:'O',M:'O',S:'I',B:'I',R:'O'},letters=['I','O','A','M','S','B','R'];
     const details=letters.map(letter=>{
       const correct=recognizeExpected(diagnosticCanvas(letter),letter,1).accepted;
-      const approximate=recognizeExpected(diagnosticCanvas(letter,{rotation:.055,scaleX:.92,scaleY:1.04,mode:'stroke'}),letter,1).accepted;
+      const approximate=recognizeExpected(diagnosticCanvas(letter,{rotation:.07,scaleX:.88,scaleY:1.08,weight:400}),letter,1).accepted;
       const wrong=recognizeExpected(diagnosticCanvas(wrongFor[letter]),letter,1).accepted;
-      return{letter,correct,approximate,wrongRejected:!wrong};
+      const scribble=recognizeExpected(diagnosticCrossCanvas(),letter,1).accepted;
+      return{letter,correct,approximate,wrongRejected:!wrong,scribbleRejected:!scribble};
     });
-    return{ok:details.every(item=>item.correct&&item.approximate&&item.wrongRejected),details};
+    return{ok:details.every(item=>item.correct&&item.approximate&&item.wrongRejected&&item.scribbleRejected),details};
   }
 
   function finishHandwriting(){
@@ -377,7 +390,7 @@
       const result=runRecognitionDiagnostics();
       document.documentElement.dataset.handwritingSmoke=result.ok?'pass':'fail';
       const marker=document.createElement('meta');marker.name='ludeiko-handwriting-smoke';
-      marker.content=result.details.map(item=>`${item.letter}:${item.correct&&item.approximate&&item.wrongRejected?'pass':'fail'}`).join(',');
+      marker.content=result.details.map(item=>`${item.letter}:${item.correct&&item.approximate&&item.wrongRejected&&item.scribbleRejected?'pass':'fail'}`).join(',');
       document.head.appendChild(marker);
     },0));
   }
