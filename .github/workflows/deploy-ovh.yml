@@ -1,0 +1,137 @@
+name: Deploy Aprendo Jugando to OVH
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - 'version.json'
+      - 'roadmap.html'
+      - 'assets/**'
+      - 'css/**'
+      - 'js/**'
+      - '.github/workflows/deploy-ovh.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aprendoyjuego-ovh-stable
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar aplicación
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f version.json
+          test -d assets
+          test -d css
+          test -d js
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+          value = json.loads(Path('version.json').read_text(encoding='utf-8')).get('version', '')
+          if not re.fullmatch(r'\d+\.\d+\.\d+', value):
+              raise SystemExit('version.json no contiene una versión válida')
+          print('Versión a desplegar:', value)
+          PY
+          find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+
+      - name: Comprobar configuración OVH
+        shell: bash
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
+          OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          test -n "$OVH_SFTP_HOST"
+          test -n "$OVH_SFTP_USER"
+          test -n "$OVH_SFTP_PASSWORD"
+          [[ "$OVH_SFTP_PORT" =~ ^[0-9]+$ ]]
+
+      - name: Instalar cliente SFTP
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+
+      - name: Registrar clave OVH
+        shell: bash
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          ssh-keyscan -T 15 -p "$OVH_SFTP_PORT" -H "$OVH_SFTP_HOST" >> "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Preparar despliegue completo
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo 'cd ludeiko'
+            find assets css js -type d -print | sort | while IFS= read -r dir; do
+              printf -- '-mkdir "%s"\n' "$dir"
+            done
+            find assets css js -type f -print | sort | while IFS= read -r file; do
+              printf 'put "%s" "%s"\n' "$file" "$file"
+            done
+            for file in index.html roadmap.html .nojekyll; do
+              if [ -f "$file" ]; then
+                printf 'put "%s" "%s"\n' "$file" "$file"
+              fi
+            done
+            echo 'put "version.json" "version.json"'
+            echo 'bye'
+          } > /tmp/ludeiko.sftp
+
+      - name: Publicar en OVH
+        shell: bash
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
+          SSHPASS: ${{ secrets.OVH_SFTP_PASSWORD }}
+          OVH_SFTP_PORT: ${{ vars.OVH_SFTP_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          timeout 180s sshpass -e sftp \
+            -oBatchMode=no \
+            -oStrictHostKeyChecking=yes \
+            -oConnectTimeout=20 \
+            -P "$OVH_SFTP_PORT" \
+            -b /tmp/ludeiko.sftp \
+            "$OVH_SFTP_USER@$OVH_SFTP_HOST"
+
+      - name: Verificar publicación
+        shell: bash
+        env:
+          PUBLIC_URL: https://ludeiko.calisoftprojects.com
+        run: |
+          set -euo pipefail
+          EXPECTED="$(python3 -c "import json; print(json.load(open('version.json', encoding='utf-8'))['version'])")"
+          TS="$(date +%s)"
+          curl --fail --silent --show-error --connect-timeout 15 --max-time 45 -H 'Cache-Control: no-cache' "${PUBLIC_URL%/}/js/handwriting.js?ts=$TS" -o /tmp/public-handwriting.js
+          cmp -s js/handwriting.js /tmp/public-handwriting.js
+          for attempt in 1 2 3 4 5; do
+            curl --fail --silent --show-error --connect-timeout 15 --max-time 30 -H 'Cache-Control: no-cache' "${PUBLIC_URL%/}/version.json?ts=$TS-$attempt" -o /tmp/remote-version.json || true
+            REMOTE="$(python3 -c "import json; print(json.load(open('/tmp/remote-version.json', encoding='utf-8')).get('version',''))" 2>/dev/null || true)"
+            if [ "$REMOTE" = "$EXPECTED" ]; then
+              echo "OVH actualizado correctamente a V$REMOTE"
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
