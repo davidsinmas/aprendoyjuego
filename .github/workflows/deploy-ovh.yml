@@ -120,7 +120,6 @@ jobs:
             echo '-mkdir "assets/audio"'
             echo '-mkdir "assets/audio/narration"'
             echo 'put "assets/audio/narration/handwriting-letters.mp3" "assets/audio/narration/handwriting-letters.mp3"'
-
             echo 'put "version.json" "version.json"'
             echo "bye"
           } > /tmp/ludeiko.sftp
@@ -207,3 +206,135 @@ jobs:
           grep -q 'data-handwriting-smoke="pass"' /tmp/handwriting-smoke.html
           grep -q 'content="I:pass,O:pass,A:pass,M:pass,S:pass,B:pass,R:pass"' /tmp/handwriting-smoke.html
           echo 'Reconocimiento público validado: I, O, A, M, S, B y R (correcta, aproximada, incorrecta y garabato)'
+
+          python3 -m pip install --quiet --disable-pip-version-check selenium
+          EXPECTED="$EXPECTED" PUBLIC_URL="$PUBLIC_URL" python3 - <<'PY'
+          import math
+          import os
+          import shutil
+          import time
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          from selenium.webdriver.chrome.service import Service
+          from selenium.webdriver.common.by import By
+          from selenium.webdriver.support.ui import WebDriverWait
+
+          public_url = os.environ['PUBLIC_URL'].rstrip('/')
+          expected_version = os.environ['EXPECTED']
+          chrome = shutil.which('google-chrome') or shutil.which('google-chrome-stable') or shutil.which('chromium')
+          chromedriver = shutil.which('chromedriver')
+          if not chrome:
+              raise SystemExit('Chromium no disponible para la prueba de interacción')
+
+          options = Options()
+          options.binary_location = chrome
+          for arg in ('--headless=new','--no-sandbox','--mute-audio','--disable-gpu','--disable-dev-shm-usage','--disable-extensions','--disable-sync','--window-size=390,844'):
+              options.add_argument(arg)
+          service = Service(chromedriver) if chromedriver else Service()
+          driver = webdriver.Chrome(service=service, options=options)
+          wait = WebDriverWait(driver, 12)
+
+          audit_script = r'''
+          (() => {
+            window.__ludeikoAudioAudit = {contexts: 0, starts: 0};
+            const Native = window.AudioContext || window.webkitAudioContext;
+            if (Native) {
+              const Wrapped = new Proxy(Native, {
+                construct(target, args) {
+                  window.__ludeikoAudioAudit.contexts++;
+                  return Reflect.construct(target, args);
+                }
+              });
+              try { Object.defineProperty(window, 'AudioContext', {configurable:true, writable:true, value:Wrapped}); } catch(e) {}
+              try { Object.defineProperty(window, 'webkitAudioContext', {configurable:true, writable:true, value:Wrapped}); } catch(e) {}
+            }
+            if (window.AudioBufferSourceNode && AudioBufferSourceNode.prototype.start) {
+              const nativeStart = AudioBufferSourceNode.prototype.start;
+              AudioBufferSourceNode.prototype.start = function(...args) {
+                window.__ludeikoAudioAudit.starts++;
+                return nativeStart.apply(this, args);
+              };
+            }
+          })();
+          '''
+          driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': audit_script})
+
+          def draw(points, pointer_type='touch', pointer_id=41):
+              driver.execute_script(r'''
+                const canvas=arguments[0], points=arguments[1], pointerType=arguments[2], pointerId=arguments[3];
+                const rect=canvas.getBoundingClientRect();
+                const fire=(type,p,buttons)=>canvas.dispatchEvent(new PointerEvent(type,{
+                  bubbles:true,cancelable:true,pointerId,pointerType,isPrimary:true,buttons,
+                  clientX:rect.left+p[0]*rect.width,clientY:rect.top+p[1]*rect.height
+                }));
+                fire('pointerdown',points[0],1);
+                for(let i=1;i<points.length;i++) fire('pointermove',points[i],1);
+                fire('pointerup',points[points.length-1],0);
+              ''', canvas, points, pointer_type, pointer_id)
+
+          try:
+              driver.get(f'{public_url}/?v={expected_version}&interaction-smoke=1')
+              wait.until(lambda d: d.execute_script("return typeof startHandwriting === 'function'"))
+              contexts_before = driver.execute_script('return window.__ludeikoAudioAudit?.contexts ?? -1')
+              if contexts_before != 0:
+                  raise AssertionError(f'AudioContext creado antes del gesto: {contexts_before}')
+
+              driver.execute_script(r'''
+                const button=document.createElement('button');
+                button.id='handwritingSmokeStart';
+                button.textContent='start';
+                button.onclick=()=>startHandwriting({id:'handwritingSmoke',level:1,letters:'I',name:'Smoke'});
+                document.body.appendChild(button);
+              ''')
+              driver.find_element(By.ID, 'handwritingSmokeStart').click()
+
+              canvas = wait.until(lambda d: d.find_element(By.ID, 'handwritingCanvas'))
+              check = driver.find_element(By.ID, 'handwritingCheck')
+              clear = driver.find_element(By.ID, 'handwritingClear')
+              listen = driver.find_element(By.ID, 'handwritingListen')
+
+              touch_action = driver.execute_script("return getComputedStyle(arguments[0]).touchAction", canvas)
+              if touch_action != 'none':
+                  raise AssertionError(f'touch-action inesperado: {touch_action}')
+              wait.until(lambda d: d.execute_script('return window.__ludeikoAudioAudit.contexts >= 1'))
+              wait.until(lambda d: d.execute_script('return window.__ludeikoAudioAudit.starts >= 1'))
+
+              starts_before = driver.execute_script('return window.__ludeikoAudioAudit.starts')
+              listen.click()
+              wait.until(lambda d: d.execute_script('return window.__ludeikoAudioAudit.starts') > starts_before)
+
+              circle = []
+              for i in range(33):
+                  angle = 2 * math.pi * i / 32
+                  circle.append([0.5 + 0.26 * math.cos(angle), 0.5 + 0.34 * math.sin(angle)])
+              draw(circle, 'touch', 51)
+              if check.get_property('disabled'):
+                  raise AssertionError('Comprobar no se habilitó tras el trazo táctil')
+              check.click()
+              wait.until(lambda d: 'bad' in d.find_element(By.ID, 'handwritingMessage').get_attribute('class'))
+              if check.get_property('disabled'):
+                  raise AssertionError('Comprobar quedó bloqueado después de una letra incorrecta')
+
+              clear.click()
+              if not check.get_property('disabled'):
+                  raise AssertionError('Borrar no deshabilitó Comprobar')
+
+              line = [[0.5, 0.18 + 0.64 * i / 18] for i in range(19)]
+              draw(line, 'touch', 52)
+              if check.get_property('disabled'):
+                  raise AssertionError('Comprobar no se habilitó para la I')
+              check.click()
+              wait.until(lambda d: 'ok' in d.find_element(By.ID, 'handwritingMessage').get_attribute('class'))
+
+              clear_test = driver.execute_script(r'''
+                const c=arguments[0];
+                const before=document.documentElement.scrollTop||document.body.scrollTop||0;
+                return {before, after:document.documentElement.scrollTop||document.body.scrollTop||0};
+              ''', canvas)
+              if clear_test['before'] != clear_test['after']:
+                  raise AssertionError('El trazo táctil desplazó la página')
+
+              print('Interacción pública validada: viewport móvil 390x844, canvas táctil, borrar, comprobar, error, acierto y altavoz/WebAudio')
+          finally:
+              driver.quit()
+          PY
