@@ -39,11 +39,16 @@
 
   let hw={canvas:null,ctx:null,drawing:false,hasInk:false,current:null,attempts:0,templates:new Map(),pointerId:null};
 
-  function shuffledLetters(pool,count){const source=[...String(pool||ALPHABET)],out=[];while(out.length<count){const bag=[...source].sort(()=>Math.random()-.5);for(const letter of bag){if(out.length>=count)break;if(out.length&&out[out.length-1]===letter&&source.length>1)continue;out.push(letter);}}return out.slice(0,count);}
+  function shuffledLetters(pool,count){
+    const source=[...new Set([...String(pool||ALPHABET)])];
+    for(let i=source.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[source[i],source[j]]=[source[j],source[i]];}
+    return source.slice(0,Math.min(count,source.length));
+  }
 
   function startHandwriting(level,daily=false){
     const n=typeof level==='number'?LEVELS[Math.max(0,Math.min(LEVELS.length-1,level-1))]:level;if(!n)return;
-    state={...state,type:TYPE,level:n,daily:!!daily,qs:shuffledLetters(n.letters,daily?5:10),i:0,hits:0,total:daily?5:10,locked:false};
+    const qs=shuffledLetters(n.letters,daily?5:10);
+    state={...state,type:TYPE,level:n,daily:!!daily,qs,i:0,hits:0,total:qs.length,locked:false};
     prepareRecognition(state.qs);
     handwritingQuestion();
   }
