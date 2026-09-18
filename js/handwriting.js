@@ -30,18 +30,8 @@
 
   GAME.levels[TYPE]=LEVELS;
   const config={
-    type:TYPE,
-    icon:'✍️',
-    label:'Escribe la letra',
-    menuTitle:'Escribe la letra',
-    section:'reading',
-    dailyGroup:'words',
-    dailyLabel:'5 letras escritas',
-    time:'3 min',
-    engine:'handwriting',
-    cardClass:'game-handwriting',
-    detail:'Escucha y escribe con el dedo',
-    activity:'10 letras'
+    type:TYPE,icon:'✍️',label:'Escribe la letra',menuTitle:'Escribe la letra',section:'reading',dailyGroup:'words',
+    dailyLabel:'5 letras escritas',time:'3 min',engine:'handwriting',cardClass:'game-handwriting',detail:'Escucha y escribe con el dedo',activity:'10 letras'
   };
 
   if(!EXERCISE_CATALOG.some(item=>item.type===TYPE))EXERCISE_CATALOG.push(config);
@@ -53,23 +43,23 @@
 
   const baseStartExercise=startExercise;
   startExercise=function(type,level,daily=false){
-    if(type===TYPE){
-      startHandwriting(level,daily);
-      return;
-    }
+    if(type===TYPE){startHandwriting(level,daily);return;}
     return baseStartExercise(type,level,daily);
   };
 
   const LETTER_NAMES={
-    A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',
-    M:'eme',N:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',
-    W:'uve doble',X:'equis',Y:'ye',Z:'zeta'
+    A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'uve doble',X:'equis',Y:'ye',Z:'zeta'
   };
-  const LETTER_VOICE_URL='assets/audio/narration/handwriting-letters.mp3';
+  const LETTER_VOICE_URL=window.LudeikoAudioAssets?.handwritingLetters||'assets/audio/narration/handwriting-letters.mp3';
   const LETTER_AUDIO_ORDER=[...ALPHABET];
   const RECOGNITION_SIZE=40;
+  const STRUCTURAL_SENTINELS='IOAMSBRTCV';
+  const CONFUSABLES={
+    A:'RHV',B:'PRD',C:'OGQ',D:'OBP',E:'FBL',F:'ETP',G:'COQ',H:'NKA',I:'LTJ',J:'ILT',K:'RXH',L:'ITJ',
+    M:'NWV',N:'MHW','Ñ':'NM',O:'CQD',P:'BRD',Q:'OGC',R:'PBK',S:'CGZ',T:'IFL',U:'VJO',V:'UWY',W:'MVU',X:'KY',Y:'VTX',Z:'SN'
+  };
 
-  let letterVoice={context:null,buffer:null,segments:null,source:null,loading:null};
+  let letterVoice={context:null,bytes:null,buffer:null,segments:null,source:null,prefetch:null,decode:null,unlocked:false};
   let hw={canvas:null,ctx:null,drawing:false,hasInk:false,current:null,attempts:0,templates:new Map(),pointerId:null};
 
   function shuffledLetters(pool,count){
@@ -85,6 +75,16 @@
     return out.slice(0,count);
   }
 
+  function prefetchLetterVoice(){
+    if(letterVoice.bytes)return Promise.resolve(letterVoice.bytes);
+    if(letterVoice.prefetch)return letterVoice.prefetch;
+    letterVoice.prefetch=fetch(LETTER_VOICE_URL,{cache:'force-cache'})
+      .then(response=>{if(!response.ok)throw new Error(`Audio ${response.status}`);return response.arrayBuffer();})
+      .then(bytes=>{letterVoice.bytes=bytes;return bytes;})
+      .catch(error=>{console.warn('No se pudo precargar la voz de Escribe la letra',error);letterVoice.prefetch=null;return null;});
+    return letterVoice.prefetch;
+  }
+
   function ensureAudioContext(){
     const AudioContextClass=window.AudioContext||window.webkitAudioContext;
     if(!AudioContextClass)return null;
@@ -92,37 +92,26 @@
     return letterVoice.context;
   }
 
-  function primeLetterAudio(){
+  function unlockLetterAudio(){
     const context=ensureAudioContext();
-    if(!context)return null;
+    if(!context)return false;
     try{
-      if(context.state==='suspended'){
-        const resume=context.resume();
-        if(resume&&typeof resume.catch==='function')resume.catch(()=>{});
-      }
+      const resume=context.state==='suspended'?context.resume():null;
+      if(resume&&typeof resume.then==='function')resume.then(()=>{letterVoice.unlocked=context.state==='running';}).catch(()=>{});
       const silent=context.createBuffer(1,1,context.sampleRate);
-      const source=context.createBufferSource();
-      source.buffer=silent;source.connect(context.destination);source.start(0);
-    }catch(e){}
-    return context;
-  }
-
-  function startHandwriting(level,daily=false){
-    const n=typeof level==='number'?LEVELS[Math.max(0,Math.min(LEVELS.length-1,level-1))]:level;
-    if(!n)return;
-    primeLetterAudio();
-    loadLetterVoice();
-    state={...state,type:TYPE,level:n,daily:!!daily,qs:shuffledLetters(n.letters,daily?5:10),i:0,hits:0,total:daily?5:10,locked:false};
-    handwritingQuestion();
+      const source=context.createBufferSource();source.buffer=silent;source.connect(context.destination);source.start(0);
+      letterVoice.unlocked=context.state==='running'||letterVoice.unlocked;
+      void decodeLetterVoice();
+      return true;
+    }catch(error){console.warn('No se pudo desbloquear el audio de escritura',error);return false;}
   }
 
   function detectLetterSegments(buffer,targetCount){
     const data=buffer.getChannelData(0),sampleRate=buffer.sampleRate,frame=Math.max(128,Math.round(sampleRate*.02)),energy=[];
     let peak=0;
     for(let offset=0;offset<data.length;offset+=frame){
-      let sum=0;
-      const count=Math.min(frame,data.length-offset);
-      for(let i=0;i<count;i++){const v=data[offset+i];sum+=v*v;}
+      let sum=0;const count=Math.min(frame,data.length-offset);
+      for(let i=0;i<count;i++){const value=data[offset+i];sum+=value*value;}
       const rms=Math.sqrt(sum/Math.max(1,count));energy.push(rms);if(rms>peak)peak=rms;
     }
     const thresholds=[.045,.035,.055,.025,.07].map(ratio=>Math.max(.0015,peak*ratio));
@@ -130,73 +119,64 @@
       const silent=energy.map(value=>value<threshold),gaps=[];let start=-1;
       for(let i=0;i<=silent.length;i++){
         if(i<silent.length&&silent[i]){if(start<0)start=i;continue;}
-        if(start>=0){
-          const end=i,duration=(end-start)*frame/sampleRate;
-          if(duration>=.1&&start>1&&end<silent.length-1)gaps.push({start,end,duration});
-          start=-1;
-        }
+        if(start>=0){const end=i,duration=(end-start)*frame/sampleRate;if(duration>=.1&&start>1&&end<silent.length-1)gaps.push({start,end,duration});start=-1;}
       }
       if(gaps.length<targetCount-1)continue;
       const chosen=[...gaps].sort((a,b)=>b.duration-a.duration).slice(0,targetCount-1).sort((a,b)=>a.start-b.start);
       const cuts=[0,...chosen.map(gap=>((gap.start+gap.end)/2)*frame/sampleRate),buffer.duration],segments=[];
-      for(let i=0;i<targetCount;i++){
-        const startTime=Math.max(0,cuts[i]-.035),endTime=Math.min(buffer.duration,cuts[i+1]+.035);
-        segments.push({start:startTime,end:endTime});
-      }
-      if(segments.every(segment=>segment.end-segment.start>.65))return segments;
+      for(let i=0;i<targetCount;i++)segments.push({start:Math.max(0,cuts[i]-.035),end:Math.min(buffer.duration,cuts[i+1]+.035)});
+      if(segments.length===targetCount&&segments.every(segment=>segment.end-segment.start>.45))return segments;
     }
     return Array.from({length:targetCount},(_,i)=>({start:buffer.duration*i/targetCount,end:buffer.duration*(i+1)/targetCount}));
   }
 
-  async function loadLetterVoice(){
+  async function decodeLetterVoice(){
     if(letterVoice.buffer&&letterVoice.segments)return true;
-    if(letterVoice.loading)return letterVoice.loading;
-    letterVoice.loading=(async()=>{
-      const context=ensureAudioContext();
-      if(!context)throw new Error('Web Audio no disponible');
-      const response=await fetch(LETTER_VOICE_URL,{cache:'force-cache'});
-      if(!response.ok)throw new Error(`Audio ${response.status}`);
-      const bytes=await response.arrayBuffer();
+    if(letterVoice.decode)return letterVoice.decode;
+    const context=letterVoice.context;if(!context)return false;
+    letterVoice.decode=(async()=>{
+      const bytes=letterVoice.bytes||await prefetchLetterVoice();
+      if(!bytes)return false;
       letterVoice.buffer=await context.decodeAudioData(bytes.slice(0));
       letterVoice.segments=detectLetterSegments(letterVoice.buffer,LETTER_AUDIO_ORDER.length);
+      if(letterVoice.segments.length!==LETTER_AUDIO_ORDER.length)throw new Error('Número de segmentos de voz incorrecto');
       return true;
-    })().catch(error=>{
-      console.warn('No se pudo cargar la voz de Escribe la letra',error);
-      letterVoice.loading=null;
-      return false;
-    });
-    return letterVoice.loading;
+    })().catch(error=>{console.warn('No se pudo preparar la voz de Escribe la letra',error);letterVoice.decode=null;return false;});
+    return letterVoice.decode;
   }
 
   function speechFallback(letter){
     if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined')return false;
     try{
       window.speechSynthesis.cancel();
-      const utterance=new SpeechSynthesisUtterance(`La letra ${LETTER_NAMES[letter]||letter}`);
-      utterance.lang='es-ES';utterance.rate=.9;utterance.pitch=1.03;
-      window.speechSynthesis.speak(utterance);
-      return true;
-    }catch(e){return false;}
+      const utterance=new SpeechSynthesisUtterance(LETTER_NAMES[letter]||letter);
+      utterance.lang='es-ES';utterance.rate=.88;utterance.pitch=1.02;
+      window.speechSynthesis.speak(utterance);return true;
+    }catch(error){return false;}
   }
 
   async function speakCurrentLetter(fromGesture=false){
-    const letter=hw.current||state.qs[state.i-1],index=LETTER_AUDIO_ORDER.indexOf(letter);
-    if(index<0)return false;
-    if(fromGesture)primeLetterAudio();
-    const ready=await loadLetterVoice();
+    const letter=hw.current||state.qs[state.i-1],index=LETTER_AUDIO_ORDER.indexOf(letter);if(index<0)return false;
+    if(fromGesture)unlockLetterAudio();
+    const ready=await decodeLetterVoice();
     if(!ready){speechFallback(letter);return false;}
     const context=letterVoice.context;
-    if(context.state==='suspended'){try{await context.resume();}catch(e){}}
-    if(context.state!=='running'){speechFallback(letter);return false;}
-    if(letterVoice.source){try{letterVoice.source.stop();}catch(e){}letterVoice.source=null;}
-    const segment=letterVoice.segments[index];
-    if(!segment){speechFallback(letter);return false;}
+    if(context?.state==='suspended'){try{await context.resume();}catch(error){}}
+    if(!context||context.state!=='running'){speechFallback(letter);return false;}
+    if(letterVoice.source){try{letterVoice.source.stop();}catch(error){}letterVoice.source=null;}
+    const segment=letterVoice.segments[index];if(!segment){speechFallback(letter);return false;}
     try{
       const source=context.createBufferSource();source.buffer=letterVoice.buffer;source.connect(context.destination);
       source.onended=()=>{if(letterVoice.source===source)letterVoice.source=null;};
-      letterVoice.source=source;source.start(0,segment.start,Math.max(.1,segment.end-segment.start));
-      return true;
+      letterVoice.source=source;source.start(0,segment.start,Math.max(.1,segment.end-segment.start));return true;
     }catch(error){console.warn('No se pudo reproducir la letra',error);speechFallback(letter);return false;}
+  }
+
+  function startHandwriting(level,daily=false){
+    const n=typeof level==='number'?LEVELS[Math.max(0,Math.min(LEVELS.length-1,level-1))]:level;if(!n)return;
+    unlockLetterAudio();
+    state={...state,type:TYPE,level:n,daily:!!daily,qs:shuffledLetters(n.letters,daily?5:10),i:0,hits:0,total:daily?5:10,locked:false};
+    handwritingQuestion();
   }
 
   function handwritingQuestion(){
@@ -205,10 +185,11 @@
     const back=state.daily?'home()':`levels('${TYPE}')`;
     layout(`<div class="top"><button class="btn secondary back" onclick="${back}">← Salir</button>${diamond()}</div><div class="handwriting-shell"><div class="handwriting-heading"><div class="muted">Letra ${state.i+1} de ${state.total}</div><h2>Escucha y escribe</h2><p>Pulsa el altavoz si quieres volver a escucharla.</p></div><button type="button" class="handwriting-listen" id="handwritingListen" aria-label="Escuchar la letra">🔊</button><div class="handwriting-board-wrap"><canvas id="handwritingCanvas" class="handwriting-canvas" width="360" height="360"></canvas><div id="handwritingTyped" class="handwriting-typed" aria-hidden="true"></div><div class="handwriting-guide">Escribe una letra en mayúscula o minúscula.</div></div><div class="handwriting-actions"><button type="button" class="btn secondary" id="handwritingClear">⌫ Borrar</button><button type="button" class="btn primary" id="handwritingCheck" disabled>✓ Comprobar</button></div><div id="handwritingMessage" class="handwriting-message" aria-live="polite"></div><div id="handwritingConfidence" class="handwriting-confidence"></div></div>`);
     state.i++;setupCanvas();
-    document.getElementById('handwritingListen')?.addEventListener('click',()=>{primeLetterAudio();void speakCurrentLetter(true);});
+    document.getElementById('handwritingListen')?.addEventListener('click',()=>{unlockLetterAudio();void speakCurrentLetter(true);});
     document.getElementById('handwritingClear')?.addEventListener('click',clearHandwriting);
     document.getElementById('handwritingCheck')?.addEventListener('click',checkHandwriting);
-    setTimeout(()=>void speakCurrentLetter(false),160);
+    prewarmRecognition(hw.current);
+    void speakCurrentLetter(false);
   }
 
   function setupCanvas(){
@@ -252,33 +233,30 @@
     const data=ctx.getImageData(0,0,size,size).data,mask=new Uint8Array(size*size);let count=0;
     for(let i=0;i<mask.length;i++)if(data[i*4+3]>42){mask[i]=1;count++;}
     if(count<12)return null;
-    return{mask,count,aspect:bw/Math.max(1,bh),size};
+    return{mask,count,aspect:bw/Math.max(1,bh),size,inkRatio:count/(size*size)};
   }
 
   function dilateMask(mask,size,radius=2){
     const out=new Uint8Array(mask.length);
     for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(mask[y*size+x])for(let dy=-radius;dy<=radius;dy++){
       const yy=y+dy;if(yy<0||yy>=size)continue;
-      for(let dx=-radius;dx<=radius;dx++){
-        const xx=x+dx;if(xx<0||xx>=size)continue;
-        if(dx*dx+dy*dy<=radius*radius)out[yy*size+xx]=1;
-      }
+      for(let dx=-radius;dx<=radius;dx++){const xx=x+dx;if(xx<0||xx>=size)continue;if(dx*dx+dy*dy<=radius*radius)out[yy*size+xx]=1;}
     }
     return out;
   }
 
-  function templateCanvas(letter,font,weight=400,mode='stroke'){
+  function templateCanvas(letter,font,mode='stroke'){
     const canvas=document.createElement('canvas');canvas.width=180;canvas.height=180;
-    const ctx=canvas.getContext('2d');ctx.font=`${weight} 132px ${font}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.lineJoin='round';
-    if(mode==='fill')ctx.fillText(letter,90,94);else{ctx.lineWidth=weight===400?9:7;ctx.strokeText(letter,90,94);}
-    return canvas;
+    const ctx=canvas.getContext('2d');if(!ctx)return canvas;
+    const weight=mode==='fill'?700:400;ctx.font=`${weight} 132px ${font}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.lineJoin='round';
+    if(mode==='fill')ctx.fillText(letter,90,94);else{ctx.lineWidth=10;ctx.strokeText(letter,90,94);}return canvas;
   }
 
   function templateVariants(letter){
     if(hw.templates.has(letter))return hw.templates.get(letter);
-    const variants=[],fonts=['Arial','Trebuchet MS','Verdana','Avenir Next'],forms=[letter,letter.toLocaleLowerCase('es-ES')];
-    for(const form of forms)for(const font of fonts)for(const weight of [400,700])for(const mode of ['stroke','fill']){
-      const normalized=normalizedBitmap(templateCanvas(form,font,weight,mode));
+    const variants=[],fonts=['Arial','Trebuchet MS','Verdana'],forms=[letter,letter.toLocaleLowerCase('es-ES')];
+    for(const form of forms)for(const font of fonts)for(const mode of ['stroke','fill']){
+      const normalized=normalizedBitmap(templateCanvas(form,font,mode));
       if(normalized)variants.push({...normalized,dilated:dilateMask(normalized.mask,normalized.size,2)});
     }
     hw.templates.set(letter,variants);return variants;
@@ -291,8 +269,8 @@
       if(template.mask[i]&&userDilated[i])templateNearUser++;
     }
     const userCoverage=userNearTemplate/Math.max(1,user.count),templateCoverage=templateNearUser/Math.max(1,template.count);
-    const aspectDelta=Math.abs(Math.log(Math.max(.08,user.aspect)/Math.max(.08,template.aspect))),aspectScore=Math.max(.55,1-aspectDelta*.28);
-    return(.56*userCoverage+.44*templateCoverage)*aspectScore;
+    const aspectDelta=Math.abs(Math.log(Math.max(.08,user.aspect)/Math.max(.08,template.aspect))),aspectScore=Math.max(.48,1-aspectDelta*.32);
+    return(.58*userCoverage+.42*templateCoverage)*aspectScore;
   }
 
   function bestLetterScore(user,letter,userDilated){
@@ -301,25 +279,31 @@
     return best;
   }
 
-  function recognitionLimits(){
-    const level=Number(state.level?.level||1);
-    if(level<=6)return{minimum:.45,strong:.64,competitorMargin:.13};
-    if(level<=16)return{minimum:.49,strong:.67,competitorMargin:.11};
-    return{minimum:.53,strong:.70,competitorMargin:.09};
+  function recognitionLimits(level=Number(state.level?.level||1)){
+    if(level<=6)return{minimum:.43,competitorMargin:.08};
+    if(level<=16)return{minimum:.46,competitorMargin:.07};
+    return{minimum:.49,competitorMargin:.06};
   }
 
-  function recognizeExpected(canvas,expected){
+  function candidateLetters(expected){return[...new Set([expected,...(CONFUSABLES[expected]||''),...STRUCTURAL_SENTINELS])];}
+
+  function recognizeExpected(canvas,expected,level){
     const user=normalizedBitmap(canvas);if(!user)return{accepted:false,expectedScore:0,bestScore:0,bestLetter:null,reason:'empty'};
+    if(user.inkRatio>.58||user.aspect<.12||user.aspect>5.5)return{accepted:false,expectedScore:0,bestScore:0,bestLetter:null,reason:'shape'};
     const userDilated=dilateMask(user.mask,user.size,2),expectedScore=bestLetterScore(user,expected,userDilated);
     let bestLetter=expected,bestScore=expectedScore;
-    for(const letter of ALPHABET){
+    for(const letter of candidateLetters(expected)){
       if(letter===expected)continue;
-      const score=bestLetterScore(user,letter,userDilated);
-      if(score>bestScore){bestScore=score;bestLetter=letter;}
+      const score=bestLetterScore(user,letter,userDilated);if(score>bestScore){bestScore=score;bestLetter=letter;}
     }
-    const limits=recognitionLimits();
-    const accepted=expectedScore>=limits.strong||(expectedScore>=limits.minimum&&expectedScore>=bestScore-limits.competitorMargin);
+    const limits=recognitionLimits(level);
+    const accepted=expectedScore>=limits.minimum&&expectedScore>=bestScore-limits.competitorMargin;
     return{accepted,expectedScore,bestScore,bestLetter,reason:'shape'};
+  }
+
+  function prewarmRecognition(letter){
+    const work=()=>{for(const candidate of candidateLetters(letter))templateVariants(candidate);};
+    if(typeof requestIdleCallback==='function')requestIdleCallback(work,{timeout:350});else setTimeout(work,0);
   }
 
   function morphToTypedLetter(letter){
@@ -346,16 +330,30 @@
       if(result.reason==='empty'||result.reason==='error'){
         if(message){message.textContent='No he podido leer el trazo. Prueba otra vez.';message.className='handwriting-message bad';}
         if(confidence)confidence.textContent='Haz la letra un poco más grande y clara.';
-        state.locked=false;toggleCheck(true);return;
+      }else{
+        if(message){message.textContent='Prueba otra vez.';message.className='handwriting-message bad';}
+        if(confidence)confidence.textContent='Puedes borrar el trazo o escuchar la letra de nuevo.';
       }
-      if(hw.attempts>=2){
-        if(message){message.textContent='Vamos con la siguiente.';message.className='handwriting-message bad';}
-        if(confidence)confidence.textContent='';setTimeout(handwritingQuestion,900);return;
-      }
-      if(message){message.textContent='Prueba una vez más.';message.className='handwriting-message bad';}
-      if(confidence)confidence.textContent='Puedes escribirla en mayúscula o minúscula.';
       state.locked=false;toggleCheck(true);
-    },24));
+    },0));
+  }
+
+  function diagnosticCanvas(letter,{rotation=0,scaleX=1,scaleY=1,mode='fill'}={}){
+    const canvas=document.createElement('canvas');canvas.width=180;canvas.height=180;const ctx=canvas.getContext('2d');if(!ctx)return canvas;
+    ctx.translate(90,90);ctx.rotate(rotation);ctx.scale(scaleX,scaleY);ctx.translate(-90,-90);
+    const weight=mode==='fill'?700:400;ctx.font=`${weight} 132px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#000';ctx.strokeStyle='#000';ctx.lineJoin='round';
+    if(mode==='fill')ctx.fillText(letter,90,94);else{ctx.lineWidth=10;ctx.strokeText(letter,90,94);}return canvas;
+  }
+
+  function runRecognitionDiagnostics(){
+    const wrongFor={I:'O',O:'I',A:'O',M:'O',S:'I',B:'I',R:'O'},letters=['I','O','A','M','S','B','R'];
+    const details=letters.map(letter=>{
+      const correct=recognizeExpected(diagnosticCanvas(letter),letter,1).accepted;
+      const approximate=recognizeExpected(diagnosticCanvas(letter,{rotation:.055,scaleX:.92,scaleY:1.04,mode:'stroke'}),letter,1).accepted;
+      const wrong=recognizeExpected(diagnosticCanvas(wrongFor[letter]),letter,1).accepted;
+      return{letter,correct,approximate,wrongRejected:!wrong};
+    });
+    return{ok:details.every(item=>item.correct&&item.approximate&&item.wrongRejected),details};
   }
 
   function finishHandwriting(){
@@ -368,8 +366,19 @@
 
   window.startHandwriting=startHandwriting;
   window.speakCurrentLetter=speakCurrentLetter;
+  window.LudeikoHandwritingDiagnostics=Object.freeze({run:runRecognitionDiagnostics});
 
-  // Precarga el sprite de letras mientras se navega por la app. En iOS el
-  // AudioContext se desbloquea después, dentro del toque que abre el nivel.
-  void loadLetterVoice();
+  document.addEventListener('pointerdown',unlockLetterAudio,{capture:true,passive:true,once:true});
+  document.addEventListener('keydown',unlockLetterAudio,{capture:true,once:true});
+  void prefetchLetterVoice();
+
+  if(new URLSearchParams(window.location.search).get('handwriting-smoke')==='1'){
+    requestAnimationFrame(()=>setTimeout(()=>{
+      const result=runRecognitionDiagnostics();
+      document.documentElement.dataset.handwritingSmoke=result.ok?'pass':'fail';
+      const marker=document.createElement('meta');marker.name='ludeiko-handwriting-smoke';
+      marker.content=result.details.map(item=>`${item.letter}:${item.correct&&item.approximate&&item.wrongRejected?'pass':'fail'}`).join(',');
+      document.head.appendChild(marker);
+    },0));
+  }
 })();
