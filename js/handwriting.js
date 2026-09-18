@@ -94,12 +94,16 @@
 
   function primeLetterAudio(){
     const context=ensureAudioContext();
-    if(context?.state==='suspended'){
-      try{
+    if(!context)return null;
+    try{
+      if(context.state==='suspended'){
         const resume=context.resume();
         if(resume&&typeof resume.catch==='function')resume.catch(()=>{});
-      }catch(e){}
-    }
+      }
+      const silent=context.createBuffer(1,1,context.sampleRate);
+      const source=context.createBufferSource();
+      source.buffer=silent;source.connect(context.destination);source.start(0);
+    }catch(e){}
     return context;
   }
 
@@ -364,4 +368,8 @@
 
   window.startHandwriting=startHandwriting;
   window.speakCurrentLetter=speakCurrentLetter;
+
+  // Precarga el sprite de letras mientras se navega por la app. En iOS el
+  // AudioContext se desbloquea después, dentro del toque que abre el nivel.
+  void loadLetterVoice();
 })();
